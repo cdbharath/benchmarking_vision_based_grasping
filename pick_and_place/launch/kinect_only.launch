@@ -18,9 +18,9 @@
     </include>
 
     <!-- <param name="table" command="$(find xacro)/xacro $(find pick_and_place)/urdf/table.sdf" /> -->
-    <param name="kinect" textfile="$(find pick_and_place)/urdf/kinect.urdf" />
+    <!-- <param name="kinect" textfile="$(find pick_and_place)/urdf/kinect.urdf" /> -->
     <!-- <node name="spawn_table" pkg="gazebo_ros" type="spawn_model" args="-param table -x 0.75 -sdf -model table" /> -->
-    <node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model" args="-param kinect -urdf -model kinect" />
+    <!-- <node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model" args="-param kinect -urdf -model kinect" /> -->
 
     <!-- spawn objects-->
 
@@ -31,8 +31,8 @@
     <!-- <node name="spawn_banana" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/banana/banana.urdf -x 0.5 -urdf -model banana" output="screen" /> -->
     <!-- <node name="spawn_apple" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/apple/apple.urdf -x 0.5 -urdf -model apple" output="screen"/>  -->
     <!-- <node name="spawn_airplane" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/airplane/airplane.urdf -x 0.5 -urdf -model airplane" output="screen"/>  -->
-    <!-- <node name="spawn_bowl" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/bowl/bowl.urdf -x 0.5 -urdf -model bowl" output="screen"/>  -->
-    <node name="spawn_dice" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/dice/dice.urdf -x 0.5 -urdf -model dice" output="screen"/> 
+    <node name="spawn_bowl" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/bowl/bowl.urdf -x 0.5 -urdf -model bowl" output="screen"/> 
+    <!-- <node name="spawn_dice" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/dice/dice.urdf -x 0.5 -urdf -model dice" output="screen"/>  -->
     <!-- <node name="spawn_hammer" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/hammer/hammer.urdf -x 0.5 -urdf -model hammer" output="screen"/>  -->
     <!-- <node name="spawn_marbles" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/marbles/marbles.urdf -x 0.5 -urdf -model marbles" output="screen"/>  -->
     <!-- <node name="spawn_mug" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/mug/mug.urdf -x 0.5 -urdf -model mug" output="screen"/>  -->

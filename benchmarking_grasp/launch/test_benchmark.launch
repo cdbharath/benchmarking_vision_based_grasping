@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find panda_simulation)/launch/panda_simulation_effort.launch"/>
+    <include file="$(find pick_and_place)/launch/kinect.launch"/>
+</launch>

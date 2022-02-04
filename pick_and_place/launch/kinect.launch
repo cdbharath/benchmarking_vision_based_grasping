@@ -29,7 +29,7 @@
 
     <!-- other degree poses -->
     <!-- <node name="spawn_pudding_box" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/pudding_box/pudding_box.urdf -x 0.5 -z 0.0 -Y -0.45 -urdf -model pudding_box" output="screen"/> -->
-    <node name="spawn_pudding_box" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/pudding_box/pudding_box.urdf -x 0.5 -z 0.0 -Y 1.12 -urdf -model pudding_box" output="screen"/>
+    <!-- <node name="spawn_pudding_box" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/pudding_box/pudding_box.urdf -x 0.5 -z 0.0 -Y 1.12 -urdf -model pudding_box" output="screen"/> -->
     <!-- <node name="spawn_pudding_box" pkg="gazebo_ros" type="spawn_model" args="-file $(find pick_and_place)/urdf/objects/pudding_box/pudding_box.urdf -x 0.5 -z 0.0 -Y 0.33 -urdf -model pudding_box" output="screen"/> -->
     
 </launch>
