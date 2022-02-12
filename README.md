@@ -1,1 +1,1 @@
-# benchmarking_vision_based_grasping
+# Benchmarking Vision based Grasp Detection algorithms
