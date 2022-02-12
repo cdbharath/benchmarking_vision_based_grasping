@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pick_and_place)
+project(benchmarking_msgs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,11 +8,11 @@ project(pick_and_place)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  message_generation
-  geometry_msgs
+roscpp
+rospy
+std_msgs
+message_generation
+geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -22,7 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-catkin_python_setup()
+# catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -49,18 +49,17 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-  # FILES
-  # Grasp.msg
-  # Message2.msg
-# )
+add_message_files(
+  FILES
+  Grasp.msg
+)
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   ProcessAndExecute.srv
-#   GraspPrediction.srv
-# )
+add_service_files(
+  FILES
+  ProcessAndExecute.srv
+  GraspPrediction.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -71,7 +70,9 @@ catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-  DEPENDENCIES std_msgs geometry_msgs
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs  # Or other packages containing msgs
 )
 
 ################################################
@@ -105,8 +106,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES pick_and_place
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  LIBRARIES benchmarking_msgs
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 CATKIN_DEPENDS message_runtime rospy
 )
@@ -119,12 +120,12 @@ CATKIN_DEPENDS message_runtime rospy
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-  ${catkin_INCLUDE_DIRS}
+${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pick_and_place.cpp
+#   src/${PROJECT_NAME}/benchmarking_msgs.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +136,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/pick_and_place_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/benchmarking_msgs_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -199,7 +200,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pick_and_place.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_benchmarking_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
