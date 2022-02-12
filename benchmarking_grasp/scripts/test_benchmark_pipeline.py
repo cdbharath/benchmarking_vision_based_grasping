@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
-from distutils.spawn import spawn
 import os
-from torch import mode
 import yaml 
 from math import pi
 import numpy as np
@@ -54,7 +52,11 @@ class BenchmarkTest:
         self.pose_idx = 0
         self.object_idx = 0
         self.n_ = 0
-        
+        self.testing_in_process = False
+        self.attached = False
+        self.positive_grasps = []
+        self.negative_grasps = []
+
         rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
@@ -63,11 +65,12 @@ class BenchmarkTest:
         pose = self.poses[self.pose_idx]
         
         self.spawn_model(object, pose)
-        
+        self.testing_in_process = True
         self.process_rgbd_and_execute_pickup()
         self.test_benchmark()
         self.place()
-        
+        self.testing_in_process = False
+
         self.pose_idx = self.pose_idx + 1 
         if self.pose_idx >= len(self.poses):
             self.pose_idx = 0
@@ -76,6 +79,7 @@ class BenchmarkTest:
                 self.n_ = 0
                 self.object_idx = self.object_idx + 1
                 if self.object_idx >= len(self.models_paths):
+                    rospy.loginfo(len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
                     rospy.loginfo("Benchmarking test completed successfully")
                     rospy.signal_shutdown("Benchmarking test completed successfully")
 
@@ -83,8 +87,24 @@ class BenchmarkTest:
         self.delete_model(object)
         rospy.sleep(0.5)
     
-    def on_grasp_event(self):
-        pass
+    def on_grasp_event(self, data):
+        object = data.object
+        attached = data.attached
+        
+        rospy.logerr(self.positive_grasps)
+        rospy.logerr(self.negative_grasps)
+                
+        if attached and self.testing_in_process:
+            self.attached = True
+        
+        if not attached and self.testing_in_process:
+            self.negative_grasps.append(object)
+            self.attached = False
+        
+        if not attached and not self.testing_in_process and self.attached:
+            self.positive_grasps.append(object)
+            self.attached = False
+            
     
     def parse_yaml(self, yaml_package_path):
         
