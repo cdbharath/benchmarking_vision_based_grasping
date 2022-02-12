@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import rospy
 from pick_and_place_module.eef_control import MoveGroupControl
