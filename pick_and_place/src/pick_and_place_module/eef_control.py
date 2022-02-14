@@ -17,7 +17,7 @@ def dist(p, q):
 class MoveGroupControl:
     def __init__(self):
         moveit_commander.roscpp_initialize(sys.argv)
-        rospy.init_node("move_group_control", anonymous=True)
+        # rospy.init_node("move_group_control", anonymous=True)
 
         robot = moveit_commander.RobotCommander()
 

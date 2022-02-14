@@ -18,4 +18,5 @@ def debug():
     pick_and_place.execute_cartesian_place()
 
 if __name__ == "__main__":
+    rospy.init_node("test_pnp")
     debug()

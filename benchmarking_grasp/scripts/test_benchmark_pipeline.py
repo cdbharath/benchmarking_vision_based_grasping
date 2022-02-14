@@ -15,8 +15,8 @@ from geometry_msgs.msg import Pose
 
 from pick_and_place_module.pick_and_place import PickAndPlace
 from pick_and_place_module.eef_control import MoveGroupControl
-from pick_and_place.srv import GraspPrediction, GraspPredictionResponse
-from pick_and_place.srv import ProcessAndExecute
+from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
+from benchmarking_msgs.srv import ProcessAndExecute
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
 
 class BenchmarkTest:
