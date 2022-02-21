@@ -113,8 +113,8 @@ class BenchmarkTest:
                 if self.object_idx >= len(experiment[0]):
                     self.object_idx = 0
                     self.experiment_idx = self.experiment_idx + 1
+                    rospy.loginfo("Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
                     if self.experiment_idx >= len(self.experiments): 
-                        rospy.loginfo(len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
                         rospy.loginfo("Benchmarking test completed successfully")
                         rospy.signal_shutdown("Benchmarking test completed successfully")
 
