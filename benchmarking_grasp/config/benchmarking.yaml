@@ -1,18 +1,50 @@
-objects:
-  - pudding_box
-  - tennis_ball
-  - mug
-  - apple
-  - banana
-  - bowl
-corrected_init_pose:
-  - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
-  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-config:
-  r: 0.25
-  alpha: 0.78
-  n: 1
+only_first: True
+
+experiment_1:
+  objects:
+    - pudding_box
+    - apple
+  corrected_init_pose:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  config:
+    center: 0.4
+    r: 0.25
+    alpha: 0.78
+    n: 1
+
+experiment_2:
+  objects:
+    - pudding_box
+    - tennis_ball
+    - mug
+    - apple
+    - banana
+    - bowl
+  corrected_init_pose:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  config:
+    center: 0.4
+    r: 0.25
+    alpha: 0.78
+    n: 1
+
+experiment_3:
+  objects:
+    - apple
+    - banana
+    - bowl
+  corrected_init_pose:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  config:
+    center: 0.4
+    r: 0.25
+    alpha: 0.78
+    n: 1

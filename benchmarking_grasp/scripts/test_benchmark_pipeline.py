@@ -4,6 +4,9 @@ import os
 import yaml 
 from math import pi
 import numpy as np
+import enum
+import csv
+from datetime import date, datetime
 
 import rospy
 import rospkg
@@ -19,40 +22,64 @@ from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
 from benchmarking_msgs.srv import ProcessAndExecute
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
 
+class BenchmarkTestStates(enum.Enum):
+    FREE = 0
+    PICK_UP = 1
+    ROTATE = 2
+    SHAKE = 3
 class BenchmarkTest:
     def __init__(self):
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
-        self.center_coord = np.array([0.5, 0.00, 0.0, 0, 0, 0])
         
         self.rospack = rospkg.RosPack()
         self.urdf_package_path = os.path.join(self.rospack.get_path(self.urdf_package_name), "urdf/objects")
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/benchmarking.yaml")
-        
-        self.models_paths, self.r, self.alpha, self.n = self.parse_yaml(self.yaml_package_path)
 
-        # Generate object pose for spawning
-        self.poses = [self.center_coord, 
-                      self.center_coord + np.array([self.r, 0, 0, 0, 0, 0]),
-                      self.center_coord + np.array([0, self.r, 0, 0, 0, 0]),
-                      self.center_coord + np.array([0, -self.r, 0, 0, 0, 0]),
-                      self.center_coord + np.array([0, self.r, 0, 0, 0, self.alpha]),
-                      self.center_coord + np.array([0, -self.r, 0, 0, 0, -self.alpha])]
-        
-        # Mirroring
-        # self.poses.extend([self.center_coord, 
-        #               self.center_coord + [self.r, 0, pi, 0, 0, 0],
-        #               self.center_coord + [0, self.r, 0, pi, 0, 0],
-        #               self.center_coord + [0, -self.r, 0, pi, 0, 0],
-        #               self.center_coord + [0, self.r, 0, self.alpha + pi, 0, 0],
-        #               self.center_coord + [0, -self.r, 0, -self.alpha + pi, 0, 0]]
-        # )
+        with open(os.path.join(self.rospack.get_path(self.urdf_package_name), "logs", "log_" + str(datetime.now) + ".csv"), 'w') as file:
+            header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
+            writer = csv.writer(file)
+            writer.writerow(header)
+
+        parsed_experiments = self.parse_yaml(self.yaml_package_path)
+
+        self.experiments = []
+
+        for experiment_idx in range(len(parsed_experiments)):
+            model_paths = parsed_experiments[experiment_idx][0] 
+            center = parsed_experiments[experiment_idx][1]
+            r = parsed_experiments[experiment_idx][2]
+            alpha = parsed_experiments[experiment_idx][3]
+            n = parsed_experiments[experiment_idx][4]
+
+            center_coord = np.array([center, 0.00, 0.0, 0, 0, 0])
+
+            # Generate object pose for spawning
+            poses = [center_coord, 
+                     center_coord + np.array([r, 0, 0, 0, 0, 0]),
+                     center_coord + np.array([0, r, 0, 0, 0, 0]),
+                     center_coord + np.array([0, -r, 0, 0, 0, 0]),
+                     center_coord + np.array([0, r, 0, 0, 0, alpha]),
+                     center_coord + np.array([0, -r, 0, 0, 0, -alpha])]
+            
+            # Mirroring
+            # poses.extend([center_coord, 
+            #               center_coord + [r, 0, pi, 0, 0, 0],
+            #               center_coord + [0, r, 0, pi, 0, 0],
+            #               center_coord + [0, -r, 0, pi, 0, 0],
+            #               center_coord + [0, r, 0, alpha + pi, 0, 0],
+            #               center_coord + [0, -r, 0, -alpha + pi, 0, 0]]
+            # )
+
+            self.experiments.append([model_paths, poses, n])
     
         # Variables to track inside Timer
+        self.experiment_idx = 0
         self.pose_idx = 0
         self.object_idx = 0
         self.n_ = 0
         self.testing_in_process = False
+        self.benchmark_state = BenchmarkTestStates.FREE
         self.attached = False
         self.positive_grasps = []
         self.negative_grasps = []
@@ -61,16 +88,21 @@ class BenchmarkTest:
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
     def execute_benchmark_test(self, event):
-        object = self.models_paths[self.object_idx]
-        pose = self.poses[self.pose_idx]
+        experiment = self.experiments[self.experiment_idx]
+        object = experiment[0][self.object_idx]
+        pose = experiment[1][self.pose_idx]
         
         self.spawn_model(object, pose)
+
+        # Execute the benchmark test
         self.testing_in_process = True
         self.process_rgbd_and_execute_pickup()
         self.test_benchmark()
+        score = self.benchmark_state
         self.place()
         self.testing_in_process = False
 
+        # Track the status of the test
         self.pose_idx = self.pose_idx + 1 
         if self.pose_idx >= len(self.poses):
             self.pose_idx = 0
@@ -78,22 +110,27 @@ class BenchmarkTest:
             if self.n_ >= self.n:
                 self.n_ = 0
                 self.object_idx = self.object_idx + 1
-                if self.object_idx >= len(self.models_paths):
-                    rospy.loginfo(len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
-                    rospy.loginfo("Benchmarking test completed successfully")
-                    rospy.signal_shutdown("Benchmarking test completed successfully")
+                if self.object_idx >= len(experiment[0]):
+                    self.object_idx = 0
+                    self.experiment_idx = self.experiment_idx + 1
+                    if self.experiment_idx >= len(self.experiments): 
+                        rospy.loginfo(len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
+                        rospy.loginfo("Benchmarking test completed successfully")
+                        rospy.signal_shutdown("Benchmarking test completed successfully")
 
         rospy.sleep(0.5)
+        with open(os.path.join(self.rospack.get_path(self.urdf_package_name), "logs", "log_" + str(datetime.now) + ".csv"), 'w') as file:
+            update = [str(self.experiment_idx), str(self.n_), str(self.object_idx), str(self.pose_idx), score]
+            writer = csv.writer(file)
+            writer.writerow(update)
+
         self.delete_model(object)
         rospy.sleep(0.5)
     
     def on_grasp_event(self, data):
         object = data.object
         attached = data.attached
-        
-        rospy.logerr(self.positive_grasps)
-        rospy.logerr(self.negative_grasps)
-                
+                        
         if attached and self.testing_in_process:
             self.attached = True
         
@@ -110,13 +147,23 @@ class BenchmarkTest:
         
         model_file = open(yaml_package_path, 'r')
         config = yaml.load(model_file, Loader=yaml.FullLoader)
-        models = config["objects"]
-        model_paths = [os.path.join(self.urdf_package_path, model, model + ".urdf") for model in models]
-        
-        r = config["config"]["r"]
-        alpha = config["config"]["alpha"]
-        n = config["config"]["n"]
-        return model_paths, r, alpha, n
+
+        if config['only_first']:
+            experiments_n = 1
+        else:
+            experiments_n = len(config) - 1
+
+        experiments = []
+        for experiment_idx in range(1, experiments_n + 1):
+            models = config["experiment_" + str(experiment_idx)]["objects"]
+            model_paths = [os.path.join(self.urdf_package_path, model, model + ".urdf") for model in models]
+
+            center = config["experiment_" + str(experiment_idx)]["config"]["center"]            
+            r = config["experiment_" + str(experiment_idx)]["config"]["r"]
+            alpha = config["experiment_" + str(experiment_idx)]["config"]["alpha"]
+            n = config["experiment_" + str(experiment_idx)]["config"]["n"]
+            experiments.append[model_paths, center, r, alpha, n]
+        return experiments
     
     def spawn_model(self, model_path, pose):
         spawn_pose = Pose()
@@ -167,12 +214,15 @@ class BenchmarkTest:
         self.pick_and_place.setPickPose(x, y, z, rx, ry, rz)
         self.pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
         self.pick_and_place.setGripperPose(0.01, 0.01)
-        
+
         self.pick_and_place.execute_cartesian_pick_up()
+        if self.attached:
+            self.benchmark_state = BenchmarkTestStates.PICK_UP
 
         return True
     
     def place(self):
+        self.benchmark_state = BenchmarkTestStates.FREE
         self.pick_and_place.execute_cartesian_place()
 
 
@@ -203,13 +253,19 @@ class BenchmarkTest:
         moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw - pi/4]])
         moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
         roll = roll + pi/4
-        
+
+        if self.attached:
+            self.benchmark_state = BenchmarkTestStates.ROTATE
+
         # Shaking
         moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
         moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
         moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
         moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
         moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+
+        if self.attached:
+            self.benchmark_state = BenchmarkTestStates.SHAKE
 
 if __name__ == "__main__":
     rospy.init_node("benchmark_test", log_level=rospy.INFO)
