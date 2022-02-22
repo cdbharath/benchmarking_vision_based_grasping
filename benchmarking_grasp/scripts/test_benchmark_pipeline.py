@@ -36,7 +36,9 @@ class BenchmarkTest:
         self.urdf_package_path = os.path.join(self.rospack.get_path(self.urdf_package_name), "urdf/objects")
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/benchmarking.yaml")
 
-        with open(os.path.join(self.rospack.get_path(self.urdf_package_name), "logs", "log_" + str(datetime.now) + ".csv"), 'w') as file:
+        self.start_time = str(datetime.now())
+
+        with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" +  self.start_time + ".csv"), 'w') as file:
             header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
             writer = csv.writer(file)
             writer.writerow(header)
@@ -102,12 +104,17 @@ class BenchmarkTest:
         self.place()
         self.testing_in_process = False
 
+        with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" + self.start_time + ".csv"), 'a') as file:
+            update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
+            writer = csv.writer(file)
+            writer.writerow(update)
+
         # Track the status of the test
         self.pose_idx = self.pose_idx + 1 
-        if self.pose_idx >= len(self.poses):
+        if self.pose_idx >= len(experiment[1]):
             self.pose_idx = 0
             self.n_ = self.n_ + 1
-            if self.n_ >= self.n:
+            if self.n_ >= experiment[2]:
                 self.n_ = 0
                 self.object_idx = self.object_idx + 1
                 if self.object_idx >= len(experiment[0]):
@@ -119,11 +126,6 @@ class BenchmarkTest:
                         rospy.signal_shutdown("Benchmarking test completed successfully")
 
         rospy.sleep(0.5)
-        with open(os.path.join(self.rospack.get_path(self.urdf_package_name), "logs", "log_" + str(datetime.now) + ".csv"), 'w') as file:
-            update = [str(self.experiment_idx), str(self.n_), str(self.object_idx), str(self.pose_idx), score]
-            writer = csv.writer(file)
-            writer.writerow(update)
-
         self.delete_model(object)
         rospy.sleep(0.5)
     
@@ -162,7 +164,7 @@ class BenchmarkTest:
             r = config["experiment_" + str(experiment_idx)]["config"]["r"]
             alpha = config["experiment_" + str(experiment_idx)]["config"]["alpha"]
             n = config["experiment_" + str(experiment_idx)]["config"]["n"]
-            experiments.append[model_paths, center, r, alpha, n]
+            experiments.append([model_paths, center, r, alpha, n])
         return experiments
     
     def spawn_model(self, model_path, pose):
