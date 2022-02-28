@@ -27,8 +27,12 @@ class BenchmarkTestStates(enum.Enum):
     PICK_UP = 1
     ROTATE = 2
     SHAKE = 3
+
 class BenchmarkTest:
     def __init__(self):
+        self.pick_and_place = PickAndPlace(0.08, 0.5)
+        self.moveit_control = MoveGroupControl()
+
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
         
@@ -211,11 +215,11 @@ class BenchmarkTest:
         z = response.best_grasp.pose.position.z 
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
 
-        self.pick_and_place = PickAndPlace(0.07, 0.5)
+        # self.pick_and_place = PickAndPlace(0.07, 0.5)
 
         self.pick_and_place.setPickPose(x, y, z, rx, ry, rz)
         self.pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
-        self.pick_and_place.setGripperPose(0.01, 0.01)
+        self.pick_and_place.setGripperPose(0.005, 0.005)
 
         self.pick_and_place.execute_cartesian_pick_up()
         if self.attached:
@@ -229,42 +233,42 @@ class BenchmarkTest:
 
 
     def test_benchmark(self):
-        moveit_control = MoveGroupControl()
+        # self.moveit_control = MoveGroupControl()
 
         # Rotate the object
-        pose = moveit_control.get_current_pose()
+        pose = self.moveit_control.get_current_pose()
         (x, y, z) = (pose.position.x, pose.position.y, pose.position.z) 
         (roll, pitch, yaw) = tf.transformations.euler_from_quaternion((pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z))
         
         # Yawing    
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll + pi/4, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll - pi/4, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll + pi/4, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll - pi/4, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
 
         # Pitching
-        roll = roll - pi/4
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch + pi/4, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch - pi/4, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        # roll = roll - pi/4
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch + pi/4, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch - pi/4, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
 
         # Rolling
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw + pi/4]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw - pi/4]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw + pi/4]])
+        self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw - pi/4]])
+        self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
         roll = roll + pi/4
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.ROTATE
 
         # Shaking
-        moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
-        moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
+        self.moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
+        self.moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z + 0.1, roll, pitch, yaw]])
+        # self.moveit_control.follow_cartesian_path([[x, y, z - 0.1, roll, pitch, yaw]])
+        self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.SHAKE
