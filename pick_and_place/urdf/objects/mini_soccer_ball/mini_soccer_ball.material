@@ -1,0 +1,14 @@
+material mini_soccer_ball
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        // Relative to the location of the material script
+        texture mini_soccer_ball.png
+      }
+    }
+  }
+}

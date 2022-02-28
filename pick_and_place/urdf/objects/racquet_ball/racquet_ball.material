@@ -1,0 +1,14 @@
+material racquet_ball
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        // Relative to the location of the material script
+        texture racquet_ball.png
+      }
+    }
+  }
+}
