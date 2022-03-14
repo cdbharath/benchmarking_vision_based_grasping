@@ -13,6 +13,8 @@ class PickAndPlace:
         self.gripper_pose = None
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
+        self.gripper.grasp(0.05, 0.05)
+        rospy.sleep(2)        
     
     def setPickPose(self, x, y, z, roll, pitch, yaw):
         self.pick_pose = [x, y, z, roll + pi/4, pitch, yaw]

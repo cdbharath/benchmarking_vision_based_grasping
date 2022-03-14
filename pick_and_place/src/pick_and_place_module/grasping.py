@@ -5,7 +5,7 @@ class Gripper:
     def __init__(self):
         self.finger1_pub = rospy.Publisher('/panda_finger1_controller/command', Float64, queue_size=10)
         self.finger2_pub = rospy.Publisher('/panda_finger2_controller/command', Float64, queue_size=10)
-        rospy.sleep(1)
+        rospy.sleep(2)
         
     def grasp(self, finger1_y, finger2_y):
         finger1_data = Float64()

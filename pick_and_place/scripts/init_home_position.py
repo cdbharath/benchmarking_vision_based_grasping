@@ -27,5 +27,5 @@ if __name__ == "__main__":
 
     print(moveit_control.move_group.get_goal_joint_tolerance())
     moveit_control.move_group.set_goal_joint_tolerance(0.1)
-    # moveit_control.go_to_joint_state(j1=-0.01, j2=-0.01, j3=-0.01, j4=-0.35, j5=-0.01, j6=0.01, j7=0.01)    
-    moveit_control.go_to_joint_state(j4=-0.35)    
+    moveit_control.go_to_joint_state(j1=0.329, j2=-0.959, j3=0.906, j4=-2.33, j5=0.701, j6=1.602, j7=1.72)    
+    # moveit_control.go_to_joint_state(j4=-0.35)    

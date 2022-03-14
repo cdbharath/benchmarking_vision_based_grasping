@@ -18,18 +18,18 @@
 
   <inertial>
     <origin xyz="0 0 0.04" rpy="0 0 0"/>
-    <mass value="0.00001"/>
+    <mass value="0.001"/>
     <inertia
-      ixx="0.00001" ixy="0.0" ixz="0.0"
-      iyy="0.00001" iyz="0.0"
-      izz="0.00001"/>
+      ixx="0.001" ixy="0.0" ixz="0.0"
+      iyy="0.001" iyz="0.0"
+      izz="0.001"/>
   </inertial>
 </link>
 
 <gazebo reference="base_link">
   <material>Gazebo/Red</material>
+  <mu1>10000</mu1>
+  <mu2>10000</mu2>
 </gazebo>
-
-
 
 </robot>
