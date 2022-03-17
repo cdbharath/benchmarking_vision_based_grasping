@@ -13,8 +13,6 @@ class PickAndPlace:
         self.gripper_pose = None
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
-        self.gripper.grasp(0.05, 0.05)
-        rospy.sleep(2)        
     
     def setPickPose(self, x, y, z, roll, pitch, yaw):
         self.pick_pose = [x, y, z, roll + pi/4, pitch, yaw]
@@ -66,7 +64,7 @@ class PickAndPlace:
             self.moveit_control.follow_cartesian_path([waypoint])
 
         self.gripper.grasp(self.gripper_pose[0], self.gripper_pose[1])
-        rospy.sleep(2)
+        rospy.sleep(4)
     
         waypoints = self.generate_waypoints(self.drop_pose, 1)
         rospy.loginfo("Generated waypoints for drop: %s", waypoints)
