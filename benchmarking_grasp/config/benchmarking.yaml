@@ -2,9 +2,17 @@ only_first: True
 
 experiment_1:
   objects:
-    - bleach_cleanser
-    - flat_screw_driver
+    - 057_racquetball
+    - 065-j_cups
+    - 021_bleach_cleanser
+    - 044_flat_screwdriver
+    - 050_medium_clamp
+    - 072-a_toy_airplane
   corrected_init_pose:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   config:
@@ -15,12 +23,12 @@ experiment_1:
 
 experiment_2:
   objects:
-    - racquet_ball
-    - j_cups
-    - bleach_cleanser
-    - flat_screw_driver
-    - medium_clamp
-    - a_toy_airplane
+    - 057_racquetball
+    - 065-j_cups
+    - 021_bleach_cleanser
+    - 044_flat_screwdriver
+    - 050_medium_clamp
+    - 072-a_toy_airplane
   corrected_init_pose:
     - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
     - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -36,11 +44,11 @@ experiment_2:
 
 experiment_3:
   objects:
-    - apple
-    - banana
-    - bowl
+    - 057_racquetball
+    - 065-j_cups
+    - 021_bleach_cleanser
   corrected_init_pose:
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, -0.45]
     - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   config:

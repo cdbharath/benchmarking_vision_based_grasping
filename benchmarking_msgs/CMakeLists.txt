@@ -52,6 +52,7 @@ geometry_msgs
 add_message_files(
   FILES
   Grasp.msg
+  Grasp2D.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -59,6 +60,7 @@ add_service_files(
   FILES
   ProcessAndExecute.srv
   GraspPrediction.srv
+  Grasp2DPrediction.srv
 )
 
 ## Generate actions in the 'action' folder
