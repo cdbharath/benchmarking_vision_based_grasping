@@ -13,6 +13,7 @@ rospy
 std_msgs
 message_generation
 geometry_msgs
+sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -75,6 +76,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs  # Or other packages containing msgs
+  sensor_msgs
 )
 
 ################################################

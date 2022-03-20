@@ -203,11 +203,11 @@ class BenchmarkTest:
 
     def process_rgbd_and_execute_pickup(self):
 
-        rospy.loginfo("waiting for service: grasp_detection_service/predict")
-        rospy.wait_for_service("grasp_detection_service/predict")
+        rospy.loginfo("waiting for service: grasp_transform/predict")
+        rospy.wait_for_service("grasp_transform/predict")
         rospy.loginfo("Service call successful")
 
-        srv_handle = rospy.ServiceProxy("grasp_detection_service/predict", GraspPrediction)
+        srv_handle = rospy.ServiceProxy("grasp_transform/predict", GraspPrediction)
         response = srv_handle()
 
         # rospy.loginfo("response: " + str(response))
