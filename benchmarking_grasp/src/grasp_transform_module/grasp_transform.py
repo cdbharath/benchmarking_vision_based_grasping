@@ -136,7 +136,7 @@ class GraspTransform:
         g.quality = quality
 
         # self.draw_angled_rect(rgb, center[0], center[1], angle, width, int(width*0.4))
-        self.draw_angled_rect(rgb, center[1], center[0], angle, width, int(width*0.4))
+        self.draw_angled_rect(depth, center[1], center[0], angle, width, int(width*0.4))
 
         return ret
 
@@ -158,7 +158,7 @@ class GraspTransform:
         cv2.line(display_image, pt1, pt2, (0, 0, 0), 5)
         cv2.line(display_image, pt2, pt3, (255, 0, 0), 5)
         cv2.line(display_image, pt3, pt0, (0, 0, 0), 5)
-        cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 2, (255, 255, 0), -1)
+        cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 3, (255, 255, 255), -1)
 
         self.img_pub.publish(bridge.cv2_to_imgmsg(display_image, encoding="rgb8"))
 

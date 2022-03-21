@@ -18,6 +18,7 @@
                 <mu1>10000.0</mu1>
                 <mu2>10000.0</mu2>
                 <minDepth>0.001</minDepth>
+                <maxVel>1</maxVel>
             </gazebo>
         </xacro:macro>
         <xacro:macro name="finger_gazebo" params="link">
@@ -29,6 +30,7 @@
                 <mu1>10000.0</mu1>
                 <mu2>10000.0</mu2>
                 <minDepth>0.001</minDepth>
+                <maxVel>1</maxVel>
             </gazebo>
         </xacro:macro>
         <xacro:arm_gazebo link="${arm_id}_link0"/>
