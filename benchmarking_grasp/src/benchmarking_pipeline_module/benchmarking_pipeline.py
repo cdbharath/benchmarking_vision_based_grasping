@@ -92,6 +92,7 @@ class BenchmarkTest:
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
     def execute_benchmark_test(self, event):
+        skip = False
         experiment = self.experiments[self.experiment_idx]
         object = experiment[0][self.object_idx]
         pose = experiment[1][self.pose_idx]
@@ -100,32 +101,39 @@ class BenchmarkTest:
 
         # Execute the benchmark test
         self.testing_in_process = True
-        self.process_rgbd_and_execute_pickup()
-        # self.test_benchmark()
-        score = self.benchmark_state
-        self.place()
+        
+        try:
+            self.process_rgbd_and_execute_pickup()
+            # self.test_benchmark()
+            score = self.benchmark_state
+            self.place()
+        except Exception as e:
+            rospy.logerr("skipping this turn %s", e)
+            skip = True
+
         self.testing_in_process = False
 
-        with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" + self.start_time + ".csv"), 'a') as file:
-            update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
-            writer = csv.writer(file)
-            writer.writerow(update)
+        if not skip:
+            with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" + self.start_time + ".csv"), 'a') as file:
+                update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
+                writer = csv.writer(file)
+                writer.writerow(update)
 
-        # Track the status of the test
-        self.pose_idx = self.pose_idx + 1 
-        if self.pose_idx >= len(experiment[1]):
-            self.pose_idx = 0
-            self.n_ = self.n_ + 1
-            if self.n_ >= experiment[2]:
-                self.n_ = 0
-                self.object_idx = self.object_idx + 1
-                if self.object_idx >= len(experiment[0]):
-                    self.object_idx = 0
-                    self.experiment_idx = self.experiment_idx + 1
-                    rospy.loginfo("Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
-                    if self.experiment_idx >= len(self.experiments): 
-                        rospy.loginfo("Benchmarking test completed successfully")
-                        rospy.signal_shutdown("Benchmarking test completed successfully")
+            # Track the status of the test
+            self.pose_idx = self.pose_idx + 1 
+            if self.pose_idx >= len(experiment[1]):
+                self.pose_idx = 0
+                self.n_ = self.n_ + 1
+                if self.n_ >= experiment[2]:
+                    self.n_ = 0
+                    self.object_idx = self.object_idx + 1
+                    if self.object_idx >= len(experiment[0]):
+                        self.object_idx = 0
+                        self.experiment_idx = self.experiment_idx + 1
+                        rospy.loginfo("Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
+                        if self.experiment_idx >= len(self.experiments): 
+                            rospy.loginfo("Benchmarking test completed successfully")
+                            rospy.signal_shutdown("Benchmarking test completed successfully")
 
         rospy.sleep(0.5)
         self.delete_model(object)
