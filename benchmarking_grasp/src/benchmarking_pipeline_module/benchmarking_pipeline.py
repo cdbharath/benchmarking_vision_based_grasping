@@ -13,9 +13,11 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from std_msgs.msg import Float64
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
+from sensor_msgs.msg import JointState
 
 from pick_and_place_module.pick_and_place import PickAndPlace
 from pick_and_place_module.eef_control import MoveGroupControl
+from pick_and_place_module.grasping import Gripper
 from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
 from benchmarking_msgs.srv import ProcessAndExecute
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
@@ -28,8 +30,9 @@ class BenchmarkTestStates(enum.Enum):
 
 class BenchmarkTest:
     def __init__(self):
-        self.pick_and_place = PickAndPlace(0.08, 0.5)
+        self.pick_and_place = PickAndPlace(0.07, 0.5)
         self.moveit_control = MoveGroupControl()
+        self.gripper = Gripper()
 
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
@@ -87,8 +90,11 @@ class BenchmarkTest:
         self.attached = False
         self.positive_grasps = []
         self.negative_grasps = []
+        self.finger1_state = 0.05
+        self.finger2_state = 0.05
 
         rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
+        rospy.Subscriber("/joint_states", JointState, self.joint_cb)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
     def execute_benchmark_test(self, event):
@@ -135,13 +141,20 @@ class BenchmarkTest:
                             rospy.loginfo("Benchmarking test completed successfully")
                             rospy.signal_shutdown("Benchmarking test completed successfully")
 
-        rospy.sleep(0.5)
-        self.delete_model(object)
-        rospy.sleep(0.5)
-    
+        
+        try:
+            rospy.sleep(0.5)
+            self.delete_model(object)
+            rospy.sleep(0.5)
+        except Exception as e:
+            rospy.logerr("Object deleted while still attached to hand %s", e)
+
     def on_grasp_event(self, data):
         object = data.object
         attached = data.attached
+
+        if attached:
+            self.gripper.grasp(self.finger1_state, self.finger2_state)
                         
         if attached and self.testing_in_process:
             self.attached = True
@@ -154,6 +167,10 @@ class BenchmarkTest:
             self.positive_grasps.append(object)
             self.attached = False
             
+    def joint_cb(self, data):
+        position = data.position
+        self.finger1_state = position[0]
+        self.finger2_state = position[1]
     
     def parse_yaml(self, yaml_package_path):
         
