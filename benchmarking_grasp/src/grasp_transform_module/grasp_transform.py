@@ -3,6 +3,7 @@ import math
 import numpy as np
 import cv2
 import matplotlib
+from matplotlib.path import Path
 
 import rospy
 from tf import transformations as tft
@@ -118,7 +119,10 @@ class GraspTransform:
         x = (center[1] - self.cam_K[0, 2])/self.cam_K[0, 0]
         y = (center[0] - self.cam_K[1, 2])/self.cam_K[1, 1]
 
-        z = depth[int(center[0])][int(center[1])]
+        # z = depth[int(center[0])][int(center[1])]
+        # check for nearby depths and assign the max of the depths
+        z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))
+        # print(z, depth[int(center[0])][int(center[1])])
 
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
                 
@@ -131,6 +135,7 @@ class GraspTransform:
         g.pose.position.x = pos[0][0]
         g.pose.position.y = pos[0][1]
         g.pose.position.z = pos[0][2]
+        
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, angle))
         g.width = width
         g.quality = quality
@@ -158,10 +163,47 @@ class GraspTransform:
         cv2.line(display_image, pt1, pt2, (0, 0, 0), 5)
         cv2.line(display_image, pt2, pt3, (255, 0, 0), 5)
         cv2.line(display_image, pt3, pt0, (0, 0, 0), 5)
-        cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 3, (255, 255, 255), -1)
+        cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 3, (0, 0, 0), -1)
 
         self.img_pub.publish(bridge.cv2_to_imgmsg(display_image, encoding="rgb8"))
 
+    def find_depth(self, depth_image, x, y, angle, width=180, height = 100):
+        max_depth = float("inf")
+
+        _angle = -angle
+        b = math.cos(_angle) * 0.5
+        a = math.sin(_angle) * 0.5
+
+        pt0 = (int(x - a * height - b * width), int(y + b * height - a * width))
+        pt1 = (int(x + a * height - b * width), int(y - b * height - a * width))
+        pt2 = (int(2 * x - pt0[0]), int(2 * y - pt0[1]))
+        pt3 = (int(2 * x - pt1[0]), int(2 * y - pt1[1]))
+
+        p1 = np.array((pt0[0] + pt1[0], pt0[1] + pt1[1]))/2
+        p2 = np.array((pt2[0] + pt3[0], pt2[1] + pt3[1]))/2
+
+        p = p1
+        d = p2-p1
+        N = np.max(np.abs(d))
+        s = d/N
+        
+        for ii in range(0,int(N)):
+            p = p+s
+            max_depth = min(max_depth, depth_image[int(p[0])][int(p[1])])
+        
+        p1 = np.array((pt1[0] + pt2[0], pt1[1] + pt2[1]))/2
+        p2 = np.array((pt0[0] + pt3[0], pt0[1] + pt3[1]))/2
+        
+        p = p1
+        d = p2-p1
+        N = np.max(np.abs(d))
+        s = d/N
+        
+        for ii in range(0,int(N)):
+            p = p+s
+            max_depth = min(max_depth, depth_image[int(p[0])][int(p[1])])
+        
+        return max_depth
 
     def list_to_quaternion(self, l):
         q = gmsg.Quaternion()
