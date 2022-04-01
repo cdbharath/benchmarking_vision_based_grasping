@@ -29,11 +29,18 @@ class BenchmarkTestStates(enum.Enum):
     SHAKE = 3
 
 class BenchmarkTest:
-    def __init__(self, use_cartesian=True):
+    def __init__(self, use_cartesian=True, over_head=True):
         self.pick_and_place = PickAndPlace(0.075, 0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
+        self.over_head = over_head
+
+        if not self.over_head:
+            if self.use_cartesian:
+                self.pick_and_place.reach_cartesian_scanpose()
+            else:
+                self.pick_and_place.reach_scanpose()
 
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
@@ -119,6 +126,12 @@ class BenchmarkTest:
             skip = True
 
         self.testing_in_process = False
+
+        if not self.over_head:
+            if self.use_cartesian:
+                self.pick_and_place.reach_cartesian_scanpose()
+            else:
+                self.pick_and_place.reach_scanpose()
 
         if not skip:
             with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" + self.start_time + ".csv"), 'a') as file:

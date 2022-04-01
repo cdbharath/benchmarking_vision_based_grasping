@@ -1,6 +1,7 @@
 <launch>
-    <include file="$(find panda_simulation)/launch/panda_simulation_effort.launch"/>
-    <include file="$(find pick_and_place)/launch/kinect.launch"/>
+    <include file="$(find panda_simulation)/launch/panda_eye_in_hand.launch"/>
+    <!-- <include file="$(find panda_simulation)/launch/panda_simulation_effort.launch"/>
+    <include file="$(find pick_and_place)/launch/kinect.launch"/> -->
     <node pkg="gazebo_grasp_plugin_ros" type="grasp_event_republisher" name="gazebo_grasp_plugin_event_republisher" output="screen"/>
     <node pkg="pick_and_place" type="init_home_position.py" name="init_home_position" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_grasp_transform.py" name="grasp_transform" output="screen"/>

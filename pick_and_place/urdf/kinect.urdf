@@ -61,12 +61,12 @@
                 <!-- Keep this zero, update_rate in the parent <sensor> tag
                 will control the frame rate. -->
                 <updateRate>0.0</updateRate>
-                <cameraName>kinect</cameraName>
-                <imageTopicName>/kinect/rgb/image_raw</imageTopicName>
-                <cameraInfoTopicName>/kinect/rgb/camera_info</cameraInfoTopicName>
-                <depthImageTopicName>/kinect/depth/image_raw</depthImageTopicName>
-                <depthImageInfoTopicName>/kinect/depth/camera_info</depthImageInfoTopicName>
-                <pointCloudTopicName>/kinect/point_cloud</pointCloudTopicName>
+                <cameraName>panda_camera</cameraName>
+                <imageTopicName>/panda_camera/rgb/image_raw</imageTopicName>
+                <cameraInfoTopicName>/panda_camera/rgb/camera_info</cameraInfoTopicName>
+                <depthImageTopicName>/panda_camera/depth/image_raw</depthImageTopicName>
+                <depthImageInfoTopicName>/panda_camera/depth/camera_info</depthImageInfoTopicName>
+                <pointCloudTopicName>/panda_camera/point_cloud</pointCloudTopicName>
                 <frameName>camera_link</frameName>
                 <pointCloudCutoff>0.1</pointCloudCutoff>
                 <pointCloudCutoffMax>20.0</pointCloudCutoffMax>

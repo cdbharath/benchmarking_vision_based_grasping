@@ -12,6 +12,6 @@ if __name__ == "__main__":
     
     # rospy.Service('execute_benchmark', Empty, execute_benchmark)
 
-    benchmark_test = BenchmarkTest(use_cartesian=False)
+    benchmark_test = BenchmarkTest(use_cartesian=True, over_head=False)
     rospy.spin()
     

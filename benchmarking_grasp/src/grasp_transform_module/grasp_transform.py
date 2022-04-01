@@ -22,7 +22,7 @@ listener = None
 class GraspTransform:
     def __init__(self):
         # Get the camera parameters
-        cam_info_topic = '/kinect/rgb/camera_info'
+        cam_info_topic = '/panda_camera/rgb/camera_info'
         rospy.loginfo("waiting for camera topic: %s", cam_info_topic)
         camera_info_msg = rospy.wait_for_message(cam_info_topic, CameraInfo)
         
@@ -44,8 +44,8 @@ class GraspTransform:
         self.curr_rgb_image = None
         self.curr_img_time = 0
         self.last_image_pose = None
-        rospy.Subscriber('/kinect/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
-        rospy.Subscriber('/kinect/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
+        rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
+        rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
 
         self.waiting = False
         self.received = False
