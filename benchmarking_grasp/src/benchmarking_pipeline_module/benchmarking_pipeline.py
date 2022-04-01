@@ -29,10 +29,11 @@ class BenchmarkTestStates(enum.Enum):
     SHAKE = 3
 
 class BenchmarkTest:
-    def __init__(self):
-        self.pick_and_place = PickAndPlace(0.07, 0.5)
+    def __init__(self, use_cartesian=True):
+        self.pick_and_place = PickAndPlace(0.075, 0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
+        self.use_cartesian = use_cartesian
 
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
@@ -110,7 +111,7 @@ class BenchmarkTest:
         
         try:
             self.process_rgbd_and_execute_pickup()
-            # self.test_benchmark()
+            self.test_benchmark()
             score = self.benchmark_state
             self.place()
         except Exception as e:
@@ -245,9 +246,12 @@ class BenchmarkTest:
 
         self.pick_and_place.setPickPose(x, y, z, rx, ry, rz)
         self.pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
-        self.pick_and_place.setGripperPose(0.005, 0.005)
+        self.pick_and_place.setGripperPose(0.00, 0.00)
 
-        self.pick_and_place.execute_cartesian_pick_up()
+        if self.use_cartesian:
+            self.pick_and_place.execute_cartesian_pick_up()
+        else:
+            self.pick_and_place.execute_pick_up()
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.PICK_UP
 
@@ -255,8 +259,11 @@ class BenchmarkTest:
     
     def place(self):
         self.benchmark_state = BenchmarkTestStates.FREE
-        self.pick_and_place.execute_cartesian_place()
-
+        
+        if self.use_cartesian:
+            self.pick_and_place.execute_cartesian_place()
+        else:
+            self.pick_and_place.execute_place()
 
     def test_benchmark(self):
         # self.moveit_control = MoveGroupControl()
