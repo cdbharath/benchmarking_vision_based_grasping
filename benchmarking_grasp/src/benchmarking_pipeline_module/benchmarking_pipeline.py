@@ -30,13 +30,14 @@ class BenchmarkTestStates(enum.Enum):
 
 class BenchmarkTest:
     def __init__(self, use_cartesian=True, over_head=True):
-        self.pick_and_place = PickAndPlace(0.075, 0.5)
+        self.pick_and_place = PickAndPlace(0.07, 0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
         self.over_head = over_head
 
         if not self.over_head:
+            self.pick_and_place.setScanPose(0.4, 0.0, 0.7, 0.0, 3.14, 0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -159,7 +160,7 @@ class BenchmarkTest:
         try:
             rospy.sleep(0.5)
             self.delete_model(object)
-            rospy.sleep(0.5)
+            rospy.sleep(1)
         except Exception as e:
             rospy.logerr("Object deleted while still attached to hand %s", e)
 

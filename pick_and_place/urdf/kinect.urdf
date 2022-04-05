@@ -67,7 +67,7 @@
                 <depthImageTopicName>/panda_camera/depth/image_raw</depthImageTopicName>
                 <depthImageInfoTopicName>/panda_camera/depth/camera_info</depthImageInfoTopicName>
                 <pointCloudTopicName>/panda_camera/point_cloud</pointCloudTopicName>
-                <frameName>camera_link</frameName>
+                <frameName>panda_camera_optical_link</frameName>
                 <pointCloudCutoff>0.1</pointCloudCutoff>
                 <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
                 <distortionK1>0</distortionK1>

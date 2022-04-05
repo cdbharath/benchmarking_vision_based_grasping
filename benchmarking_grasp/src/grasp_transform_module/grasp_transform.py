@@ -37,7 +37,7 @@ class GraspTransform:
         rospy.Service('~predict', GraspPrediction, self.compute_service_handler)
         
         self.base_frame = 'panda_link0'
-        self.camera_frame = 'camera_link'
+        self.camera_frame = 'panda_camera_optical_link'
         self.cam_fov = 65.5
         
         self.curr_depth_img = None
