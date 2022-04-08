@@ -5,7 +5,15 @@
 
     <!-- joint/link data -->
     <!-- You can modify this to give the camera actual geometry -->
-    <link name="camera_link"></link>
+    <link name="camera_link">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+			  <box size="0.01 0.01 0.01"/>
+			</geometry>
+			<material name="red"/>
+		  </visual>  
+	</link>
     <link name="${sensor_name}_optical_link"></link>
     
     <joint name="robot_camera_joint" type="fixed">
@@ -14,7 +22,7 @@
       <child link="camera_link" />
     </joint>
     <joint name="camera_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="-1.57 0 -1.57" />
+      <origin xyz="0.0 0.0 0" rpy="-1.57 0 -1.57" />
       <parent link="camera_link" />
       <child link="${sensor_name}_optical_link" />
     </joint>
@@ -29,7 +37,7 @@
 	<update_rate>0</update_rate>
 	<camera>
 	  <!-- <horizontal_fov>1.047198</horizontal_fov> -->
-	  <horizontal_fov>0.7</horizontal_fov>
+	  <horizontal_fov>0.9</horizontal_fov>
 	  <image>
 	    <width>1024</width>
 	    <height>1024</height>

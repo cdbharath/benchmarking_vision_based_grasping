@@ -35,9 +35,10 @@ class BenchmarkTest:
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
         self.over_head = over_head
+        self.setpoint_yaw = 0.78
 
         if not self.over_head:
-            self.pick_and_place.setScanPose(0.4, 0.0, 0.7, 0.0, 3.14, 0.0)
+            self.pick_and_place.setScanPose(0.5, 0.0, 0.7, 0.7, 3.14, 0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -113,6 +114,7 @@ class BenchmarkTest:
         pose = experiment[1][self.pose_idx]
         
         self.spawn_model(object, pose)
+        rospy.sleep(1)
 
         # Execute the benchmark test
         self.testing_in_process = True
@@ -160,7 +162,7 @@ class BenchmarkTest:
         try:
             rospy.sleep(0.5)
             self.delete_model(object)
-            rospy.sleep(1)
+            rospy.sleep(0.5)
         except Exception as e:
             rospy.logerr("Object deleted while still attached to hand %s", e)
 
