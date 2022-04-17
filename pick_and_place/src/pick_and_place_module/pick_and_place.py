@@ -17,10 +17,10 @@ class PickAndPlace:
         self.gripper = Gripper()
     
     def setPickPose(self, x, y, z, roll, pitch, yaw):
-        self.pick_pose = [x, y, z, roll + pi/4, pitch, yaw]
+        self.pick_pose = [x, y, z, roll, pitch, yaw]
     
     def setDropPose(self, x, y, z, roll, pitch, yaw):
-        self.drop_pose = [x, y, z, roll + pi/4, pitch, yaw]
+        self.drop_pose = [x, y, z, roll, pitch, yaw]
     
     def setHomePose(self, x, y, z, roll, pitch, yaw):
         self.home_pose = [x, y, z, roll, pitch, yaw]
