@@ -5,7 +5,7 @@ from copy import deepcopy
 from math import pi
 
 class PickAndPlace:
-    def __init__(self, gripper_offset, intermediate_z_stop):
+    def __init__(self, gripper_offset=0.0, intermediate_z_stop=0.5):
         self.gripper_offset = gripper_offset
         self.intermediate_z_stop = intermediate_z_stop
         self.scan_pose = [0.0, 0.3, 0.6, 0.0, pi, 0.0] 
@@ -22,13 +22,13 @@ class PickAndPlace:
     def setDropPose(self, x, y, z, roll, pitch, yaw):
         self.drop_pose = [x, y, z, roll, pitch, yaw]
     
-    def setHomePose(self, x, y, z, roll, pitch, yaw):
+    def setHomePose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
         self.home_pose = [x, y, z, roll, pitch, yaw]
 
-    def setScanPose(self, x, y, z, roll, pitch, yaw):
+    def setScanPose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
         self.scan_pose = [x, y, z, roll, pitch, yaw]
 
-    def setGripperPose(self, width):
+    def setGripperPose(self, width=0.0):
         self.gripper_pose = width
     
     def generate_waypoints(self, destination_pose, action):
