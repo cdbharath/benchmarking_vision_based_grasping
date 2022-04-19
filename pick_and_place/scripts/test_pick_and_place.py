@@ -10,7 +10,7 @@ def debug():
     
     pick_and_place.setDropPose(0.0, 0.4, 0.4, 0, pi, 0)
     pick_and_place.setPickPose(0.50, 0.00, 0.12, 0*3.14/180, pi, 0)
-    pick_and_place.setGripperPose(0.01, 0.01)
+    pick_and_place.setGripperPose(0.1)
     
     # pick_and_place.execute_pick_and_place()
     # pick_and_place.execute_cartesian_pick_and_place()

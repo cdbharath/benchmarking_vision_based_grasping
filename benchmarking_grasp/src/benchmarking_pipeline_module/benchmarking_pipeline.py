@@ -262,7 +262,7 @@ class BenchmarkTest:
 
         self.pick_and_place.setPickPose(x, y, z, rx, ry, rz)
         self.pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
-        self.pick_and_place.setGripperPose(0.00, 0.00)
+        self.pick_and_place.setGripperPose(0.00)
 
         if self.use_cartesian:
             self.pick_and_place.execute_cartesian_pick_up()

@@ -37,6 +37,6 @@ if __name__ == "__main__":
     pick_and_place = PickAndPlace(0.05, 0.5)
     
     pick_and_place.setDropPose(0.0, 0.4, 0.4, 0, pi, 0)
-    pick_and_place.setGripperPose(0.05, 0.05)
+    pick_and_place.setGripperPose(0.1)
     
     pick_and_place.execute_cartesian_place()

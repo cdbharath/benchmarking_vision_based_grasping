@@ -29,7 +29,7 @@ def process_and_execute(req):
 
     pick_and_place.setPickPose(x, y, z + 0.02, rx, ry, rz)
     pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
-    pick_and_place.setGripperPose(0.01, 0.01)
+    pick_and_place.setGripperPose(0.1)
     
     # pick_and_place.execute_pick_and_place()
     pick_and_place.execute_cartesian_pick_up()

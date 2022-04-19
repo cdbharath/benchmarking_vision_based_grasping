@@ -28,8 +28,8 @@ class PickAndPlace:
     def setScanPose(self, x, y, z, roll, pitch, yaw):
         self.scan_pose = [x, y, z, roll, pitch, yaw]
 
-    def setGripperPose(self, finger1, finger2):
-        self.gripper_pose = [finger1, finger2]
+    def setGripperPose(self, width):
+        self.gripper_pose = width
     
     def generate_waypoints(self, destination_pose, action):
         '''
@@ -99,14 +99,14 @@ class PickAndPlace:
     def execute_cartesian_pick_up(self):
         move_group = self.moveit_control
         
-        self.gripper.grasp(0.05, 0.05)
+        self.gripper.grasp(0.1)
         rospy.sleep(2)        
         
         waypoints = self.generate_waypoints(self.pick_pose, 1)
         for waypoint in waypoints:
             self.moveit_control.follow_cartesian_path([waypoint])
 
-        self.gripper.grasp(self.gripper_pose[0], self.gripper_pose[1])
+        self.gripper.grasp(self.gripper_pose)
         rospy.sleep(3)
         
         waypoints = self.generate_waypoints(self.pick_pose, 2)
@@ -118,14 +118,14 @@ class PickAndPlace:
     def execute_pick_up(self):
         move_group = self.moveit_control
 
-        self.gripper.grasp(0.05, 0.05)
+        self.gripper.grasp(0.1)
         rospy.sleep(2)        
 
         waypoints = self.generate_waypoints(self.pick_pose, 1)        
         for waypoint in waypoints:
             move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
 
-        self.gripper.grasp(self.gripper_pose[0], self.gripper_pose[1])
+        self.gripper.grasp(self.gripper_pose)
         rospy.sleep(3)
             
         waypoints = self.generate_waypoints(self.pick_pose, 2)
@@ -141,7 +141,7 @@ class PickAndPlace:
         for waypoint in waypoints:
             move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
                         
-        self.gripper.grasp(0.05, 0.05)
+        self.gripper.grasp(0.1)
         rospy.sleep(3)        
 
     
@@ -152,7 +152,7 @@ class PickAndPlace:
         for waypoint in waypoints:
             move_group.follow_cartesian_path([waypoint])
 
-        self.gripper.grasp(0.05, 0.05)
+        self.gripper.grasp(0.1)
         rospy.sleep(3)        
 
     def reach_scanpose(self):
