@@ -15,18 +15,19 @@ class PickAndPlace:
         self.gripper_pose = None
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
+        self.angle_offset = pi/4
     
     def setPickPose(self, x, y, z, roll, pitch, yaw):
-        self.pick_pose = [x, y, z, roll, pitch, yaw]
+        self.pick_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
     
     def setDropPose(self, x, y, z, roll, pitch, yaw):
-        self.drop_pose = [x, y, z, roll, pitch, yaw]
+        self.drop_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
     
     def setHomePose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
-        self.home_pose = [x, y, z, roll, pitch, yaw]
+        self.home_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
 
     def setScanPose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
-        self.scan_pose = [x, y, z, roll, pitch, yaw]
+        self.scan_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
 
     def setGripperPose(self, width=0.0):
         self.gripper_pose = width
