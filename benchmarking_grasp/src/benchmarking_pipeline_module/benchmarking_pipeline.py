@@ -1,4 +1,5 @@
 import os
+from turtle import width
 import yaml 
 from math import pi
 import numpy as np
@@ -30,15 +31,14 @@ class BenchmarkTestStates(enum.Enum):
 
 class BenchmarkTest:
     def __init__(self, use_cartesian=True, over_head=True):
-        self.pick_and_place = PickAndPlace(0.07, 0.5)
+        self.pick_and_place = PickAndPlace(gripper_offset=0.07, intermediate_z_stop=0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
         self.over_head = over_head
-        self.setpoint_yaw = 0.78
 
         if not self.over_head:
-            self.pick_and_place.setScanPose(0.5, 0.0, 0.7, 0.7, 3.14, 0.0)
+            self.pick_and_place.setScanPose(x=0.5, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -252,17 +252,14 @@ class BenchmarkTest:
         srv_handle = rospy.ServiceProxy("grasp_transform/predict", GraspPrediction)
         response = srv_handle()
 
-        # rospy.loginfo("response: " + str(response))
         x = response.best_grasp.pose.position.x
         y = response.best_grasp.pose.position.y
         z = response.best_grasp.pose.position.z 
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
 
-        # self.pick_and_place = PickAndPlace(0.07, 0.5)
-
-        self.pick_and_place.setPickPose(x, y, z, rx, ry, rz)
-        self.pick_and_place.setDropPose(0.0, 0.4, 0.5, 0, pi, 0)
-        self.pick_and_place.setGripperPose(0.00)
+        self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
+        self.pick_and_place.setDropPose(x=0.0, y=0.4, z=0.5, roll=0, pitch=pi, yaw=0)
+        self.pick_and_place.setGripperPose(width=0.00)
 
         if self.use_cartesian:
             self.pick_and_place.execute_cartesian_pick_up()
@@ -296,7 +293,6 @@ class BenchmarkTest:
         # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
 
         # Pitching
-        # roll = roll - pi/4
         # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
         # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch + pi/4, yaw]])
         # self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch - pi/4, yaw]])
@@ -307,7 +303,6 @@ class BenchmarkTest:
         self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw + pi/4]])
         self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw - pi/4]])
         self.moveit_control.follow_cartesian_path([[x, y, z, roll, pitch, yaw]])
-        roll = roll + pi/4
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.ROTATE

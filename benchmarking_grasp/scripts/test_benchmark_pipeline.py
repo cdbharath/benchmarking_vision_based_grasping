@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from benchmarking_pipeline_module.benchmarking_pipeline import BenchmarkTest
@@ -9,9 +9,6 @@ def execute_benchmark(data):
 
 if __name__ == "__main__":
     rospy.init_node("benchmark_test", log_level=rospy.INFO)
-    
-    # rospy.Service('execute_benchmark', Empty, execute_benchmark)
-
     benchmark_test = BenchmarkTest(use_cartesian=True, over_head=False)
     rospy.spin()
     

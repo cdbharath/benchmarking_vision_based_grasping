@@ -69,14 +69,6 @@ class GraspTransform:
         self.rgb_received = True
 
     def compute_service_handler(self, req):
-        # if self.curr_depth_img is None:
-        #     rospy.logerr('No depth image received yet.')
-        #     rospy.sleep(0.5)
-
-        # if time.time() - self.curr_img_time > 0.5:
-        #     rospy.logerr('Delayed Image Reception')
-        #     return GraspPredictionResponse()
-
         self.waiting = True
         while not self.received or not self.rgb_received:
           rospy.sleep(0.01)
@@ -110,19 +102,15 @@ class GraspTransform:
         width = response.best_grasp.width
         quality = response.best_grasp.quality
         angle = response.best_grasp.angle
-
         rospy.loginfo("grasp found")
 
         # Convert from image frame to camera frame
-        # x = (center[0] - self.cam_K[0, 2])/self.cam_K[0, 0]
-        # y = (center[1] - self.cam_K[1, 2])/self.cam_K[1, 1]
         x = (center[1] - self.cam_K[0, 2])/self.cam_K[0, 0]
         y = (center[0] - self.cam_K[1, 2])/self.cam_K[1, 1]
 
-        # z = depth[int(center[0])][int(center[1])]
         # check for nearby depths and assign the max of the depths
+        # z = depth[int(center[0])][int(center[1])]
         z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))
-        # print(z, depth[int(center[0])][int(center[1])])
 
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
                 
