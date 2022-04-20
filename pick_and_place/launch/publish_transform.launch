@@ -1,0 +1,5 @@
+<launch>
+
+    <node pkg="tf" type="static_transform_publisher" name="hand_to_rgbd" args="0.03 0 0.07 0 0 0 panda_hand camera_link 10" />
+
+</launch>
