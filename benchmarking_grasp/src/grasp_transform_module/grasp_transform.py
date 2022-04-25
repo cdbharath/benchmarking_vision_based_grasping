@@ -20,7 +20,9 @@ tfBuffer = None
 listener = None
 
 class GraspTransform:
-    def __init__(self):
+    def __init__(self, sim_mode=True):
+        self.sim_mode = sim_mode
+
         # Get the camera parameters
         cam_info_topic = '/panda_camera/rgb/camera_info'
         rospy.loginfo("waiting for camera topic: %s", cam_info_topic)
@@ -129,18 +131,19 @@ class GraspTransform:
         g.quality = quality
 
         # self.draw_angled_rect(rgb, center[0], center[1], angle, width, int(width*0.4))
-        self.draw_angled_rect(depth, center[1], center[0], angle, width, int(width*0.4))
+        self.draw_angled_rect(rgb, center[1], center[0], angle, width, int(width*0.4))
 
         return ret
 
     def draw_angled_rect(self, image, x, y, angle, width = 180, height = 100):
-        print(x, y, angle, image.shape)
+        # print(x, y, angle, image.shape)
         _angle = -angle
         b = math.cos(_angle) * 0.5
         a = math.sin(_angle) * 0.5
 
-        gray_image = image.copy()
-        display_image = cv2.applyColorMap((gray_image * 255).astype(np.uint8), cv2.COLORMAP_BONE)
+        # gray_image = image.copy()
+        # display_image = cv2.applyColorMap((gray_image * 255).astype(np.uint8), cv2.COLORMAP_BONE)
+        display_image = image.copy()
 
         pt0 = (int(x - a * height - b * width), int(y + b * height - a * width))
         pt1 = (int(x + a * height - b * width), int(y - b * height - a * width))

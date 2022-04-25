@@ -48,7 +48,9 @@ class BenchmarkTest:
 
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
-        
+
+        self.start_time = str(datetime.now())
+
         self.rospack = rospkg.RosPack()
         self.urdf_package_path = os.path.join(self.rospack.get_path(self.urdf_package_name), "urdf/objects")
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/benchmarking.yaml")
@@ -57,8 +59,6 @@ class BenchmarkTest:
 
         if not os.path.exists(self.log_folder):
             os.makedirs(self.log_folder)
-
-        self.start_time = str(datetime.now())
 
         with open(self.log_file_path, 'w') as file:
             header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
@@ -125,7 +125,7 @@ class BenchmarkTest:
             self.spawn_model(object, pose)
         else:
             try:
-                six.moves.input("Place the %s at (%s, %s, %s) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                six.moves.input("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
             except SyntaxError:
                 pass
 
