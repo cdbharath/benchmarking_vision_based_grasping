@@ -52,10 +52,15 @@ class BenchmarkTest:
         self.rospack = rospkg.RosPack()
         self.urdf_package_path = os.path.join(self.rospack.get_path(self.urdf_package_name), "urdf/objects")
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/benchmarking.yaml")
+        self.log_folder = os.path.join(self.rospack.get_path(self.yaml_package_name), "logs") 
+        self.log_file_path = os.path.join(self.log_folder, "log_" +  self.start_time + ".csv") 
+
+        if not os.path.exists(self.log_folder):
+            os.makedirs(self.log_folder)
 
         self.start_time = str(datetime.now())
 
-        with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" +  self.start_time + ".csv"), 'w') as file:
+        with open(self.log_file_path, 'w') as file:
             header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
             writer = csv.writer(file)
             writer.writerow(header)
@@ -147,7 +152,7 @@ class BenchmarkTest:
                 self.pick_and_place.reach_scanpose()
 
         if not skip:
-            with open(os.path.join(self.rospack.get_path(self.yaml_package_name), "logs", "log_" + self.start_time + ".csv"), 'a') as file:
+            with open(self.log_file_path, 'a') as file:
                 update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
                 writer = csv.writer(file)
                 writer.writerow(update)
