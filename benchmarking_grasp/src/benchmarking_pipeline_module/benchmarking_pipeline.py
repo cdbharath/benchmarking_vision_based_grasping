@@ -6,6 +6,7 @@ import numpy as np
 import enum
 import csv
 from datetime import date, datetime
+import six
 
 import rospy
 import rospkg
@@ -30,12 +31,13 @@ class BenchmarkTestStates(enum.Enum):
     SHAKE = 3
 
 class BenchmarkTest:
-    def __init__(self, use_cartesian=True, over_head=True):
+    def __init__(self, use_cartesian=True, over_head=True, sim_mode=True):
         self.pick_and_place = PickAndPlace(gripper_offset=0.07, intermediate_z_stop=0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
         self.over_head = over_head
+        self.sim_mode = False
 
         if not self.over_head:
             self.pick_and_place.setScanPose(x=0.5, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
@@ -103,7 +105,8 @@ class BenchmarkTest:
         self.finger1_state = 0.05
         self.finger2_state = 0.05
 
-        rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
+        if self.sim_mode:
+            rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
@@ -113,7 +116,14 @@ class BenchmarkTest:
         object = experiment[0][self.object_idx]
         pose = experiment[1][self.pose_idx]
         
-        self.spawn_model(object, pose)
+        if self.sim_mode:
+            self.spawn_model(object, pose)
+        else:
+            try:
+                six.moves.input("Place the %s at (%s, %s, %s) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+            except SyntaxError:
+                pass
+
         rospy.sleep(1)
 
         # Execute the benchmark test
@@ -157,14 +167,14 @@ class BenchmarkTest:
                         if self.experiment_idx >= len(self.experiments): 
                             rospy.loginfo("Benchmarking test completed successfully")
                             rospy.signal_shutdown("Benchmarking test completed successfully")
-
         
-        try:
-            rospy.sleep(0.5)
-            self.delete_model(object)
-            rospy.sleep(0.5)
-        except Exception as e:
-            rospy.logerr("Object deleted while still attached to hand %s", e)
+        if self.sim_mode:
+            try:
+                rospy.sleep(0.5)
+                self.delete_model(object)
+                rospy.sleep(0.5)
+            except Exception as e:
+                rospy.logerr("Object deleted while still attached to hand %s", e)
 
     def on_grasp_event(self, data):
         object = data.object
