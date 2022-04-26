@@ -259,7 +259,7 @@ class BenchmarkTest:
     def delete_model(self, model_path):
         
         rospy.wait_for_service('gazebo/delete_model')
-        delete_model_handle = rospy.ServiceProxy('/gazebo/delete_model', DelTrueeteModel)
+        delete_model_handle = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
         
         res = delete_model_handle(model_path.split("/")[-1].split(".")[0])
         return res

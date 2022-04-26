@@ -92,8 +92,8 @@ class GraspTransform:
     def _rgb_img_callback(self, msg):
         img = bridge.imgmsg_to_cv2(msg)
 
-        # if not self.waiting:
-        #     return
+        if not self.waiting:
+            return
 
         if self.crop:
             self.curr_rgb_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
