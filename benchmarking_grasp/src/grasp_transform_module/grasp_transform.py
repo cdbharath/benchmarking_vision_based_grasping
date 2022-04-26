@@ -22,9 +22,16 @@ listener = None
 class GraspTransform:
     def __init__(self, sim_mode=True):
         self.sim_mode = sim_mode
+        self.crop = True
+        self.crop_size = [0, 300, 720, 1050]
 
         # Get the camera parameters
-        cam_info_topic = '/panda_camera/rgb/camera_info'
+        if self.sim_mode:
+            cam_info_topic = '/panda_camera/rgb/camera_info'
+            self.camera_frame = 'panda_camera_optical_link'
+        else:
+            cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
+            self.camera_frame = 'camera_depth_optical_frame'        
         rospy.loginfo("waiting for camera topic: %s", cam_info_topic)
         camera_info_msg = rospy.wait_for_message(cam_info_topic, CameraInfo)
         
@@ -39,15 +46,22 @@ class GraspTransform:
         rospy.Service('~predict', GraspPrediction, self.compute_service_handler)
         
         self.base_frame = 'panda_link0'
-        self.camera_frame = 'panda_camera_optical_link'
         self.cam_fov = 65.5
         
         self.curr_depth_img = None
         self.curr_rgb_image = None
         self.curr_img_time = 0
         self.last_image_pose = None
-        rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
-        rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
+
+        if self.sim_mode:
+            rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
+        else:
+            rospy.Subscriber('/camera/color/image_raw', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._rgb_img_callback, queue_size=1)
+
+        self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
+        self.depth_cropped_pub = rospy.Publisher("cropped_depth", Image, queue_size=10) 
 
         self.waiting = False
         self.received = False
@@ -59,7 +73,18 @@ class GraspTransform:
           return
         self.curr_img_time = time.time()
         self.last_image_pose = self.current_robot_pose(self.base_frame, self.camera_frame)
-        self.curr_depth_img = bridge.imgmsg_to_cv2(msg)
+        
+        img = bridge.imgmsg_to_cv2(msg)
+        if self.crop:
+            self.curr_depth_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
+            depth_crop = self.curr_depth_img.copy()
+            depth_scale = np.abs(depth_crop).max()
+            depth_crop = depth_crop.astype(np.float32) / depth_scale  # Has to be float32, 64 not supported.
+            normalized = (depth_crop*255).astype('uint8')
+            self.depth_cropped_pub.publish(bridge.cv2_to_imgmsg(normalized))
+        else:
+            self.curr_depth_img = img 
+
         self.received = True
 
     def _rgb_img_callback(self, msg):
@@ -67,7 +92,14 @@ class GraspTransform:
         if not self.waiting:
             return
 
-        self.curr_rgb_image = bridge.imgmsg_to_cv2(msg)
+        img = bridge.imgmsg_to_cv2(msg)
+
+        if self.crop:
+            self.curr_rgb_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3], :]
+            self.rgb_cropped_pub.publish(bridge.cv2_to_imgmsg(self.curr_rgb_img, encoding='bgr8'))
+        else:
+            self.curr_rgb_img = img
+
         self.rgb_received = True
 
     def compute_service_handler(self, req):
