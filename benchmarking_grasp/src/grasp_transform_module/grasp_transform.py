@@ -22,7 +22,7 @@ listener = None
 class GraspTransform:
     def __init__(self, sim_mode=True):
         self.sim_mode = sim_mode
-        self.crop = True
+        self.crop = False
         self.crop_size = [0, 300, 720, 1050]
 
         # Get the camera parameters
@@ -49,7 +49,7 @@ class GraspTransform:
         self.cam_fov = 65.5
         
         self.curr_depth_img = None
-        self.curr_rgb_image = None
+        self.curr_rgb_img = None
         self.curr_img_time = 0
         self.last_image_pose = None
 
@@ -57,8 +57,8 @@ class GraspTransform:
             rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
             rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
         else:
-            rospy.Subscriber('/camera/color/image_raw', Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._rgb_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/color/image_raw', Image, self._rgb_img_callback, queue_size=1)
 
         self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
         self.depth_cropped_pub = rospy.Publisher("cropped_depth", Image, queue_size=10) 
@@ -84,6 +84,7 @@ class GraspTransform:
             self.depth_cropped_pub.publish(bridge.cv2_to_imgmsg(normalized))
         else:
             self.curr_depth_img = img 
+            print(self.curr_depth_img.shape)
 
         self.received = True
 
@@ -95,7 +96,7 @@ class GraspTransform:
         img = bridge.imgmsg_to_cv2(msg)
 
         if self.crop:
-            self.curr_rgb_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3], :]
+            self.curr_rgb_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
             self.rgb_cropped_pub.publish(bridge.cv2_to_imgmsg(self.curr_rgb_img, encoding='bgr8'))
         else:
             self.curr_rgb_img = img
@@ -111,7 +112,7 @@ class GraspTransform:
         self.rgb_received = False
 
         depth = self.curr_depth_img.copy()
-        rgb = self.curr_rgb_image.copy()
+        rgb = self.curr_rgb_img.copy()
 
         camera_pose = self.last_image_pose
         cam_p = camera_pose.position
