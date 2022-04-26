@@ -5,6 +5,7 @@ from math import pi
 import numpy as np
 import enum
 import csv
+import cv2
 from datetime import date, datetime
 import six
 
@@ -40,7 +41,7 @@ class BenchmarkTest:
         self.sim_mode = False
 
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.5, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
+            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -126,6 +127,11 @@ class BenchmarkTest:
         else:
             try:
                 six.moves.input("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                # print("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                # while True:
+                #     k = cv2.waitKey(33)
+                #     if k == 32:
+                #         break
             except SyntaxError:
                 pass
 
@@ -136,7 +142,7 @@ class BenchmarkTest:
         
         try:
             self.process_rgbd_and_execute_pickup()
-            self.test_benchmark()
+            # self.test_benchmark()
             score = self.benchmark_state
             self.place()
         except Exception as e:
@@ -253,7 +259,7 @@ class BenchmarkTest:
     def delete_model(self, model_path):
         
         rospy.wait_for_service('gazebo/delete_model')
-        delete_model_handle = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+        delete_model_handle = rospy.ServiceProxy('/gazebo/delete_model', DelTrueeteModel)
         
         res = delete_model_handle(model_path.split("/")[-1].split(".")[0])
         return res

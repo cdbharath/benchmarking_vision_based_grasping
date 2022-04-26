@@ -22,8 +22,9 @@ listener = None
 class GraspTransform:
     def __init__(self, sim_mode=True):
         self.sim_mode = sim_mode
-        self.crop = False
-        self.crop_size = [0, 300, 720, 1050]
+        self.crop = True
+        # self.crop_size = [0, 300, 720, 1050]
+        self.crop_size = [0, 0, 480, 640] # 480, 640
 
         # Get the camera parameters
         if self.sim_mode:
@@ -69,35 +70,34 @@ class GraspTransform:
     
     def _depth_img_callback(self, msg):
         # Doing a rospy.wait_for_message is super slow, compared to just subscribing and keeping the newest one.
+        img = bridge.imgmsg_to_cv2(msg)
+
         if not self.waiting:
           return
         self.curr_img_time = time.time()
         self.last_image_pose = self.current_robot_pose(self.base_frame, self.camera_frame)
         
-        img = bridge.imgmsg_to_cv2(msg)
         if self.crop:
             self.curr_depth_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
             depth_crop = self.curr_depth_img.copy()
-            depth_scale = np.abs(depth_crop).max()
+            depth_scale = np.max(np.abs(depth_crop))
             depth_crop = depth_crop.astype(np.float32) / depth_scale  # Has to be float32, 64 not supported.
             normalized = (depth_crop*255).astype('uint8')
             self.depth_cropped_pub.publish(bridge.cv2_to_imgmsg(normalized))
         else:
             self.curr_depth_img = img 
-            print(self.curr_depth_img.shape)
 
         self.received = True
 
     def _rgb_img_callback(self, msg):
-        
-        if not self.waiting:
-            return
-
         img = bridge.imgmsg_to_cv2(msg)
+
+        # if not self.waiting:
+        #     return
 
         if self.crop:
             self.curr_rgb_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
-            self.rgb_cropped_pub.publish(bridge.cv2_to_imgmsg(self.curr_rgb_img, encoding='bgr8'))
+            self.rgb_cropped_pub.publish(bridge.cv2_to_imgmsg(self.curr_rgb_img, encoding='rgb8'))
         else:
             self.curr_rgb_img = img
 
@@ -164,11 +164,12 @@ class GraspTransform:
         g.quality = quality
 
         # self.draw_angled_rect(rgb, center[0], center[1], angle, width, int(width*0.4))
-        self.draw_angled_rect(rgb, center[1], center[0], angle, width, int(width*0.4))
+        # self.draw_angled_rect(rgb, center[1], center[0], angle, width, int(width*0.4))
+        self.draw_angled_rect(rgb, center[1], center[0], angle) # work around for width
 
         return ret
 
-    def draw_angled_rect(self, image, x, y, angle, width = 180, height = 100):
+    def draw_angled_rect(self, image, x, y, angle, width = 200, height = 100):
         # print(x, y, angle, image.shape)
         _angle = -angle
         b = math.cos(_angle) * 0.5
