@@ -33,7 +33,7 @@ class GraspTransform:
 
     Call "Predict" service for the functionality
     """
-    def __init__(self, sim_mode=True):
+    def __init__(self, sim_mode=True, crop=True):
         """
         1. Initializes all the ROS topics 
         2. Inputs: 
@@ -44,13 +44,18 @@ class GraspTransform:
         4. Gets the camera matrix
         """
         self.sim_mode = sim_mode
-        self.crop = True
+        self.crop = crop
         self.curr_depth_img = None
         self.curr_rgb_img = None
         self.last_image_pose = None
         self.waiting = False
         self.received = False
         self.rgb_received = False
+
+        self.base_frame = 'panda_link0'
+        # TODO check camera FOV of the real sense, implement actual width calculation
+        # Required for width calculation
+        self.cam_fov = 65.5
 
         # self.crop_size = [0, 300, 720, 1050]
         self.crop_size = [50, 0, 480, 640] # 480, 640
@@ -87,18 +92,14 @@ class GraspTransform:
         self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
         self.depth_cropped_pub = rospy.Publisher("cropped_depth", Image, queue_size=10) 
 
-        self.base_frame = 'panda_link0'
-        # TODO check camera FOV of the real sense, implement actual width calculation
-        # Required for width calculation
-        self.cam_fov = 65.5
-
         rospy.loginfo("[Grasp Transform] Sucessfully initialized Grasp Transform instance")
     
     def _depth_img_callback(self, msg):
         img = bridge.imgmsg_to_cv2(msg)
 
-        if not self.waiting:
-          return
+        # if not self.waiting:
+        #   return
+        rospy.logerr("Depth call back")
 
         self.last_image_pose = self.current_robot_pose(self.base_frame, self.camera_frame)
         
@@ -139,7 +140,7 @@ class GraspTransform:
         self.waiting = True
         rospy.loginfo("[Grasp Transform] waiting for the next image")
         while not self.received or not self.rgb_received:
-          rospy.sleep(0.01)
+            rospy.sleep(0.01)
         rospy.loginfo("[Grasp Transform] next image received")
         self.waiting = False
         self.received = False
@@ -155,21 +156,27 @@ class GraspTransform:
         camera_rot = tft.quaternion_matrix(self.quaternion_to_list(camera_pose.orientation))[0:3, 0:3]
 
         # Do grasp prediction
-        rospy.loginfo("[Grasp Transform] waiting for service: grasp_service/predict")
-        rospy.wait_for_service("grasp_service/predict")
-        rospy.loginfo("[Grasp Transform] Service: grasp_service/predict found")
+        # rospy.loginfo("[Grasp Transform] waiting for service: grasp_service/predict")
+        # rospy.wait_for_service("grasp_service/predict")
+        # rospy.loginfo("[Grasp Transform] Service: grasp_service/predict found")
 
-        srv_handle = rospy.ServiceProxy("grasp_service/predict", Grasp2DPrediction)
+        # srv_handle = rospy.ServiceProxy("grasp_service/predict", Grasp2DPrediction)
         
-        request_msg = Grasp2DPredictionRequest()
-        request_msg.depth_image = bridge.cv2_to_imgmsg(depth)
-        request_msg.rgb_image = bridge.cv2_to_imgmsg(rgb)
+        # request_msg = Grasp2DPredictionRequest()
+        # request_msg.depth_image = bridge.cv2_to_imgmsg(depth)
+        # request_msg.rgb_image = bridge.cv2_to_imgmsg(rgb)
         
-        response = srv_handle(request_msg)
-        center = response.best_grasp.px, response.best_grasp.py
-        width = response.best_grasp.width
-        quality = response.best_grasp.quality
-        angle = response.best_grasp.angle
+        # response = srv_handle(request_msg)
+        # center = response.best_grasp.px, response.best_grasp.py
+        # width = response.best_grasp.width
+        # quality = response.best_grasp.quality
+        # angle = response.best_grasp.angle
+
+        # For debugging
+        center = (100, 100)
+        width = 100
+        quality = 1
+        angle = 0.77
 
         rospy.loginfo("[Grasp Transform] Service call: grasp_service/predict successfull")
 
