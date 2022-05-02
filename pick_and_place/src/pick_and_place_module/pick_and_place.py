@@ -15,7 +15,7 @@ class PickAndPlace:
         self.gripper_pose = None
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
-        self.angle_offset = 0
+        self.angle_offset = 0.77
     
     def setPickPose(self, x, y, z, roll, pitch, yaw):
         self.pick_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]

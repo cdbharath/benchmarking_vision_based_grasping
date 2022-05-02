@@ -67,7 +67,7 @@ class BenchmarkTest:
 
         # Reach scan pose if eye in hand
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
+            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.5, roll=0.0, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -169,7 +169,7 @@ class BenchmarkTest:
             self.spawn_model(object, pose)
         else:
             try:
-                six.moves.input("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                six.moves.input("[Benchmarking Pipeline] Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
                 # print("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
                 # while True:
                 #     k = cv2.waitKey(33)
@@ -189,7 +189,7 @@ class BenchmarkTest:
             score = self.benchmark_state
             self.place()
         except Exception as e:
-            rospy.logerr("skipping this turn %s", e)
+            rospy.logerr("[Benchmarking Pipeline] skipping this turn %s", e)
             skip = True
 
         self.testing_in_process = False
@@ -217,10 +217,10 @@ class BenchmarkTest:
                     if self.object_idx >= len(experiment[0]):
                         self.object_idx = 0
                         self.experiment_idx = self.experiment_idx + 1
-                        rospy.loginfo("Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
+                        rospy.loginfo("[Benchmarking Pipeline] Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
                         if self.experiment_idx >= len(self.experiments): 
-                            rospy.loginfo("Benchmarking test completed successfully")
-                            rospy.signal_shutdown("Benchmarking test completed successfully")
+                            rospy.loginfo("[Benchmarking Pipeline] Benchmarking test completed successfully")
+                            rospy.signal_shutdown("[Benchmarking Pipeline] Benchmarking test completed successfully")
         
         if self.sim_mode:
             try:
@@ -228,7 +228,7 @@ class BenchmarkTest:
                 self.delete_model(object)
                 rospy.sleep(0.5)
             except Exception as e:
-                rospy.logerr("Object deleted while still attached to hand %s", e)
+                rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
 
     def on_grasp_event(self, data):
         """
@@ -328,9 +328,9 @@ class BenchmarkTest:
         2. Picks up the object from the received coordinate
         3. Benchmarking state is updated to PICK_UP
         """
-        rospy.loginfo("waiting for service: grasp_transform/predict")
+        rospy.loginfo("[Benchmarking Pipeline] waiting for service: grasp_transform/predict")
         rospy.wait_for_service("grasp_transform/predict")
-        rospy.loginfo("Service call successful")
+        rospy.loginfo("[Benchmarking Pipeline] Service call successful")
 
         srv_handle = rospy.ServiceProxy("grasp_transform/predict", GraspPrediction)
         response = srv_handle()

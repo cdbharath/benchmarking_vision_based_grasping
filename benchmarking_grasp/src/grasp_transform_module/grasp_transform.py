@@ -185,6 +185,8 @@ class GraspTransform:
         # If you dont want to use the above functionality
         z = depth[int(center[0])][int(center[1])]*self.depth_scale
 
+        rospy.loginfo("[Grasp Transform] Detected 3D coordinates: (%s, %s, %s)", x, y, z)
+
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
                 
