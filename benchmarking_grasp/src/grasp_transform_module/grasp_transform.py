@@ -97,9 +97,8 @@ class GraspTransform:
     def _depth_img_callback(self, msg):
         img = bridge.imgmsg_to_cv2(msg)
 
-        # if not self.waiting:
-        #   return
-        rospy.logerr("Depth call back")
+        if not self.waiting:
+          return
 
         self.last_image_pose = self.current_robot_pose(self.base_frame, self.camera_frame)
         

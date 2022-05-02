@@ -26,20 +26,46 @@ from benchmarking_msgs.srv import ProcessAndExecute
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
 
 class BenchmarkTestStates(enum.Enum):
+    """
+    States to keep track of the scores for evaluation in the simulation
+    Not sure how these will help duing realtime tests
+    """
     FREE = 0
     PICK_UP = 1
     ROTATE = 2
     SHAKE = 3
 
 class BenchmarkTest:
+    """
+    Spawns object based on the objects listed in the yaml file
+    Calls the grasp_tramsform/predict service which inturn calls service_server/predict to get the detected grasps
+    Runs the benchmarking procedure for the spawned objects in Gazebo
+    Keeps track of the scores of the detected grasp for eacch object (makes sense for only in simulation)  
+    """
     def __init__(self, use_cartesian=True, over_head=True, sim_mode=True):
+        """
+        1. Initializes pick and place module
+        2. Initializrs move_group module
+        3. Inputs:
+            use_cartesian - cartesian planning or joint space planning
+            over_head - camera over head or eye in hand
+            sim_mode - simulation or real robot
+
+        TODO add parameters into a yaml file
+
+        4. Set urdf, yaml package path for spawning objects in gazebo. Enter the requried objects to be tested in the yaml file
+        5. Create log file to log the scores for each object
+        6. Parse yaml file for object list and benchmarking parameters
+        7. Initialize required ROS topics
+        """
         self.pick_and_place = PickAndPlace(gripper_offset=0.07, intermediate_z_stop=0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
         self.over_head = over_head
-        self.sim_mode = False
+        self.sim_mode = sim_mode
 
+        # Reach scan pose if eye in hand
         if not self.over_head:
             self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.7, roll=0.7, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
@@ -47,6 +73,7 @@ class BenchmarkTest:
             else:
                 self.pick_and_place.reach_scanpose()
 
+        # Package names to look for urdf and log files
         self.urdf_package_name = "pick_and_place"
         self.yaml_package_name = "benchmarking_grasp"
 
@@ -58,18 +85,22 @@ class BenchmarkTest:
         self.log_folder = os.path.join(self.rospack.get_path(self.yaml_package_name), "logs") 
         self.log_file_path = os.path.join(self.log_folder, "log_" +  self.start_time + ".csv") 
 
+        # Create log folder if not exists
         if not os.path.exists(self.log_folder):
             os.makedirs(self.log_folder)
 
+        # Write the header to the log file
         with open(self.log_file_path, 'w') as file:
             header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
             writer = csv.writer(file)
             writer.writerow(header)
 
+        # Parse object list from yaml and benchmarking parameters
         parsed_experiments = self.parse_yaml(self.yaml_package_path)
 
         self.experiments = []
 
+        # Generate object list and benchmarking parameters for spawning objects
         for experiment_idx in range(len(parsed_experiments)):
             model_paths = parsed_experiments[experiment_idx][0] 
             center = parsed_experiments[experiment_idx][1]
@@ -111,12 +142,24 @@ class BenchmarkTest:
         self.finger1_state = 0.05
         self.finger2_state = 0.05
 
+        # Initialize grasp plugin and joint states topic
         if self.sim_mode:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
     
     def execute_benchmark_test(self, event):
+        """
+        Executes the entire benchmarking procedure
+        1. Spawns an object in Gazebo / waits for user to place the object as requested
+        2. Calls predict service to get the 3D coordinates of the grasp
+        3. Picks up the object
+        4. Performs the benchmarking tests
+        5. Places the object (tracks the state all the way)
+        6. Updates the score log file (Only useful for simulator)
+        7. Deletes the object from environment (Only useful for simulator)
+        """
+
         skip = False
         experiment = self.experiments[self.experiment_idx]
         object = experiment[0][self.object_idx]
@@ -188,6 +231,10 @@ class BenchmarkTest:
                 rospy.logerr("Object deleted while still attached to hand %s", e)
 
     def on_grasp_event(self, data):
+        """
+        If a grasp is detected by the grasp plugin
+        Do stuff
+        """
         object = data.object
         attached = data.attached
 
@@ -206,12 +253,17 @@ class BenchmarkTest:
             self.attached = False
             
     def joint_cb(self, data):
+        """
+        Callback for joint states
+        """
         position = data.position
         self.finger1_state = position[0]
         self.finger2_state = position[1]
     
     def parse_yaml(self, yaml_package_path):
-        
+        """
+        Parse information from the yaml file
+        """
         model_file = open(yaml_package_path, 'r')
         config = yaml.load(model_file, Loader=yaml.FullLoader)
 
@@ -233,6 +285,9 @@ class BenchmarkTest:
         return experiments
     
     def spawn_model(self, model_path, pose):
+        """
+        Spawns model in the required pose in Gazebo
+        """
         spawn_pose = Pose()
         spawn_pose.position.x = pose[0]
         spawn_pose.position.y = pose[1]
@@ -257,7 +312,10 @@ class BenchmarkTest:
         return res
 
     def delete_model(self, model_path):
-        
+        """
+        Deletes the model from the Gazebo environment
+        """
+
         rospy.wait_for_service('gazebo/delete_model')
         delete_model_handle = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
         
@@ -265,7 +323,11 @@ class BenchmarkTest:
         return res
 
     def process_rgbd_and_execute_pickup(self):
-
+        """
+        1. Calls the predict service and gets a 3D grasp coordinate as response
+        2. Picks up the object from the received coordinate
+        3. Benchmarking state is updated to PICK_UP
+        """
         rospy.loginfo("waiting for service: grasp_transform/predict")
         rospy.wait_for_service("grasp_transform/predict")
         rospy.loginfo("Service call successful")
@@ -292,6 +354,10 @@ class BenchmarkTest:
         return True
     
     def place(self):
+        """
+        1. Places the object 
+        2. Benchmarking state is updated to FREE
+        """
         self.benchmark_state = BenchmarkTestStates.FREE
         
         if self.use_cartesian:
@@ -300,6 +366,13 @@ class BenchmarkTest:
             self.pick_and_place.execute_place()
 
     def test_benchmark(self):
+        """
+        1. Performs benchmarking tests
+        2. Updates state as applicable
+        3. Two tests
+            1. Roll pitch yaw rotation
+            2. Shake test
+        """
         # self.moveit_control = MoveGroupControl()
 
         # Rotate the object
