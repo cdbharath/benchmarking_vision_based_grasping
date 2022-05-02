@@ -51,6 +51,7 @@ class GraspTransform:
         self.waiting = False
         self.received = False
         self.rgb_received = False
+        self.depth_scale = 1 
 
         self.base_frame = 'panda_link0'
         # TODO check camera FOV of the real sense, implement actual width calculation
@@ -67,6 +68,7 @@ class GraspTransform:
             rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
             rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
         else:
+            self.depth_scale = 0.001  # Depth scale of realsense
             cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
             self.camera_frame = 'camera_depth_optical_frame'        
             rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
@@ -184,10 +186,10 @@ class GraspTransform:
         y = (center[0] - self.cam_K[1, 2])/self.cam_K[1, 1]
 
         # check for nearby depths and assign the max of the depths
-        z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))
+        # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
 
         # If you dont want to use the above functionality
-        # z = depth[int(center[0])][int(center[1])]
+        z = depth[int(center[0])][int(center[1])]*self.depth_scale
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
