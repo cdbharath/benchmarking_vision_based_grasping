@@ -157,27 +157,21 @@ class GraspTransform:
         camera_rot = tft.quaternion_matrix(self.quaternion_to_list(camera_pose.orientation))[0:3, 0:3]
 
         # Do grasp prediction
-        # rospy.loginfo("[Grasp Transform] waiting for service: grasp_service/predict")
-        # rospy.wait_for_service("grasp_service/predict")
-        # rospy.loginfo("[Grasp Transform] Service: grasp_service/predict found")
+        rospy.loginfo("[Grasp Transform] waiting for service: grasp_service/predict")
+        rospy.wait_for_service("grasp_service/predict")
+        rospy.loginfo("[Grasp Transform] Service: grasp_service/predict found")
 
-        # srv_handle = rospy.ServiceProxy("grasp_service/predict", Grasp2DPrediction)
+        srv_handle = rospy.ServiceProxy("grasp_service/predict", Grasp2DPrediction)
         
-        # request_msg = Grasp2DPredictionRequest()
-        # request_msg.depth_image = bridge.cv2_to_imgmsg(depth)
-        # request_msg.rgb_image = bridge.cv2_to_imgmsg(rgb)
+        request_msg = Grasp2DPredictionRequest()
+        request_msg.depth_image = bridge.cv2_to_imgmsg(depth)
+        request_msg.rgb_image = bridge.cv2_to_imgmsg(rgb)
         
-        # response = srv_handle(request_msg)
-        # center = response.best_grasp.px, response.best_grasp.py
-        # width = response.best_grasp.width
-        # quality = response.best_grasp.quality
-        # angle = response.best_grasp.angle
-
-        # For debugging
-        center = (100, 100)
-        width = 100
-        quality = 1
-        angle = 0.77
+        response = srv_handle(request_msg)
+        center = response.best_grasp.px, response.best_grasp.py
+        width = response.best_grasp.width
+        quality = response.best_grasp.quality
+        angle = response.best_grasp.angle
 
         rospy.loginfo("[Grasp Transform] Service call: grasp_service/predict successfull")
 
