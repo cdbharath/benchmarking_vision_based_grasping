@@ -58,7 +58,7 @@ class BenchmarkTest:
         6. Parse yaml file for object list and benchmarking parameters
         7. Initialize required ROS topics
         """
-        self.pick_and_place = PickAndPlace(gripper_offset=0.07, intermediate_z_stop=0.5)
+        self.pick_and_place = PickAndPlace(gripper_offset=0.1, intermediate_z_stop=0.5)
         self.moveit_control = MoveGroupControl()
         self.gripper = Gripper()
         self.use_cartesian = use_cartesian
@@ -341,7 +341,7 @@ class BenchmarkTest:
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
 
         self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
-        self.pick_and_place.setDropPose(x=0.0, y=0.4, z=0.5, roll=0, pitch=pi, yaw=0)
+        self.pick_and_place.setDropPose(x=0.1, y=0.4, z=0.5, roll=0, pitch=pi, yaw=0)
         self.pick_and_place.setGripperPose(width=0.00)
 
         if self.use_cartesian:
