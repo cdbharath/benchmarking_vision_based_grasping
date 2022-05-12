@@ -192,6 +192,7 @@ class GraspTransform:
                 
         # Convert from camera frame to world frame (Extrinsic parameters)
         pos = np.dot(camera_rot, np.stack((x, y, z))).T + np.array([[cam_p.x, cam_p.y, cam_p.z]])
+        print(x, y, z, cam_p, camera_rot)
         rospy.loginfo("[Grasp Transform] Detected 3D coordinates: (%s, %s, %s)", pos[0][0] + self.x_offset, pos[0][1] + self.y_offset, pos[0][2])
 
         # Response message
