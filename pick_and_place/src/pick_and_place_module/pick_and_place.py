@@ -5,7 +5,7 @@ from copy import deepcopy
 from math import pi
 
 class PickAndPlace:
-    def __init__(self, gripper_offset=0.0, intermediate_z_stop=0.5):
+    def __init__(self, gripper_offset=0.0, intermediate_z_stop=0.5, gripper_as_eef=True):
         self.gripper_offset = gripper_offset
         self.intermediate_z_stop = intermediate_z_stop
         self.scan_pose = [0.0, 0.3, 0.6, 0.0, pi, 0.0] 
@@ -13,7 +13,7 @@ class PickAndPlace:
         self.pick_pose = None
         self.place_pose = None
         self.gripper_pose = None
-        self.moveit_control = MoveGroupControl()
+        self.moveit_control = MoveGroupControl(gripper_as_eef=gripper_as_eef)
         self.gripper = Gripper()
         self.angle_offset = 0.77
     

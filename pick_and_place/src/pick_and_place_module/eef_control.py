@@ -1,3 +1,4 @@
+from tkinter.tix import Tree
 import rospy
 import moveit_commander
 import moveit_msgs.msg
@@ -13,7 +14,7 @@ def dist(p, q):
     return sqrt(sum((p_i - q_i) ** 2.0 for p_i, q_i in zip(p, q)))
 
 class MoveGroupControl:
-    def __init__(self):
+    def __init__(self, gripper_as_eef=True):
         moveit_commander.roscpp_initialize(sys.argv)
         # rospy.init_node("move_group_control", anonymous=True)
 
@@ -27,8 +28,13 @@ class MoveGroupControl:
         planning_frame = move_group.get_planning_frame()
         # rospy.loginfo(" Planning frame: %s", planning_frame)
 
+        if gripper_as_eef:
+            move_group.set_end_effector_link("panda_hand")
+        else:
+            move_group.set_end_effector_link("panda_link8")
+
         eef_link = move_group.get_end_effector_link()
-        # rospy.loginfo(" End effector link: %s", eef_link)
+        rospy.loginfo(" End effector link: %s", eef_link)
 
         group_names = robot.get_group_names()
         # rospy.loginfo(" Available Planning Groups: %s", robot.get_group_names())
