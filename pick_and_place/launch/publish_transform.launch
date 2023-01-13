@@ -1,16 +1,4 @@
 <launch>
 
-    <!-- <node pkg="tf" type="static_transform_publisher" name="hand_to_rgbd" args="0.04 -0.0175 0.066 3.1415 -1.57 0 panda_hand camera_link 10" /> -->
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="realsense_link_broadcaster1"
-        args="0.0244449 -0.0341399  0.0594852 -0.710994 -0.00556859 -0.00261344 0.703171 panda_hand camera_link_temp" />
-  
-    <node pkg="tf2_ros" type="static_transform_publisher" name="realsense_link_broadcaster2"
-        args="0 0 0 0.503393788147 -0.498659348695 0.499804609603 -0.498125386056 camera_link_temp camera_link" />
-
-    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="realsense_link_broadcaster1"
-        args="0.0377 -0.0446 0.0594 1.5436 0.0048 0.0027 panda_hand camera_link_temp" />
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="realsense_link_broadcaster2"
-        args="0.0147824750802 0.000306939841835 0.000341368462714 0.503393788147 -0.498659348695 0.499804609603 0.498125386056 camera_link_temp camera_link" /> -->
+    <node pkg="tf" type="static_transform_publisher" name="hand_to_rgbd" args="0.04 -0.0175 0.066 3.1415 -1.57 0 panda_hand camera_link 10" />
 </launch>

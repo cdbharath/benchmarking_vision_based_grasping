@@ -33,7 +33,7 @@ class GraspTransform:
 
     Call "Predict" service for the functionality
     """
-    def __init__(self, sim_mode=True, crop=False):
+    def __init__(self, sim_mode=True, crop=True):
         """
         1. Initializes all the ROS topics 
         2. Inputs: 
@@ -177,23 +177,22 @@ class GraspTransform:
 
         rospy.loginfo("[Grasp Transform] Detected 2D coordinates: (%s, %s)", center[0], center[1])
 
+        # Convert from image frame to camera frame (Intrinsic parameters)
+        x = (center[1] - self.cam_K[0, 2])/self.cam_K[0, 0]
+        y = (center[0] - self.cam_K[1, 2])/self.cam_K[1, 1]
+        print(depth.shape, self.cam_K[0, 2], self.cam_K[0, 0], self.cam_K[1, 2], self.cam_K[1, 1])
         # check for nearby depths and assign the max of the depths
         # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
         
         # If you dont want to use the above functionality
         z = depth[int(center[0])][int(center[1])]*self.depth_scale
 
-        # Convert from image frame to camera frame (Intrinsic parameters)
-        x = ((center[1] - self.cam_K[0, 2])/self.cam_K[0, 0])*z
-        y = ((center[0] - self.cam_K[1, 2])/self.cam_K[1, 1])*z
-        # print(depth.shape, self.cam_K[0, 2], self.cam_K[0, 0], self.cam_K[1, 2], self.cam_K[1, 1])
-
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
                 
         # Convert from camera frame to world frame (Extrinsic parameters)
         pos = np.dot(camera_rot, np.stack((x, y, z))).T + np.array([[cam_p.x, cam_p.y, cam_p.z]])
-        # print(x, y, z, cam_p, camera_rot)
+        print(x, y, z, cam_p, camera_rot)
         rospy.loginfo("[Grasp Transform] Detected 3D coordinates: (%s, %s, %s)", pos[0][0] + self.x_offset, pos[0][1] + self.y_offset, pos[0][2])
 
         # Response message
