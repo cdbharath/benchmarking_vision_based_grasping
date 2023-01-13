@@ -1,0 +1,241 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    
+    <light name='user_point_light_0' type='point'>
+      <pose>2.3043 0.093688 1 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.5</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+    <model name='bleach_cleanser'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <pose>-0.017139 0.011574 0.099698 -3.07106 0.000113 1.56037</pose>
+          <mass>0.000972343</mass>
+          <inertia>
+            <ixx>4.56613e-06</ixx>
+            <ixy>-1.26903e-22</ixy>
+            <ixz>7.80825e-22</ixz>
+            <iyy>4.25149e-06</iyy>
+            <iyz>-1.59888e-22</iyz>
+            <izz>7.65292e-07</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://021_bleach_cleanser/google_16k/low_poly.obj</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://021_bleach_cleanser/google_16k/textured.obj</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://021_bleach_cleanser/bleach_cleanser.material</uri>
+              <name>bleach_cleanser</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>0.565067 -0.000714 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>471 396000000</sim_time>
+      <real_time>496 671899476</real_time>
+      <wall_time>1664069798 490002368</wall_time>
+      <iterations>471396</iterations>
+      <model name='bleach_cleanser'>
+        <pose>0.565362 -0.000766 5.8e-05 -0.001198 0.001186 -0.004643</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0.565362 -0.000766 5.8e-05 -0.001198 0.001186 -0.004643</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0.000128 -0.000138 -3.4e-05</acceleration>
+          <wrench>0 0 -0.009529 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='panda'>
+        <pose>-0 -0 2.7e-05 -2.7e-05 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='panda_leftfinger'>
+          <pose>0.272132 -0.166117 0.635144 2.9719 -0.167536 0.79974</pose>
+          <velocity>-0.000717 -0.00165 -0.005075 0.001263 -0.001626 0.001027</velocity>
+          <acceleration>-1.31125 -2.86351 -9.11234 2.64737 1.23292 -0.476829</acceleration>
+          <wrench>-0.89165 -1.94718 -6.19639 0 -0 0</wrench>
+        </link>
+        <link name='panda_link0'>
+          <pose>-0 -0 2.7e-05 -2.7e-05 -0 0</pose>
+          <velocity>9e-06 -1e-06 -0.00663 0.00692 6.6e-05 -9.4e-05</velocity>
+          <acceleration>0.017178 -0.002842 -13.2603 1.27434 0.132763 -0.188581</acceleration>
+          <wrench>0.052564 -0.008697 -40.5765 0 -0 0</wrench>
+        </link>
+        <link name='panda_link1'>
+          <pose>-0 8e-06 0.333026 1e-06 -2.3e-05 -1.6814</pose>
+          <velocity>4.1e-05 -0.002088 -0.006515 0.005285 -0.000258 3e-05</velocity>
+          <acceleration>0.08138 -4.17574 -13.0299 -1.9973 -0.516974 0.236983</acceleration>
+          <wrench>0.190429 -9.77124 -30.4901 0 -0 0</wrench>
+        </link>
+        <link name='panda_link2'>
+          <pose>-0 8e-06 0.333025 -1.57081 -1.05315 -1.68139</pose>
+          <velocity>5.1e-05 -0.001953 -0.006341 0.004815 -0.000693 0.000276</velocity>
+          <acceleration>0.101903 -3.90619 -12.6829 2.4427 -1.28537 0.730499</acceleration>
+          <wrench>0.24049 -9.21862 -29.9316 0 -0 0</wrench>
+        </link>
+        <link name='panda_link3'>
+          <pose>0.03031 0.27293 0.489391 -0.627177 -0.913294 -0.939975</pose>
+          <velocity>-0.000119 -0.00252 -0.004795 0.003995 -0.000774 0.000721</velocity>
+          <acceleration>-0.271739 -4.89375 -9.83965 -2.40463 -1.10523 -1.85933</acceleration>
+          <wrench>-0.646739 -11.6471 -23.4184 0 -0 0</wrench>
+        </link>
+        <link name='panda_link4'>
+          <pose>0.060048 0.232214 0.554691 0.858934 0.989586 -2.08557</pose>
+          <velocity>-0.000134 -0.002613 -0.004761 0.003626 -0.001049 0.000628</velocity>
+          <acceleration>-0.339637 -5.02003 -9.71825 1.59151 -0.385822 -1.44405</acceleration>
+          <wrench>-0.825317 -12.1987 -23.6153 0 -0 0</wrench>
+        </link>
+        <link name='panda_link5'>
+          <pose>0.181045 -0.063374 0.783271 0.484816 1.08169 -0.746295</pose>
+          <velocity>-0.000174 -0.003125 -0.005241 0.00211 -0.001329 0.000856</velocity>
+          <acceleration>-0.440406 -5.41636 -9.85311 -1.36969 0.421963 -0.871745</acceleration>
+          <wrench>-1.54142 -18.9573 -34.4859 0 -0 0</wrench>
+        </link>
+        <link name='panda_link6'>
+          <pose>0.181045 -0.063374 0.783271 1.79241 -0.087206 -1.20117</pose>
+          <velocity>-0.000173 -0.003052 -0.005149 0.001918 -0.001373 0.001016</velocity>
+          <acceleration>-0.438061 -5.26886 -9.67014 -2.281 0.727646 -0.67976</acceleration>
+          <wrench>-0.64395 -7.74522 -14.2151 0 -0 0</wrench>
+        </link>
+        <link name='panda_link7'>
+          <pose>0.212716 -0.145119 0.790935 -3.14142 -0.237893 3.9e-05</pose>
+          <velocity>-8.4e-05 -0.002932 -0.005066 0.00142 -0.001562 0.000999</velocity>
+          <acceleration>0.083125 -4.96027 -9.14738 2.95907 1.10437 -0.533326</acceleration>
+          <wrench>0.131337 -7.83722 -14.4529 0 -0 0</wrench>
+        </link>
+        <link name='panda_rightfinger'>
+          <pose>0.250168 -0.143519 0.629823 2.9719 -0.167536 0.79974</pose>
+          <velocity>-0.000737 -0.001682 -0.005125 0.001289 -0.00161 0.00102</velocity>
+          <acceleration>-1.35973 -2.95582 -9.30422 2.70113 1.20034 -0.491453</acceleration>
+          <wrench>-0.924619 -2.00996 -6.32687 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='user_point_light_0'>
+        <pose>2.3043 0.093688 9.602 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>1.49495 -2.79073 1.69921 0 0.355643 1.68019</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>

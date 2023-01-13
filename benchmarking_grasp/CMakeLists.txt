@@ -7,7 +7,8 @@ project(benchmarking_grasp)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+find_package(PCL 1.2 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -113,8 +114,14 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-# ${catkin_INCLUDE_DIRS}
+${catkin_INCLUDE_DIRS}
+${PCL_INCLUDE_DIRS}
 )
+
+add_executable(grasp_synthesis src/grasp_synthesis/grasp_synthesis.cpp)
+target_link_libraries(grasp_synthesis ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+# add_dependencies(grasp_synthesis benchmarking_vision_based_grasping_generate_messages_cpp)
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

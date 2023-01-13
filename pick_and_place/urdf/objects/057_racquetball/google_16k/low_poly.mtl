@@ -10,4 +10,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd  /home/bharath/benchmark_ws/src/benchmarking_vision_based_grasping/pick_and_place/urdf/objects/057_racquetball/google_16k/texture_map.png
+map_Kd  /home/sumukh/dr_ws/src/benchmarking_vision_based_grasping/pick_and_place/urdf/objects/057_racquetball/google_16k/texture_map.png

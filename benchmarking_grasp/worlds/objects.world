@@ -1,0 +1,314 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <light name='user_point_light_0' type='point'>
+      <pose>2.3043 0.093688 1 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.01</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>0</outer_angle>
+        <falloff>0</falloff>
+      </spot>
+    </light>
+    <model name='bleach_cleanser'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <pose>-0.017139 0.011574 0.099698 -3.07106 0.000113 1.56037</pose>
+          <mass>0.000972343</mass>
+          <inertia>
+            <ixx>4.56613e-06</ixx>
+            <ixy>-1.26903e-22</ixy>
+            <ixz>7.80825e-22</ixz>
+            <iyy>4.25149e-06</iyy>
+            <iyz>-1.59888e-22</iyz>
+            <izz>7.65292e-07</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://021_bleach_cleanser/google_16k/low_poly.obj</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://021_bleach_cleanser/google_16k/textured.obj</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://021_bleach_cleanser/bleach_cleanser.material</uri>
+              <name>bleach_cleanser</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>0.565067 -0.000714 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>1294 902000000</sim_time>
+      <real_time>984 40404390</real_time>
+      <wall_time>1664163687 696961775</wall_time>
+      <iterations>823506</iterations>
+      <model name='a_toy_airplane'>
+        <pose>0.328049 -0.23908 -0.00152 -0.011529 -0.037662 0.007223</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0.328049 -0.23908 -0.00152 -0.011529 -0.037662 0.007223</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>-1.92969 -7.25736 11.0802 2.04208 0.895024 -2.49817</acceleration>
+          <wrench>-0.003019 -0.011355 0.017336 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='bleach_cleanser'>
+        <pose>0.566543 -0.001029 5.6e-05 -0.001332 0.001139 -0.025759</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0.566543 -0.001029 5.6e-05 -0.001332 0.001139 -0.025759</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 6e-06 -1.6e-05 -7e-06</acceleration>
+          <wrench>0 0 -0.009529 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='j_cups'>
+        <pose>0.589499 -0.155254 0.000166 0.000846 -0.000278 -0.154365</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0.589499 -0.155254 0.000166 0.000846 -0.000278 -0.154365</pose>
+          <velocity>-0 -1.5e-05 0.007174 0.091926 -0.00149 1e-06</velocity>
+          <acceleration>-1.22978 -2.33267 16.3033 -2.45994 0.130945 -2.21389</acceleration>
+          <wrench>-6.7e-05 -0.000127 0.00089 0 -0 0</wrench>
+        </link>
+      </model>
+      
+      <light name='user_point_light_0'>
+        <pose>2.3043 0.093688 9.602 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>0.731789 -2.89222 1.7811 0 0.403643 1.40019</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+    
+    <model name='j_cups'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <pose>-0.023169 -0.016288 0.03647 -0.449346 -1.52663 0.521609</pose>
+          <mass>5.45863e-05</mass>
+          <inertia>
+            <ixx>9.38954e-08</ixx>
+            <ixy>-2.16774e-23</ixy>
+            <ixz>4.00586e-24</ixz>
+            <iyy>8.1665e-08</iyy>
+            <iyz>-4.93112e-24</iyz>
+            <izz>8.06467e-08</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://065-j_cups/google_16k/low_poly.obj</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>10000</mu>
+                <mu2>10000</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://065-j_cups/google_16k/textured.obj</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://065-j_cups/j_cups.material</uri>
+              <name>j_cups</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>0.59916 0.192725 0 0 -0 0</pose>
+    </model>
+    <model name='a_toy_airplane'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <pose>0.035725 0.030807 0.090923 0.07561 -1.4145 -1.58572</pose>
+          <mass>0.00156458</mass>
+          <inertia>
+            <ixx>9.43995e-06</ixx>
+            <ixy>3.6285e-23</ixy>
+            <ixz>1.08954e-22</ixz>
+            <iyy>7.94083e-06</iyy>
+            <iyz>-9.78651e-23</iyz>
+            <izz>5.37123e-06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://072-a_toy_airplane/google_16k/low_poly.obj</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://072-a_toy_airplane/google_16k/textured.obj</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://072-a_toy_airplane/a_toy_airplane.material</uri>
+              <name>a_toy_airplane</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>0.865015 -0.238505 0 0 -0 0</pose>
+    </model>
+  </world>
+</sdf>
