@@ -33,7 +33,7 @@ class GraspTransform:
 
     Call "Predict" service for the functionality
     """
-    def __init__(self, sim_mode=True, crop=False):
+    def __init__(self, sim_mode=True, crop=True):
         """
         1. Initializes all the ROS topics 
         2. Inputs: 
@@ -52,8 +52,8 @@ class GraspTransform:
         self.received = False
         self.rgb_received = False
         self.depth_scale = 1 
-        self.y_offset = 0
-        self.x_offset = 0
+        self.y_offset = -0.08   # -0.09    # -0.04
+        self.x_offset = 0.02   # 0.02
 
         self.base_frame = 'panda_link0'
         # TODO check camera FOV of the real sense, implement actual width calculation
@@ -61,7 +61,7 @@ class GraspTransform:
         self.cam_fov = 65.5
 
         # self.crop_size = [0, 300, 720, 1050]
-        self.crop_size = [50, 0, 480, 640] # 480, 640
+        self.crop_size = [0, 200, 900, 1000] # 480, 640
 
         # Get the camera info topic and the camera frame
         if self.sim_mode:
@@ -99,7 +99,7 @@ class GraspTransform:
         rospy.loginfo("[Grasp Transform] Sucessfully initialized Grasp Transform instance")
     
     def _depth_img_callback(self, msg):
-        img = bridge.imgmsg_to_cv2(msg)
+        img = bridge.imgmsg_to_cv2(msg,"32FC1")
 
         if not self.waiting:
           return
@@ -180,13 +180,20 @@ class GraspTransform:
         # check for nearby depths and assign the max of the depths
         # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
         
+	
         # If you dont want to use the above functionality
         z = depth[int(center[0])][int(center[1])]*self.depth_scale
+	print("####################################################################")	
+	print("z = ", z)
+	print("####################################################################")
 
         # Convert from image frame to camera frame (Intrinsic parameters)
         x = ((center[1] - self.cam_K[0, 2])/self.cam_K[0, 0])*z
         y = ((center[0] - self.cam_K[1, 2])/self.cam_K[1, 1])*z
         # print(depth.shape, self.cam_K[0, 2], self.cam_K[0, 0], self.cam_K[1, 2], self.cam_K[1, 1])
+	
+	# x = ((center[1] - self.cam_K[0, 2])/self.cam_K[0, 0])
+	# y = ((center[0] - self.cam_K[1, 2])/self.cam_K[1, 1])
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
@@ -202,8 +209,17 @@ class GraspTransform:
         g = ret.best_grasp
         g.pose.position.x = pos[0][0] + self.x_offset
         g.pose.position.y = pos[0][1] + self.y_offset
-        g.pose.position.z = pos[0][2]
-        
+	# g.pose.position.z = 0.1
+	# g.pose.position.z = pos[0][2] - 0.02
+        g.pose.position.z = max((pos[0][2] - 0.02), 0.11)
+
+	# g.pose.position.z = pos[0][2] + 0.035
+
+	print("####################################################################")	
+	print("g.pose.position.z =", g.pose.position.z)
+	print("####################################################################")        
+
+
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, angle))
         g.width = width
         g.quality = quality

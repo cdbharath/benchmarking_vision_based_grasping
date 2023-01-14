@@ -2,9 +2,10 @@ only_first: True
 
 experiment_1:
   objects:
-    - 057_racquetball
+    - 021_bleach_cleanser
     - 065-j_cups
     - 021_bleach_cleanser
+    - 057_racquetball
     - 044_flat_screwdriver
     - 050_medium_clamp
     - 072-a_toy_airplane

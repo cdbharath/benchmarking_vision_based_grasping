@@ -67,7 +67,7 @@ class BenchmarkTest:
 
         # Reach scan pose if eye in hand
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.5, roll=0.0, pitch=3.14, yaw=0.0)
+            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.560, roll=0.0, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -163,6 +163,7 @@ class BenchmarkTest:
         skip = False
         experiment = self.experiments[self.experiment_idx]
         object = experiment[0][self.object_idx]
+	# object = experiment[0][1]
         pose = experiment[1][self.pose_idx]
         
         if self.sim_mode:
@@ -337,11 +338,11 @@ class BenchmarkTest:
 
         x = response.best_grasp.pose.position.x
         y = response.best_grasp.pose.position.y
-        z = response.best_grasp.pose.position.z 
+        z = response.best_grasp.pose.position.z
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
 
         self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
-        self.pick_and_place.setDropPose(x=0.4, y=0.0, z=0.0, roll=0, pitch=pi, yaw=0)
+        self.pick_and_place.setDropPose(x=0.4, y=0.0, z=1.5, roll=0, pitch=pi, yaw=0)
         self.pick_and_place.setGripperPose(width=0.00)
 
         if self.use_cartesian:
