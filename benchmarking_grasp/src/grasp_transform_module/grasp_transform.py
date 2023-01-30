@@ -33,7 +33,7 @@ class GraspTransform:
 
     Call "Predict" service for the functionality
     """
-    def __init__(self, sim_mode=True, crop=False):
+    def __init__(self, sim_mode=True, crop=True):
         """
         1. Initializes all the ROS topics 
         2. Inputs: 
@@ -52,8 +52,8 @@ class GraspTransform:
         self.received = False
         self.rgb_received = False
         self.depth_scale = 1 
-        self.y_offset = 0
-        self.x_offset = 0
+        self.y_offset = -0.08
+        self.x_offset = 0.02
 
         self.base_frame = 'panda_link0'
         # TODO check camera FOV of the real sense, implement actual width calculation
@@ -61,7 +61,7 @@ class GraspTransform:
         self.cam_fov = 65.5
 
         # self.crop_size = [0, 300, 720, 1050]
-        self.crop_size = [50, 0, 480, 640] # 480, 640
+        self.crop_size = [0, 200, 900, 1000] # 480, 640
 
         # Get the camera info topic and the camera frame
         if self.sim_mode:
@@ -99,7 +99,7 @@ class GraspTransform:
         rospy.loginfo("[Grasp Transform] Sucessfully initialized Grasp Transform instance")
     
     def _depth_img_callback(self, msg):
-        img = bridge.imgmsg_to_cv2(msg)
+        img = bridge.imgmsg_to_cv2(msg, "32FC1")
 
         if not self.waiting:
           return
@@ -202,7 +202,8 @@ class GraspTransform:
         g = ret.best_grasp
         g.pose.position.x = pos[0][0] + self.x_offset
         g.pose.position.y = pos[0][1] + self.y_offset
-        g.pose.position.z = pos[0][2]
+        # g.pose.position.z = pos[0][2]
+        g.pose.position.z = max((pos[0][2] - 0.02), 0.11)
         
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, angle))
         g.width = width
