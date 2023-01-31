@@ -1,4 +1,3 @@
-from tkinter.tix import Tree
 import rospy
 import moveit_commander
 import moveit_msgs.msg

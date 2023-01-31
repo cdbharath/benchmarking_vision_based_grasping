@@ -62,6 +62,8 @@ add_service_files(
   ProcessAndExecute.srv
   GraspPrediction.srv
   Grasp2DPrediction.srv
+  EndEffectorWaypoint.srv
+  GripperCommand.srv
 )
 
 ## Generate actions in the 'action' folder
