@@ -43,7 +43,7 @@ class PickAndPlace:
             waypoint_request.pitch = waypoint[4]
             waypoint_request.yaw = waypoint[5]
             
-            cartesian_service(waypoint)
+            cartesian_service(waypoint_request)
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s", e)
 
@@ -60,7 +60,7 @@ class PickAndPlace:
             waypoint_request.pitch = waypoint[4]
             waypoint_request.yaw = waypoint[5]
             
-            vanilla_service(waypoint)
+            vanilla_service(waypoint_request)
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s", e)
 
