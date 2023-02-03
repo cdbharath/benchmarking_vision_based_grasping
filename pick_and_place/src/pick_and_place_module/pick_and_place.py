@@ -2,9 +2,7 @@ from copy import deepcopy
 from math import pi
 
 import rospy
-from pick_and_place_module.eef_control import MoveGroupControl
-from pick_and_place_module.grasping import Gripper
-from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest
+from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse
 
 class PickAndPlace:
     def __init__(self, gripper_offset=0.0, intermediate_z_stop=0.5, gripper_as_eef=True):
@@ -15,8 +13,6 @@ class PickAndPlace:
         self.pick_pose = None
         self.place_pose = None
         self.gripper_pose = None
-        self.moveit_control = MoveGroupControl(gripper_as_eef=gripper_as_eef)
-        self.gripper = Gripper()
         self.angle_offset = 0.0
             
     def setPickPose(self, x, y, z, roll, pitch, yaw):
@@ -80,6 +76,16 @@ class PickAndPlace:
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s", e)
 
+    def call_get_current_pose_service(self):
+        rospy.wait_for_service('moveit_adapter/get_current_pose')
+        try:
+            current_pose_service = rospy.ServiceProxy('moveit_adapter/get_current_pose', CurrentPose)            
+            resp = current_pose_service()
+            return resp.pose
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service call failed: %s", e)
+            return CurrentPoseResponse()
+
     def generate_waypoints(self, destination_pose, action):
         '''
         Generated waypoints are for a particular application
@@ -89,13 +95,11 @@ class PickAndPlace:
         2. Generate for intermediate stop
         3. Generate for drop
         '''
-        move_group = self.moveit_control
-
         waypoints = []
 
         if action == 0:
             # Scanning pose waypoint   
-            current_pose = move_group.get_current_pose()
+            current_pose = self.call_get_current_pose_service()
             current_pose_ = deepcopy(destination_pose)
             current_pose_[0] = self.scan_pose[0]
             current_pose_[1] = self.scan_pose[1]
@@ -107,7 +111,7 @@ class PickAndPlace:
 
         if action == 1:
             # Intermediate vertical stop waypoint
-            current_pose = move_group.get_current_pose()
+            current_pose = self.call_get_current_pose_service()
             current_pose_ = deepcopy(destination_pose)
             current_pose_[2] = self.intermediate_z_stop
             waypoints.append(current_pose_)
@@ -130,7 +134,7 @@ class PickAndPlace:
 
         if action == 3:
             # Intermediate vertical stop waypoint
-            current_pose = move_group.get_current_pose()
+            current_pose = self.call_get_current_pose_service()
             current_pose_ = deepcopy(destination_pose)
             current_pose_[0] = current_pose.position.x
             current_pose_[1] = current_pose.position.y
@@ -152,87 +156,66 @@ class PickAndPlace:
         self.execute_pick_up()
         self.execute_place()
 
-    def execute_cartesian_pick_up(self):
-        move_group = self.moveit_control
-        
-        self.gripper.grasp(0.1)
+    def execute_cartesian_pick_up(self):        
+        self.call_gripper_service(0.1)
         rospy.sleep(2)        
         
         waypoints = self.generate_waypoints(self.pick_pose, 1)
         for waypoint in waypoints:
-            # self.moveit_control.follow_cartesian_path([waypoint])
             self.call_cartesian_service(waypoint)
 
-        # self.gripper.grasp(self.gripper_pose)
         self.call_gripper_service(self.gripper_pose)
         rospy.sleep(3)
         
         waypoints = self.generate_waypoints(self.pick_pose, 2)
         for waypoint in waypoints:
-            # move_group.follow_cartesian_path([waypoint])
             self.call_cartesian_service(waypoint)
     
         # rospy.sleep(2)        
 
     def execute_pick_up(self):
-        move_group = self.moveit_control
-        self.gripper.grasp(0.1)
+        self.call_gripper_service(0.1)
         rospy.sleep(2)        
 
         waypoints = self.generate_waypoints(self.pick_pose, 1)        
         for waypoint in waypoints:
-            # move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
             self.call_vanilla_service(waypoint)
 
-        # self.gripper.grasp(self.gripper_pose)
         self.call_gripper_service(self.gripper_pose)
         rospy.sleep(3)
             
         waypoints = self.generate_waypoints(self.pick_pose, 2)        
         for waypoint in waypoints:
-            # move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
             self.call_vanilla_service(waypoint)
         
         # rospy.sleep(2)        
 
     def execute_place(self):
-        move_group = self.moveit_control
-
         waypoints = self.generate_waypoints(self.drop_pose, 3)        
         for waypoint in waypoints:
-            # move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
             self.call_vanilla_service(waypoint)
 
-        # self.gripper.grasp(0.1)
         self.call_gripper_service(0.1)
 
         rospy.sleep(3)        
     
     def execute_cartesian_place(self):
-        move_group = self.moveit_control
-
         waypoints = self.generate_waypoints(self.drop_pose, 3)
         for waypoint in waypoints:
-            # move_group.follow_cartesian_path([waypoint])
             self.call_cartesian_service(waypoint)
 
-        # self.gripper.grasp(0.1)
         self.call_gripper_service(0.1)
 
         rospy.sleep(3)        
 
     def reach_scanpose(self):
-        move_group = self.moveit_control
         waypoints = self.generate_waypoints(self.scan_pose, 0)
 
         for waypoint in waypoints:
-            # move_group.go_to_pose_goal(waypoint[0], waypoint[1], waypoint[2], waypoint[3], waypoint[4], waypoint[5])
             self.call_vanilla_service(waypoint)
 
     def reach_cartesian_scanpose(self):
-        move_group = self.moveit_control
         waypoints = self.generate_waypoints(self.scan_pose, 0)
  
         for waypoint in waypoints:
-            # move_group.follow_cartesian_path([waypoint])
             self.call_cartesian_service(waypoint)
