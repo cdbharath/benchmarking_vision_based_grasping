@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from benchmarking_pipeline_module.benchmarking_pipeline import BenchmarkTest

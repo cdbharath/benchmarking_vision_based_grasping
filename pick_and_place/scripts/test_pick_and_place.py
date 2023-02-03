@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from pick_and_place_module.pick_and_place import PickAndPlace
