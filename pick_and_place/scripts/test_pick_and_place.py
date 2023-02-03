@@ -2,7 +2,6 @@
 
 import rospy
 from pick_and_place_module.pick_and_place import PickAndPlace
-from std_msgs.msg import Float64
 from math import pi
 
 def pick_and_place():

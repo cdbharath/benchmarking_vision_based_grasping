@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from pick_and_place_module.grasping import Gripper
-from pick_and_place_module.eef_control import MoveGroupControl
+from moveit_adapter_module.grasping import Gripper
+from moveit_adapter_module.eef_control import MoveGroupControl
 from benchmarking_msgs.srv import EndEffectorWaypoint, GripperCommand
 
 class MoveitAdapter:
