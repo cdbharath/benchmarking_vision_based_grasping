@@ -144,7 +144,7 @@ class ImageToCameraFrame:
         z = depth[int(center[0])][int(center[1])]*self.depth_scale
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
-        coords_in_cam = self.cam_K@np.array([[center[1]], [center[0]], [1]])
+        coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
         coords_in_cam = coords_in_cam*z/coords_in_cam[2][0]
 
         # Response message
