@@ -60,7 +60,7 @@ class ImageToCameraFrame:
         rospy.loginfo("[Grasp Transform] Camera matrix extraction successful")
 
         # Service that transforms the coordinates
-        rospy.Service('~coords_in_cam', GraspPrediction, self.transform_coords_cb)
+        rospy.Service('coords_in_cam', GraspPrediction, self.transform_coords_cb)
 
         # Topic for grasp visualization (Useful for debugging)
         self.img_pub = rospy.Publisher('~visualisation', Image, queue_size=1)
@@ -153,13 +153,15 @@ class ImageToCameraFrame:
         g = ret.best_grasp
         g.pose.position.x = coords_in_cam[0][0]
         g.pose.position.y = coords_in_cam[1][0]
-        g.pose.position.z = max(coords_in_cam[2][0], 0.1)
+        g.pose.position.z = coords_in_cam[2][0]
         
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, angle))
         g.width = width
         g.quality = quality
 
         self.draw_angled_rect(rgb, center[1], center[0], angle) 
+
+        print(f"Grasp in camera frame x:{g.pose.position.x}, y:{g.pose.position.y}, z:{g.pose.position.z}")
 
         return ret
 

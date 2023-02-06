@@ -324,11 +324,11 @@ class BenchmarkTest:
         2. Picks up the object from the received coordinate
         3. Benchmarking state is updated to PICK_UP
         """
-        rospy.loginfo("[Benchmarking Pipeline] waiting for service: grasp_transform/predict")
-        rospy.wait_for_service("grasp_transform/predict")
+        rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
+        rospy.wait_for_service("predict")
         rospy.loginfo("[Benchmarking Pipeline] Service call successful")
 
-        srv_handle = rospy.ServiceProxy("grasp_transform/predict", GraspPrediction)
+        srv_handle = rospy.ServiceProxy("predict", GraspPrediction)
         response = srv_handle()
 
         x = response.best_grasp.pose.position.x

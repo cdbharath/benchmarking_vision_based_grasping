@@ -5,9 +5,11 @@ Email: kumar7bharath@gmail.com
 
 import rospy
 import tf2_ros
+import numpy as np
+from tf import transformations as tft
+
 import tf2_geometry_msgs
 import geometry_msgs.msg as gmsg
-
 from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
 
 class CameraToWorldFrame:
@@ -29,36 +31,39 @@ class CameraToWorldFrame:
         else:
             self.camera_frame = 'camera_depth_optical_frame'        
 
-        rospy.Service('~predict', GraspPrediction, self.transform_coords_cb)
+        rospy.Service('predict', GraspPrediction, self.transform_coords_cb)
 
     def transform_coords_cb(self, req):
         '''
         Service callback that transforms the coordinates and returns the resulting pose
         '''
         pose_in_cam = self.get_grasp_coords_in_cam_frame()
-        pose_in_world = self.convert_pose(pose_in_cam, self.camera_frame, self.base_frame)
+        pose_in_world = self.convert_pose(pose_in_cam.pose, self.camera_frame, self.base_frame)
 
         # Response message
         ret = GraspPredictionResponse()
         ret.success = True
         
         g = ret.best_grasp
-        g.pose = pose_in_world
+        g.pose.position = pose_in_world.position
+        g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, 0))
 
         # TODO consider these values later 
         g.width = 0
         g.quality = 0
 
+        print(f"Grasp in world frame x:{g.pose.position.x}, y:{g.pose.position.y}, z:{g.pose.position.z}")
+
         return ret
 
-    def get_grasp_coords_in_cam_frame():
+    def get_grasp_coords_in_cam_frame(self):
         '''
         Calls a service that obtains the coordinates of detected grasp in the camera frame
         '''
-        rospy.wait_for_service("~coords_in_cam", timeout=30)
+        rospy.wait_for_service("coords_in_cam", timeout=30)
 
         try:
-            srv_handle = rospy.ServiceProxy("~coords_in_cam", GraspPrediction)
+            srv_handle = rospy.ServiceProxy("coords_in_cam", GraspPrediction)
             srv_resp = srv_handle()
             
             return srv_resp.best_grasp
@@ -92,3 +97,11 @@ class CameraToWorldFrame:
         p2 = tf2_geometry_msgs.do_transform_pose(spose, trans)
 
         return p2.pose
+
+    def list_to_quaternion(self, l):
+        q = gmsg.Quaternion()
+        q.x = l[0]
+        q.y = l[1]
+        q.z = l[2]
+        q.w = l[3]
+        return q
