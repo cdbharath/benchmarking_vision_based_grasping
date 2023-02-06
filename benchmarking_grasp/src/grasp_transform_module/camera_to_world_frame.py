@@ -11,11 +11,11 @@ import geometry_msgs.msg as gmsg
 from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
 
 class CameraToWorldFrame:
+    '''
+    Converts coordinates from camera frame to the world frame based on 
+    Franka Panda's robot description
+    '''
     def __init__(self, sim_mode=True):
-        '''
-        Converts coordinates from camera frame to the world frame based on 
-        Franka Panda's robot description
-        '''
         self.sim_mode = sim_mode
 
         # For TF related calculations
@@ -32,7 +32,9 @@ class CameraToWorldFrame:
         rospy.Service('~predict', GraspPrediction, self.transform_coords_cb)
 
     def transform_coords_cb(self, req):
-
+        '''
+        Service callback that transforms the coordinates and returns the resulting pose
+        '''
         pose_in_cam = self.get_grasp_coords_in_cam_frame()
         pose_in_world = self.convert_pose(pose_in_cam, self.camera_frame, self.base_frame)
 
@@ -50,10 +52,13 @@ class CameraToWorldFrame:
         return ret
 
     def get_grasp_coords_in_cam_frame():
-        rospy.wait_for_service("coords_in_cam", timeout=30)
+        '''
+        Calls a service that obtains the coordinates of detected grasp in the camera frame
+        '''
+        rospy.wait_for_service("~coords_in_cam", timeout=30)
 
         try:
-            srv_handle = rospy.ServiceProxy("coords_in_cam", GraspPrediction)
+            srv_handle = rospy.ServiceProxy("~coords_in_cam", GraspPrediction)
             srv_resp = srv_handle()
             
             return srv_resp.best_grasp
