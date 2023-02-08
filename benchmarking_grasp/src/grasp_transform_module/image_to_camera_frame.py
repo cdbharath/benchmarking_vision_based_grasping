@@ -49,7 +49,8 @@ class ImageToCameraFrame:
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
             cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
-            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
+            # rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
             rospy.Subscriber('/camera/color/image_raw', Image, self._rgb_img_callback, queue_size=1)
 
         # To manually enter the camera matrix
@@ -59,7 +60,7 @@ class ImageToCameraFrame:
         # Get camera matrix from info topic        
         camera_info_msg = rospy.wait_for_message(cam_info_topic, CameraInfo)
         self.cam_K = np.array(camera_info_msg.K).reshape((3, 3))
-        rospy.loginfo("[Grasp Transform] Camera matrix extraction successful")
+        # rospy.loginfo("[Grasp Transform] Camera matrix extraction successful")
 
         # Service that transforms the coordinates
         rospy.Service('coords_in_cam', GraspPrediction, self.transform_coords_cb)
@@ -70,26 +71,19 @@ class ImageToCameraFrame:
         # Publishes cropped results (Useful for debugging)
         self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
         self.depth_cropped_pub = rospy.Publisher("cropped_depth", Image, queue_size=10) 
+        rospy.loginfo("[Image to Camera] Node loaded successfully")
 
     def _depth_img_callback(self, msg):
         '''
         Subscribes depth image from the corresponding topic 
         '''
-        img = self.bridge.imgmsg_to_cv2(msg, "32FC1")
+        img = self.bridge.imgmsg_to_cv2(msg)
 
         if not self.waiting:
           return
         
         if self.crop:
             self.curr_depth_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
-
-            # Displays the normalized depth image
-            # TODO add this to the common flow instead
-            # depth_crop = self.curr_depth_img.copy()
-            # depth_scale = np.max(np.abs(depth_crop))
-            # depth_crop = depth_crop.astype(np.float32) / depth_scale  # Has to be float32, 64 not supported.
-            # normalized = (depth_crop*255).astype('uint8')
-
             self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(self.curr_depth_img))
         else:
             self.curr_depth_img = img 

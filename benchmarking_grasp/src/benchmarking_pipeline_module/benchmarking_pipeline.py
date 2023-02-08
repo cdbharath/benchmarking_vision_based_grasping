@@ -56,10 +56,11 @@ class BenchmarkTest:
         6. Parse yaml file for object list and benchmarking parameters
         7. Initialize required ROS topics
         """
-        self.pick_and_place = PickAndPlace(gripper_offset=0.1, intermediate_z_stop=0.5)
+        self.pick_and_place = PickAndPlace(gripper_offset=0.08, intermediate_z_stop=0.5)
         self.use_cartesian = use_cartesian
         self.over_head = over_head
         self.sim_mode = sim_mode
+        self.bad_grasp_z = 0.1 + 0.02
 
         # Reach scan pose if eye in hand
         if not self.over_head:
@@ -165,7 +166,7 @@ class BenchmarkTest:
             self.spawn_model(object, pose)
         else:
             try:
-                six.moves.input("[Benchmarking Pipeline] Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                six.moves.input("[Benchmarking Pipeline] Place {} at ({}, {}, {}) meters with respect to the robot base and press 'ENTER'".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
                 # print("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
                 # while True:
                 #     k = cv2.waitKey(33)
@@ -324,9 +325,9 @@ class BenchmarkTest:
         2. Picks up the object from the received coordinate
         3. Benchmarking state is updated to PICK_UP
         """
-        rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
+        # rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
         rospy.wait_for_service("predict")
-        rospy.loginfo("[Benchmarking Pipeline] Service call successful")
+        rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
 
         srv_handle = rospy.ServiceProxy("predict", GraspPrediction)
         response = srv_handle()
@@ -336,16 +337,19 @@ class BenchmarkTest:
         z = response.best_grasp.pose.position.z 
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
 
-        self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
-        self.pick_and_place.setDropPose(x=0.4, y=0.0, z=1.5, roll=0, pitch=pi, yaw=0)
-        self.pick_and_place.setGripperPose(width=0.00)
+        if z > self.bad_grasp_z:
+            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
+            self.pick_and_place.setDropPose(x=0.4, y=0.0, z=1.5, roll=0, pitch=pi, yaw=0)
+            self.pick_and_place.setGripperPose(width=0.00)
 
-        if self.use_cartesian:
-            self.pick_and_place.execute_cartesian_pick_up()
+            if self.use_cartesian:
+                self.pick_and_place.execute_cartesian_pick_up()
+            else:
+                self.pick_and_place.execute_pick_up()
+            if self.attached:
+                self.benchmark_state = BenchmarkTestStates.PICK_UP
         else:
-            self.pick_and_place.execute_pick_up()
-        if self.attached:
-            self.benchmark_state = BenchmarkTestStates.PICK_UP
+            rospy.logerr("[Benchmarking Pipeline] bad grasp, skipping this turn")
 
         return True
     

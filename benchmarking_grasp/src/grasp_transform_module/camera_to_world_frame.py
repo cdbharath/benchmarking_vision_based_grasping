@@ -32,6 +32,7 @@ class CameraToWorldFrame:
             self.camera_frame = 'camera_depth_optical_frame'        
 
         rospy.Service('predict', GraspPrediction, self.transform_coords_cb)
+        rospy.loginfo("[Camera to World] Node loaded successfully")
 
     def transform_coords_cb(self, req):
         '''
