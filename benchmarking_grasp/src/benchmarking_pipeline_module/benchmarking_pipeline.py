@@ -63,7 +63,7 @@ class BenchmarkTest:
 
         # Reach scan pose if eye in hand
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.3, y=0.0, z=0.56, roll=0.0, pitch=3.14, yaw=0.0)
+            self.pick_and_place.setScanPose(x=0.45, y=0.0, z=0.7, roll=0.0, pitch=3.14, yaw=0.0)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:

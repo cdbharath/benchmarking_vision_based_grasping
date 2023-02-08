@@ -5,7 +5,7 @@ import rospy
 from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse
 
 class PickAndPlace:
-    def __init__(self, gripper_offset=0.0, intermediate_z_stop=0.5, gripper_as_eef=True):
+    def __init__(self, gripper_offset=0.05, intermediate_z_stop=0.5):
         self.gripper_offset = gripper_offset
         self.intermediate_z_stop = intermediate_z_stop
         self.scan_pose = [0.0, 0.3, 0.6, 0.0, pi, 0.0] 
@@ -14,6 +14,7 @@ class PickAndPlace:
         self.place_pose = None
         self.gripper_pose = None
         self.angle_offset = 0.0
+        self.stop_above_destination = 0.1
             
     def setPickPose(self, x, y, z, roll, pitch, yaw):
         self.pick_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
@@ -86,7 +87,7 @@ class PickAndPlace:
             rospy.loginfo("Service call failed: %s", e)
             return CurrentPoseResponse()
 
-    def generate_waypoints(self, destination_pose, action):
+    def generate_waypoints(self, destination_pose, action, interpolate=False, interpolate_steps=3):
         '''
         Generated waypoints are for a particular application
         This is to be changed based on the application it is being used
@@ -116,9 +117,16 @@ class PickAndPlace:
             current_pose_[2] = self.intermediate_z_stop
             waypoints.append(current_pose_)
 
+            # Interpolates waypoints
+            if interpolate:
+                for i in range(1, interpolate_steps):
+                    destination_pose_ = deepcopy(destination_pose)
+                    destination_pose_[2] = self.intermediate_z_stop - (self.intermediate_z_stop - (destination_pose_[2] + self.stop_above_destination + self.gripper_offset))*i/interpolate_steps 
+                    waypoints.append(destination_pose_)
+
             # 10 cm above pick pose waypoint 
             destination_pose_ = deepcopy(destination_pose)
-            destination_pose_[2] = destination_pose_[2]  + 0.1 
+            destination_pose_[2] = destination_pose_[2]  + + self.gripper_offset + self.stop_above_destination 
             waypoints.append(destination_pose_)
 
             # Pick pose waypoint with gripper height offset

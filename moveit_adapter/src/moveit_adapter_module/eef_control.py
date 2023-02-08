@@ -44,6 +44,7 @@ class MoveGroupControl:
         # Planner parameters
         # move_group.set_planning_time(5)
         # move_group.set_goal_tolerance(1)
+        move_group.set_max_velocity_scaling_factor(0.5)
 
         self.robot = robot
         self.scene = scene

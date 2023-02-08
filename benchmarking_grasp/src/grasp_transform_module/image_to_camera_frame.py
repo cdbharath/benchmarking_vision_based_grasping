@@ -37,7 +37,9 @@ class ImageToCameraFrame:
 
         # TODO parametrize, check the actual value
         self.cam_fov = 65.5
-        self.crop_size = [0, 200, 900, 1000] 
+
+        # Indies 0, 2: v and 1, 3: u
+        self.crop_size = [110, 295, 720, 1181] 
 
         # Get camera info and subscribe to rgb and depth images
         if self.sim_mode:
@@ -83,12 +85,12 @@ class ImageToCameraFrame:
 
             # Displays the normalized depth image
             # TODO add this to the common flow instead
-            depth_crop = self.curr_depth_img.copy()
-            depth_scale = np.max(np.abs(depth_crop))
-            depth_crop = depth_crop.astype(np.float32) / depth_scale  # Has to be float32, 64 not supported.
-            normalized = (depth_crop*255).astype('uint8')
+            # depth_crop = self.curr_depth_img.copy()
+            # depth_scale = np.max(np.abs(depth_crop))
+            # depth_crop = depth_crop.astype(np.float32) / depth_scale  # Has to be float32, 64 not supported.
+            # normalized = (depth_crop*255).astype('uint8')
 
-            self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(normalized))
+            self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(self.curr_depth_img))
         else:
             self.curr_depth_img = img 
 
@@ -134,14 +136,18 @@ class ImageToCameraFrame:
         # Perform grasp prediction, Get coords in image frame
         center, width, quality, angle = self.predict_grasp(depth, rgb)
 
-        # Warping the angle
-        angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
-
         # check for nearby depths and assign the max of the depths
         # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
         
         # If you dont want to use the above functionality
         z = depth[int(center[0])][int(center[1])]*self.depth_scale
+
+        # Accounting for crop 
+        center[0] = self.crop_size[0] + center[0]
+        center[1] = self.crop_size[1] + center[1]
+
+        # Warping the angle
+        angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
@@ -179,7 +185,7 @@ class ImageToCameraFrame:
             request_msg.rgb_image = self.bridge.cv2_to_imgmsg(rgb)
             
             response = srv_handle(request_msg)
-            center = response.best_grasp.px, response.best_grasp.py
+            center = [response.best_grasp.px, response.best_grasp.py]
             width = response.best_grasp.width
             quality = response.best_grasp.quality
             angle = response.best_grasp.angle
