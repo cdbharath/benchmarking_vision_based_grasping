@@ -136,11 +136,7 @@ class ImageToCameraFrame:
         # Perform grasp prediction, Get coords in image frame
         center, width, quality, angle = self.predict_grasp(depth, rgb)
 
-        # check for nearby depths and assign the max of the depths
-        # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
-        
-        # If you dont want to use the above functionality
-        z = depth[int(center[0])][int(center[1])]*self.depth_scale
+        precrop_center = center.copy() 
 
         # Accounting for crop 
         center[0] = self.crop_size[0] + center[0]
@@ -148,6 +144,12 @@ class ImageToCameraFrame:
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
+
+        # check for nearby depths and assign the max of the depths
+        # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
+        
+        # If you dont want to use the above functionality
+        z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
@@ -165,7 +167,7 @@ class ImageToCameraFrame:
         g.width = width
         g.quality = quality
 
-        self.draw_angled_rect(rgb, center[1], center[0], angle) 
+        self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle) 
 
         print(f"Grasp in camera frame x:{g.pose.position.x}, y:{g.pose.position.y}, z:{g.pose.position.z}")
 
