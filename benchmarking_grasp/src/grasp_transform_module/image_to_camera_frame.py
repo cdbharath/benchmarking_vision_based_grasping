@@ -149,6 +149,10 @@ class ImageToCameraFrame:
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
         coords_in_cam = coords_in_cam*z/coords_in_cam[2][0]
 
+        # Transform grasp angle
+        angle_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[np.cos(angle)], [np.sin(angle)], [1]])
+        angle_in_cam = np.arctan2(angle_vec_in_cam[1], angle_vec_in_cam[0])
+
         # Response message
         ret = GraspPredictionResponse()
         ret.success = True
@@ -157,7 +161,7 @@ class ImageToCameraFrame:
         g.pose.position.y = coords_in_cam[1][0]
         g.pose.position.z = coords_in_cam[2][0]
         
-        g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(np.pi, 0, angle))
+        g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(0, 0, angle_in_cam))
         g.width = width
         g.quality = quality
 

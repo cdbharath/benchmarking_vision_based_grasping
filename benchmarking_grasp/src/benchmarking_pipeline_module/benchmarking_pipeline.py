@@ -181,10 +181,11 @@ class BenchmarkTest:
         self.testing_in_process = True
         
         try:
-            self.process_rgbd_and_execute_pickup()
+            success = self.process_rgbd_and_execute_pickup()
             # self.test_benchmark()
             score = self.benchmark_state
-            self.place()
+            if success:
+                self.place()
         except Exception as e:
             rospy.logerr("[Benchmarking Pipeline] skipping this turn %s", e)
             skip = True
@@ -335,11 +336,12 @@ class BenchmarkTest:
         x = response.best_grasp.pose.position.x
         y = response.best_grasp.pose.position.y
         z = response.best_grasp.pose.position.z 
-        (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.w, response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, response.best_grasp.pose.orientation.z])
+        (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, 
+                                              response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])
 
         if z > self.bad_grasp_z:
             self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
-            self.pick_and_place.setDropPose(x=0.4, y=0.0, z=1.5, roll=0, pitch=pi, yaw=0)
+            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
             self.pick_and_place.setGripperPose(width=0.00)
 
             if self.use_cartesian:
@@ -350,6 +352,7 @@ class BenchmarkTest:
                 self.benchmark_state = BenchmarkTestStates.PICK_UP
         else:
             rospy.logerr("[Benchmarking Pipeline] bad grasp, skipping this turn")
+            return False
 
         return True
     
@@ -377,7 +380,8 @@ class BenchmarkTest:
         # Rotate the object
         pose = self.pick_and_place.call_get_current_pose_service()
         (x, y, z) = (pose.position.x, pose.position.y, pose.position.z) 
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion((pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z))
+        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion((pose.orientation.x, pose.orientation.y, 
+                                                                       pose.orientation.z, pose.orientation.w))
         
         # Yawing    
         # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
