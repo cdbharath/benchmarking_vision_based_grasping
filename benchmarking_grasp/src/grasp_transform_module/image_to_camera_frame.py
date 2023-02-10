@@ -200,9 +200,8 @@ class ImageToCameraFrame:
         Draws bounding box for visualization
         """
 
-        _angle = -angle
-        b = np.cos(_angle) * 0.5
-        a = np.sin(_angle) * 0.5
+        b = np.cos(angle) * 0.5
+        a = np.sin(angle) * 0.5
 
         # For grayscale images
         # gray_image = image.copy()
@@ -234,9 +233,8 @@ class ImageToCameraFrame:
         max_depth = float("inf")
 
         # Orientation of the bounding box
-        _angle = -angle
-        b = np.cos(_angle) * 0.5
-        a = np.sin(_angle) * 0.5
+        b = np.cos(angle) * 0.5
+        a = np.sin(angle) * 0.5
 
         # Corners of the bounding box
         pt0 = (int(x - a * height - b * width), int(y + b * height - a * width))

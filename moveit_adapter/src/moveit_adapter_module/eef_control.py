@@ -74,7 +74,7 @@ class MoveGroupControl:
     def go_to_pose_goal(self, x=0, y=0, z=0, X=0, Y=0, Z=0):
         move_group = self.move_group
 
-        qw, qx, qy, qz = quaternion_from_euler(X, Y, Z)
+        qx, qy, qz, qw = quaternion_from_euler(X, Y, Z)
         
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal.orientation.w = qw
@@ -100,7 +100,7 @@ class MoveGroupControl:
         cartesian_points = []
         
         for waypoint in waypoints:
-            qw, qx, qy, qz = quaternion_from_euler(waypoint[3], waypoint[4], waypoint[5])
+            qx, qy, qz, qw = quaternion_from_euler(waypoint[3], waypoint[4], waypoint[5])
             
             pose_ = deepcopy(pose)
             pose_.position.x = waypoint[0]

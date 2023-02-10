@@ -2,6 +2,7 @@
     <include file="$(find pick_and_place)/launch/publish_transform.launch" />
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="align_depth" value="true"/>
+        <arg name="filters" value="temporal,hole_filling"/>
     </include>
 
     <node pkg="benchmarking_grasp" type="simple_depth_completion.py" name="simple_depth_completion" output="screen"/>

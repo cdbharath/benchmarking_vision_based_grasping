@@ -385,8 +385,8 @@ class BenchmarkTest:
         
         # Yawing    
         # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll + pi/4, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll - pi/4, pitch, yaw])
+        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw + pi/4])
+        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw - pi/4])
         # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         # Pitching
@@ -397,8 +397,8 @@ class BenchmarkTest:
 
         # Rolling
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw + pi/4])
-        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw - pi/4])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll + pi/4, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll - pi/4, pitch, yaw])
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         if self.attached:

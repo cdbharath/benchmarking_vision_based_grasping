@@ -8,7 +8,7 @@ def pick_and_place():
     pick_and_place = PickAndPlace(gripper_offset=0.1, intermediate_z_stop=0.7)
     
     pick_and_place.setDropPose(x=0.0, y=0.4, z=0.4, roll=0, pitch=pi, yaw=0)
-    pick_and_place.setPickPose(x=0.45, y=0.0, z=0.2, roll=0, pitch=pi, yaw=0)
+    pick_and_place.setPickPose(x=0.45, y=0.0, z=0.2, roll=0, pitch=pi, yaw=-pi/4)
     pick_and_place.setGripperPose(width=0.0)
     
     # pick_and_place.execute_pick_and_place()

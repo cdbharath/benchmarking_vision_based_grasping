@@ -8,7 +8,7 @@ from benchmarking_msgs.srv import EndEffectorWaypoint, GripperCommand, CurrentPo
 class MoveitAdapter:
     def __init__(self) -> None:
         self.gripper = Gripper()
-        self.moveit_control = MoveGroupControl()
+        self.moveit_control = MoveGroupControl(gripper_as_eef=True)
         
         rospy.Service('moveit_adapter/grasp', GripperCommand, self.grasp_service)
         rospy.Service('moveit_adapter/cartesian_path', EndEffectorWaypoint, self.cartesian_path_service)
