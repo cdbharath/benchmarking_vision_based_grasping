@@ -150,9 +150,9 @@ class PickAndPlace:
             waypoints.append(current_pose_)
 
             # Drop pose waypoint
-            intermediate_pose = deepcopy(destination_pose)
+            destination_pose_ = deepcopy(destination_pose)
             destination_pose_[2] = destination_pose_[2]  + self.gripper_offset 
-            waypoints.append(intermediate_pose)
+            waypoints.append(destination_pose_)
 
         return waypoints
     
