@@ -51,9 +51,8 @@ class ImageToCameraFrame:
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
             cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
-            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
-
-            # rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
+            # rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
             rospy.Subscriber('/camera/color/image_raw', Image, self._rgb_img_callback, queue_size=1)
 
         # To manually enter the camera matrix
@@ -143,10 +142,10 @@ class ImageToCameraFrame:
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
 
         # check for nearby depths and assign the max of the depths
-        z, _ = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
+        # _, z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
 
         # If you dont want to use the above functionality
-        # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
+        z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
