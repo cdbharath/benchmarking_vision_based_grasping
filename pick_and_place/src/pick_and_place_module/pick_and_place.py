@@ -17,16 +17,16 @@ class PickAndPlace:
         self.stop_above_destination = 0.1
             
     def setPickPose(self, x, y, z, roll, pitch, yaw):
-        self.pick_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
+        self.pick_pose = [x, y, z, roll, pitch, yaw + self.angle_offset]
     
     def setDropPose(self, x, y, z, roll, pitch, yaw):
-        self.drop_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
+        self.drop_pose = [x, y, z, roll, pitch, yaw + self.angle_offset]
     
     def setHomePose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
-        self.home_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
+        self.home_pose = [x, y, z, roll, pitch, yaw + self.angle_offset]
 
     def setScanPose(self, x=0.0, y=0.3, z=0.6, roll=0.0, pitch=pi, yaw=0.0):
-        self.scan_pose = [x, y, z, roll + self.angle_offset, pitch, yaw]
+        self.scan_pose = [x, y, z, roll, pitch, yaw + self.angle_offset]
 
     def setGripperPose(self, width=0.0):
         self.gripper_pose = width
@@ -151,7 +151,6 @@ class PickAndPlace:
 
             # Drop pose waypoint
             intermediate_pose = deepcopy(destination_pose)
-            intermediate_pose[2] = self.intermediate_z_stop
             waypoints.append(intermediate_pose)
 
         return waypoints

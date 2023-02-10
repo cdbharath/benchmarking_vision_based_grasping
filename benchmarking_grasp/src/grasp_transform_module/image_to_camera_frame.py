@@ -40,8 +40,8 @@ class ImageToCameraFrame:
 
         # Indies 0, 2: v and 1, 3: u
         # self.crop_size = [110, 197, 720, 1083] 
-        self.crop_size = [110, 295, 720, 1181] 
-
+        # self.crop_size = [110, 295, 720, 1181] 
+        self.crop_size = [140, 325, 690, 1151] 
 
         # Get camera info and subscribe to rgb and depth images
         if self.sim_mode:
@@ -143,10 +143,10 @@ class ImageToCameraFrame:
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
 
         # check for nearby depths and assign the max of the depths
-        # z = self.find_depth(depth, center[0], center[1], angle, width, int(width*0.4))*self.depth_scale
-        
+        z, _ = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
+
         # If you dont want to use the above functionality
-        z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
+        # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
@@ -205,10 +205,6 @@ class ImageToCameraFrame:
 
         b = np.cos(angle) * 0.5
         a = np.sin(angle) * 0.5
-
-        # For grayscale images
-        # gray_image = image.copy()
-        # display_image = cv2.applyColorMap((gray_image * 255).astype(np.uint8), cv2.COLORMAP_BONE)
         
         # For coloured images
         display_image = image.copy()
@@ -226,15 +222,10 @@ class ImageToCameraFrame:
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(display_image, encoding="rgb8"))
 
-    def find_depth(self, depth_image, x, y, angle, width=180, height = 100):
+    def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height = 100):
         """
-        Finds the top most point inside the bounding box (Not technically)
-        Lines bisecting the oppposite sides are searched instead of the entire bounding box
-        
-        TODO Not sure if this is working properly, should test again 
+        Finds the top most point inside the bounding box
         """
-        max_depth = float("inf")
-
         # Orientation of the bounding box
         b = np.cos(angle) * 0.5
         a = np.sin(angle) * 0.5
@@ -245,33 +236,16 @@ class ImageToCameraFrame:
         pt2 = (int(2 * x - pt0[0]), int(2 * y - pt0[1]))
         pt3 = (int(2 * x - pt1[0]), int(2 * y - pt1[1]))
 
-        # Bisection points of one of the pair of sides
-        p1 = np.array((pt0[0] + pt1[0], pt0[1] + pt1[1]))/2
-        p2 = np.array((pt2[0] + pt3[0], pt2[1] + pt3[1]))/2
-
-        # Searches along the line joint the pair of points
-        p = p1
-        d = p2-p1
-        N = np.max(np.abs(d))
-        s = d/N        
-        for ii in range(0,int(N)):
-            p = p+s
-            max_depth = min(max_depth, depth_image[int(p[0])][int(p[1])])
-
-        # Bisection points of one of the pair of sides
-        p1 = np.array((pt1[0] + pt2[0], pt1[1] + pt2[1]))/2
-        p2 = np.array((pt0[0] + pt3[0], pt0[1] + pt3[1]))/2
-
-        # Searches along the line joint the pair of points
-        p = p1
-        d = p2-p1
-        N = np.max(np.abs(d))
-        s = d/N        
-        for ii in range(0,int(N)):
-            p = p+s
-            max_depth = min(max_depth, depth_image[int(p[0])][int(p[1])])
+        mask = np.zeros((depth_image.shape), dtype=np.uint8)
         
-        return max_depth
+        pts = np.array( [[[pt0[0], pt0[1]], 
+                          [pt1[0], pt1[1]],
+                          [pt2[0], pt2[1]],
+                          [pt3[0], pt3[1]]]], dtype=np.int32)
+        cv2.fillPoly(mask, pts, 1)
+        values = depth_image[np.where((mask == 1))]
+
+        return max(values), min(values)
 
     def list_to_quaternion(self, l):
         q = gmsg.Quaternion()
