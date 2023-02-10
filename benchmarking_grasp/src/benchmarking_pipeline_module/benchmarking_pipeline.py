@@ -56,7 +56,7 @@ class BenchmarkTest:
         6. Parse yaml file for object list and benchmarking parameters
         7. Initialize required ROS topics
         """
-        self.pick_and_place = PickAndPlace(gripper_offset=0.08, intermediate_z_stop=0.5)
+        self.pick_and_place = PickAndPlace(gripper_offset=0.08, intermediate_z_stop=0.7)
         self.use_cartesian = use_cartesian
         self.over_head = over_head
         self.sim_mode = sim_mode
@@ -64,7 +64,7 @@ class BenchmarkTest:
 
         # Reach scan pose if eye in hand
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.45, y=0.0, z=0.7, roll=0.0, pitch=3.14, yaw=0.0)
+            self.pick_and_place.setScanPose(x=0.45, y=0.0, z=0.7, roll=0.0, pitch=3.14, yaw=pi)
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
@@ -340,8 +340,8 @@ class BenchmarkTest:
                                               response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])
 
         if z > self.bad_grasp_z:
-            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
-            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw=rz)
+            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw= pi - rz)
+            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw= pi - rz)
             self.pick_and_place.setGripperPose(width=0.00)
 
             if self.use_cartesian:

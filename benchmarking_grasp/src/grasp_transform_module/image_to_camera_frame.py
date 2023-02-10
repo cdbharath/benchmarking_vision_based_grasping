@@ -39,7 +39,9 @@ class ImageToCameraFrame:
         self.cam_fov = 65.5
 
         # Indies 0, 2: v and 1, 3: u
+        # self.crop_size = [110, 197, 720, 1083] 
         self.crop_size = [110, 295, 720, 1181] 
+
 
         # Get camera info and subscribe to rgb and depth images
         if self.sim_mode:
@@ -49,8 +51,9 @@ class ImageToCameraFrame:
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
             cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
-            # rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
+
+            # rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
             rospy.Subscriber('/camera/color/image_raw', Image, self._rgb_img_callback, queue_size=1)
 
         # To manually enter the camera matrix
