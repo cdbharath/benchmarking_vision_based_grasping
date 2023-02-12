@@ -71,7 +71,7 @@ class BenchmarkTest:
                 self.pick_and_place.reach_scanpose()
 
         # Package names to look for urdf and log files
-        self.urdf_package_name = "pick_and_place"
+        self.urdf_package_name = "panda_simulation"
         self.yaml_package_name = "benchmarking_grasp"
 
         self.start_time = str(datetime.now())
@@ -93,7 +93,7 @@ class BenchmarkTest:
             writer.writerow(header)
 
         # Parse object list from yaml and benchmarking parameters
-        parsed_experiments = self.parse_yaml(self.yaml_package_path)
+        parsed_experiments = self.parse_benchmarking_yaml(self.yaml_package_path)
 
         self.experiments = []
 
@@ -258,7 +258,7 @@ class BenchmarkTest:
         self.finger1_state = position[0]
         self.finger2_state = position[1]
     
-    def parse_yaml(self, yaml_package_path):
+    def parse_benchmarking_yaml(self, yaml_package_path):
         """
         Parse information from the yaml file
         """

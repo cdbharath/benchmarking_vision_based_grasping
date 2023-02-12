@@ -35,9 +35,6 @@ class ImageToCameraFrame:
         self.received = False
         self.rgb_received = False
 
-        # TODO parametrize, check the actual value
-        self.cam_fov = 65.5
-
         # Indies 0, 2: v and 1, 3: u
         # self.crop_size = [110, 197, 720, 1083] 
         # self.crop_size = [110, 295, 720, 1181] 
@@ -68,7 +65,7 @@ class ImageToCameraFrame:
         rospy.Service('coords_in_cam', GraspPrediction, self.transform_coords_cb)
 
         # Topic for grasp visualization (Useful for debugging)
-        self.img_pub = rospy.Publisher('~visualisation', Image, queue_size=1)
+        self.img_pub = rospy.Publisher('visualisation', Image, queue_size=1)
 
         # Publishes cropped results (Useful for debugging)
         self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
