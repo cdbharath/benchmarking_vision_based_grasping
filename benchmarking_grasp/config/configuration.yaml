@@ -2,20 +2,23 @@ use_cartesian: false
 over_head: false
 sim_mode: false
 use_depth_completion: false
+enable_crop: true
 
 gripper_offset: 0.08
 intermediate_z_stop: 0.7
-scan_pose: [0.45, 0.0, 0.7, 0.0, 3.14, 3.14]
+scan_pose: [0.45, 0.0, 0.75, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.12                                   # if grasp is below this point, don't execute
 crop_size: [140, 325, 690, 1151]                    # 
 
+camera_name: "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D03ADC1F-video-index0"
+
 # folder names
-urdf_package_name: 'panda_simulation'               # <urdf_package_name>/urdf/objects    
+urdf_package_name: 'pick_and_place'                 # <urdf_package_name>/urdf/objects    
 
 # frames
 base_frame: 'panda_link0'
 camera_frame_sim: 'panda_camera_optical_link'
-canera_frame: 'camera_depth_optical_frame'
+camera_frame: 'camera_depth_optical_frame'
 
 # topics
 grasp_in_image_frame: "grasp_service/predict"
@@ -31,5 +34,6 @@ depth_image: '/camera/aligned_depth_to_color/image_raw'
 rgb_image: '/camera/color/image_raw'
 depth_complete_image: '/camera/aligned_depth_to_color/depth_completed'
 
+visualisation: "visualisation"
 cropped_depth: "cropped_depth"
 cropped_rgb: "cropped_rgb"

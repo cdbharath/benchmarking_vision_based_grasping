@@ -12,9 +12,11 @@ class DepthCompletion:
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
 
-        rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_cb, queue_size=1)
-        self.depth_complete_pub = rospy.Publisher("/camera/aligned_depth_to_color/depth_completed", Image, queue_size=10)
-        self.depth_complete_norm_pub = rospy.Publisher("/camera/aligned_depth_to_color/depth_completed_norm", Image, queue_size=10)
+        depth_image_topic = rospy.get_param("depth_image")
+        depth_complete_image_topic = rospy.get_param("depth_complete_image")
+
+        rospy.Subscriber(depth_image_topic, Image, self._depth_img_cb, queue_size=1)
+        self.depth_complete_pub = rospy.Publisher(depth_complete_image_topic, Image, queue_size=10)
 
     def complete_depth(self, image):
         '''
@@ -37,7 +39,6 @@ class DepthCompletion:
         img = self.complete_depth(img.copy())
         norm_image = cv2.normalize(img.copy(), None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
         self.depth_complete_pub.publish(self.bridge.cv2_to_imgmsg(img))
-        self.depth_complete_norm_pub.publish(self.bridge.cv2_to_imgmsg(norm_image))
 
 if __name__ == "__main__":
     rospy.init_node("simple_depth_completion", log_level=rospy.INFO)

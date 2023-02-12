@@ -49,29 +49,33 @@ class BenchmarkTest:
             over_head - camera over head or eye in hand
             sim_mode - simulation or real robot
 
-        TODO add parameters into a yaml file
-
         4. Set urdf, yaml package path for spawning objects in gazebo. Enter the requried objects to be tested in the yaml file
         5. Create log file to log the scores for each object
         6. Parse yaml file for object list and benchmarking parameters
         7. Initialize required ROS topics
         """
-        self.pick_and_place = PickAndPlace(gripper_offset=0.08, intermediate_z_stop=0.7)
+        gripper_offset = rospy.get_param("gripper_offset")
+        intermediate_z_stop = rospy.get_param("intermediate_z_stop")
+        scan_pose = rospy.get_param("scan_pose")
+
+        self.pick_and_place = PickAndPlace(gripper_offset=gripper_offset, intermediate_z_stop=intermediate_z_stop)
         self.use_cartesian = use_cartesian
         self.over_head = over_head
         self.sim_mode = sim_mode
-        self.bad_grasp_z = 0.1 + 0.02
+        self.bad_grasp_z = rospy.get_param("bad_grasp_z")
+        self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
 
         # Reach scan pose if eye in hand
         if not self.over_head:
-            self.pick_and_place.setScanPose(x=0.45, y=0.0, z=0.7, roll=0.0, pitch=3.14, yaw=pi)
+            self.pick_and_place.setScanPose(x=scan_pose[0], y=scan_pose[1], z=scan_pose[2], 
+                                            roll=scan_pose[3], pitch=scan_pose[4], yaw=scan_pose[5])
             if self.use_cartesian:
                 self.pick_and_place.reach_cartesian_scanpose()
             else:
                 self.pick_and_place.reach_scanpose()
 
         # Package names to look for urdf and log files
-        self.urdf_package_name = "panda_simulation"
+        self.urdf_package_name = rospy.get_param("urdf_package_name")
         self.yaml_package_name = "benchmarking_grasp"
 
         self.start_time = str(datetime.now())
@@ -327,10 +331,10 @@ class BenchmarkTest:
         3. Benchmarking state is updated to PICK_UP
         """
         # rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
-        rospy.wait_for_service("predict")
+        rospy.wait_for_service(self.grasp_in_world_frame_topic)
         rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
 
-        srv_handle = rospy.ServiceProxy("predict", GraspPrediction)
+        srv_handle = rospy.ServiceProxy(self.grasp_in_world_frame_topic, GraspPrediction)
         response = srv_handle()
 
         x = response.best_grasp.pose.position.x

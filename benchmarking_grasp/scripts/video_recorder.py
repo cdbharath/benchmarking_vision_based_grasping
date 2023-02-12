@@ -4,7 +4,6 @@
 # saving an operated video
   
 # organize imports
-import numpy as np
 import cv2
 import rospy
 import rospkg
@@ -15,7 +14,7 @@ class VideoRecoder:
     def __init__(self):
         rp = rospkg.RosPack()
 
-        camera_name = "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D03ADC1F-video-index0"
+        camera_name = rospy.get_param("camera_name")
         output_file_name = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + ".mp4"
         output_file_dir = rp.get_path("benchmarking_grasp")
         output_file_path = os.path.join(output_file_dir, "recordings", output_file_name)

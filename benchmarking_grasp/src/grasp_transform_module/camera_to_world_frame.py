@@ -19,19 +19,21 @@ class CameraToWorldFrame:
     '''
     def __init__(self, sim_mode=True):
         self.sim_mode = sim_mode
+        self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
+        self.grasp_in_camera_frame_topic = rospy.get_param("grasp_in_camera_frame")
 
         # For TF related calculations
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
 
         # Frame names for calculation transform between them
-        self.base_frame = 'panda_link0'
+        self.base_frame = rospy.get_param("base_frame")
         if self.sim_mode:
-            self.camera_frame = 'panda_camera_optical_link'
+            self.camera_frame = rospy.get_param("camera_frame_sim")
         else:
-            self.camera_frame = 'camera_depth_optical_frame'        
+            self.camera_frame = rospy.get_param("camera_frame")        
 
-        rospy.Service('predict', GraspPrediction, self.transform_coords_cb)
+        rospy.Service(self.grasp_in_world_frame_topic, GraspPrediction, self.transform_coords_cb)
         rospy.loginfo("[Camera to World] Node loaded successfully")
 
     def transform_coords_cb(self, req):
@@ -73,10 +75,10 @@ class CameraToWorldFrame:
         '''
         Calls a service that obtains the coordinates of detected grasp in the camera frame
         '''
-        rospy.wait_for_service("coords_in_cam", timeout=30)
+        rospy.wait_for_service(self.grasp_in_camera_frame_topic, timeout=30)
 
         try:
-            srv_handle = rospy.ServiceProxy("coords_in_cam", GraspPrediction)
+            srv_handle = rospy.ServiceProxy(self.grasp_in_camera_frame_topic, GraspPrediction)
             srv_resp = srv_handle()
             
             return srv_resp.best_grasp

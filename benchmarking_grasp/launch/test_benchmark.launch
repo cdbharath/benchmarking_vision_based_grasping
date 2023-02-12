@@ -1,5 +1,5 @@
 <launch>
-    <rosparam command="load" file="$(find pick_and_place)/config/configuration.yaml" />
+    <rosparam command="load" file="$(find benchmarking_grasp)/config/configuration.yaml" />
     
     <include file="$(find pick_and_place)/launch/publish_transform.launch" />
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">

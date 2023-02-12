@@ -22,6 +22,15 @@ class ImageToCameraFrame:
         self.sim_mode = sim_mode
         self.crop = crop
 
+        # Get topic names
+        self.grasp_in_camera_frame_topic = rospy.get_param("grasp_in_camera_frame")
+        self.grasp_in_image_frame_topic = rospy.get_param("grasp_in_image_frame")
+        self.depth_complete_image_topic = rospy.get_param("depth_complete_image")
+        self.depth_image_topic = rospy.get_param("depth_image")
+        self.rgb_image_topic = rospy.get_param("rgb_image")
+        self.depth_image_sim_topic = rospy.get_param("depth_image_sim")
+        self.rgb_image_sim_topic = rospy.get_param("rgb_image_sim")
+
         self.bridge = cv_bridge.CvBridge()
 
         self.curr_depth_img = None
@@ -36,21 +45,19 @@ class ImageToCameraFrame:
         self.rgb_received = False
 
         # Indies 0, 2: v and 1, 3: u
-        # self.crop_size = [110, 197, 720, 1083] 
-        # self.crop_size = [110, 295, 720, 1181] 
-        self.crop_size = [140, 325, 690, 1151] 
+        self.crop_size = rospy.get_param("crop_size") 
 
         # Get camera info and subscribe to rgb and depth images
         if self.sim_mode:
-            cam_info_topic = '/panda_camera/rgb/camera_info'
-            rospy.Subscriber('/panda_camera/depth/image_raw', Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber('/panda_camera/rgb/image_raw', Image, self._rgb_img_callback, queue_size=1)
+            cam_info_topic = rospy.get_param("cam_info_sim")
+            rospy.Subscriber(self.depth_image_sim_topic, Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber(self.rgb_image_sim_topic, Image, self._rgb_img_callback, queue_size=1)
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
-            cam_info_topic = '/camera/aligned_depth_to_color/camera_info'
-            # rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber('/camera/aligned_depth_to_color/depth_completed', Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber('/camera/color/image_raw', Image, self._rgb_img_callback, queue_size=1)
+            cam_info_topic = rospy.get_param("cam_info")
+            rospy.Subscriber(self.depth_image_topic, Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber(self.depth_complete_image_topic, Image, self._depth_img_callback, queue_size=1)
+            rospy.Subscriber(self.rgb_image_topic, Image, self._rgb_img_callback, queue_size=1)
 
         # To manually enter the camera matrix
         # K = [886.8075059058992, 0.0, 512.5, 0.0, 886.8075059058992, 512.5, 0.0, 0.0, 1.0]
@@ -62,14 +69,18 @@ class ImageToCameraFrame:
         # rospy.loginfo("[Grasp Transform] Camera matrix extraction successful")
 
         # Service that transforms the coordinates
-        rospy.Service('coords_in_cam', GraspPrediction, self.transform_coords_cb)
+        rospy.Service(self.grasp_in_camera_frame_topic, GraspPrediction, self.transform_coords_cb)
+
+        self.visualisation_topic = rospy.get_param("visualisation")
+        self.cropped_rgb_topic = rospy.get_param("cropped_rgb")
+        self.cropped_depth_topic = rospy.get_param("cropped_depth")
 
         # Topic for grasp visualization (Useful for debugging)
-        self.img_pub = rospy.Publisher('visualisation', Image, queue_size=1)
+        self.img_pub = rospy.Publisher(self.visualisation_topic, Image, queue_size=1)
 
         # Publishes cropped results (Useful for debugging)
-        self.rgb_cropped_pub = rospy.Publisher("cropped_rgb", Image, queue_size=10)
-        self.depth_cropped_pub = rospy.Publisher("cropped_depth", Image, queue_size=10) 
+        self.rgb_cropped_pub = rospy.Publisher(self.cropped_rgb_topic, Image, queue_size=10)
+        self.depth_cropped_pub = rospy.Publisher(self.cropped_depth_topic, Image, queue_size=10) 
         rospy.loginfo("[Image to Camera] Node loaded successfully")
 
     def _depth_img_callback(self, msg):
@@ -174,10 +185,10 @@ class ImageToCameraFrame:
         '''
         Calls the service responsible for predicting grasp in the image frame
         '''
-        rospy.wait_for_service("grasp_service/predict", timeout=30)
+        rospy.wait_for_service(self.grasp_in_image_frame_topic, timeout=30)
 
         try:
-            srv_handle = rospy.ServiceProxy("grasp_service/predict", Grasp2DPrediction)
+            srv_handle = rospy.ServiceProxy(self.grasp_in_image_frame_topic, Grasp2DPrediction)
             
             request_msg = Grasp2DPredictionRequest()
             request_msg.depth_image = self.bridge.cv2_to_imgmsg(depth)
