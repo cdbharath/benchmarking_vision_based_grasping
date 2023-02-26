@@ -53,6 +53,9 @@ class MoveGroupControl:
         self.eef_link = eef_link
         self.group_names = group_names
 
+    def set_joint_velocity(self, velocity):
+        self.move_group.set_max_velocity_scaling_factor(velocity)
+
     def go_to_joint_state(self, j1=0, j2=0, j3=0, j4=-tau/4, j5=0, j6=0, j7=0):
         move_group = self.move_group
         joint_goal = move_group.get_current_joint_values()

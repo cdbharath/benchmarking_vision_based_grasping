@@ -62,6 +62,7 @@ add_service_files(
   EndEffectorWaypoint.srv
   GripperCommand.srv
   CurrentPose.srv
+  SetJointVelocity.srv
 )
 
 ## Generate actions in the 'action' folder
