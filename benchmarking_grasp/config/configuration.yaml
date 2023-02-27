@@ -3,12 +3,19 @@ over_head: false
 sim_mode: false
 use_depth_completion: false
 enable_crop: true
+align_depth: true
+crop_by_pixel: true
 
-gripper_offset: 0.08
-intermediate_z_stop: 0.7
-scan_pose: [0.45, 0.0, 0.75, 0.0, 3.14, 3.14]
+gripper_offset: 0.09
+intermediate_z_stop: 0.5
+scan_pose: [0.45, 0.0, 0.7, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.12                                   # if grasp is below this point, don't execute
-crop_size: [140, 325, 690, 1151]                    # 
+# crop_size: [0.195, 0.239, 0.87, 0.86]                    
+crop_size: [170, 355, 660, 1121]                    
+
+# robot control params
+robot_default_velocity: 0.2                         # As a fraction of the maximum joint velocity
+robot_approach_velocity: 0.1 
 
 camera_name: "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_D03ADC1F-video-index0"
 
@@ -30,6 +37,8 @@ depth_image_sim: '/panda_camera/depth/image_raw'
 rgb_image_sim: '/panda_camera/rgb/image_raw'
 
 cam_info: '/camera/aligned_depth_to_color/camera_info'
+# cam_info: '/camera/depth/camera_info'
+depth_wo_align_image: '/camera/depth/image_rect_raw'
 depth_image: '/camera/aligned_depth_to_color/image_raw'
 rgb_image: '/camera/color/image_raw'
 depth_complete_image: '/camera/aligned_depth_to_color/depth_completed'

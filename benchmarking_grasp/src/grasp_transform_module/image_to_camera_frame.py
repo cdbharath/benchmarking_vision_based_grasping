@@ -21,12 +21,16 @@ class ImageToCameraFrame:
     def __init__(self, sim_mode=True, crop=True):
         self.sim_mode = sim_mode
         self.crop = crop
+        self.use_depth_completion = rospy.get_param("use_depth_completion") 
+        self.align_depth = rospy.get_param("align_depth") 
+        self.crop_by_pixel = rospy.get_param("crop_by_pixel") 
 
         # Get topic names
         self.grasp_in_camera_frame_topic = rospy.get_param("grasp_in_camera_frame")
         self.grasp_in_image_frame_topic = rospy.get_param("grasp_in_image_frame")
         self.depth_complete_image_topic = rospy.get_param("depth_complete_image")
         self.depth_image_topic = rospy.get_param("depth_image")
+        self.depth_wo_align_image = rospy.get_param("depth_wo_align_image")
         self.rgb_image_topic = rospy.get_param("rgb_image")
         self.depth_image_sim_topic = rospy.get_param("depth_image_sim")
         self.rgb_image_sim_topic = rospy.get_param("rgb_image_sim")
@@ -55,8 +59,15 @@ class ImageToCameraFrame:
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
             cam_info_topic = rospy.get_param("cam_info")
-            rospy.Subscriber(self.depth_image_topic, Image, self._depth_img_callback, queue_size=1)
-            rospy.Subscriber(self.depth_complete_image_topic, Image, self._depth_img_callback, queue_size=1)
+
+            if self.use_depth_completion:
+                rospy.Subscriber(self.depth_complete_image_topic, Image, self._depth_img_callback, queue_size=1)
+            else:
+                if self.align_depth:
+                    rospy.Subscriber(self.depth_image_topic, Image, self._depth_img_callback, queue_size=1)
+                else:
+                    rospy.Subscriber(self.depth_wo_align_image, Image, self._depth_img_callback, queue_size=1)
+    
             rospy.Subscriber(self.rgb_image_topic, Image, self._rgb_img_callback, queue_size=1)
 
         # To manually enter the camera matrix
@@ -64,9 +75,14 @@ class ImageToCameraFrame:
         # self.cam_K = np.array(K).reshape((3, 3))
 
         # Get camera matrix from info topic        
-        camera_info_msg = rospy.wait_for_message(cam_info_topic, CameraInfo)
-        self.cam_K = np.array(camera_info_msg.K).reshape((3, 3))
+        self.camera_info_msg = rospy.wait_for_message(cam_info_topic, CameraInfo)
+        self.cam_K = np.array(self.camera_info_msg.K).reshape((3, 3))
+        self.depth_image_size = [self.camera_info_msg.height, self.camera_info_msg.width]
         # rospy.loginfo("[Grasp Transform] Camera matrix extraction successful")
+
+        if not self.crop_by_pixel:
+            self.crop_size = [int(self.depth_image_size[0]*self.crop_size[0]), int(self.depth_image_size[1]*self.crop_size[1]), 
+                              int(self.depth_image_size[0]*self.crop_size[2]), int(self.depth_image_size[1]*self.crop_size[3])]
 
         # Service that transforms the coordinates
         rospy.Service(self.grasp_in_camera_frame_topic, GraspPrediction, self.transform_coords_cb)
@@ -145,6 +161,7 @@ class ImageToCameraFrame:
         # Accounting for crop 
         center[0] = self.crop_size[0] + center[0]
         center[1] = self.crop_size[1] + center[1]
+        rospy.logerr("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
@@ -175,9 +192,13 @@ class ImageToCameraFrame:
         g.width = width
         g.quality = quality
 
-        self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle) 
+        if not self.align_depth:
+            depth_vis = self.normalize_depth(depth)
+            self.draw_angled_rect(depth_vis, precrop_center[1], precrop_center[0], angle) 
+        else:
+            self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle) 
 
-        print(f"Grasp in camera frame x:{g.pose.position.x}, y:{g.pose.position.y}, z:{g.pose.position.z}")
+        rospy.logerr("Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
 
         return ret
 
@@ -228,6 +249,16 @@ class ImageToCameraFrame:
         cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 3, (0, 0, 0), -1)
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(display_image, encoding="rgb8"))
+
+    def normalize_depth(self, depth_image):
+        depth_image = depth_image.copy()
+
+        depth_image = depth_image*255/np.max(depth_image)
+        depth_image = depth_image.astype(np.uint8)
+        depth_image = cv2.equalizeHist(depth_image)
+        depth_image = cv2.cvtColor(depth_image, cv2.COLOR_GRAY2RGB)
+
+        return depth_image
 
     def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height = 100):
         """
