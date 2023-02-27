@@ -2,7 +2,7 @@ from copy import deepcopy
 from math import pi
 
 import rospy
-from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse
+from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse, SetJointVelocity, SetJointVelocityRequest 
 
 class PickAndPlace:
     def __init__(self, gripper_offset=0.05, intermediate_z_stop=0.5):
@@ -86,6 +86,18 @@ class PickAndPlace:
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s", e)
             return CurrentPoseResponse()
+        
+    def call_set_joint_velocity_service(self, velocity):
+        rospy.wait_for_service('moveit_adapter/set_joint_velocity')
+        try:
+            set_joint_velocity = rospy.ServiceProxy('moveit_adapter/set_joint_velocity', SetJointVelocity)            
+            
+            set_velocity_request = SetJointVelocityRequest()
+            set_velocity_request.joint_velocity = velocity
+
+            resp = set_joint_velocity(set_velocity_request)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service call failed: %s", e)
 
     def generate_waypoints(self, destination_pose, action, interpolate=False, interpolate_steps=3):
         '''
@@ -129,10 +141,10 @@ class PickAndPlace:
             destination_pose_[2] = destination_pose_[2]  + self.gripper_offset + self.stop_above_destination 
             waypoints.append(destination_pose_)
 
-            # Pick pose waypoint with gripper height offset
-            destination_pose_ = deepcopy(destination_pose)
-            destination_pose_[2] = destination_pose_[2]  + self.gripper_offset 
-            waypoints.append(destination_pose_)
+            # Pick pose waypoint with gripper height offset (Added as a separate if condition to avail joint velocity control)
+            # destination_pose_ = deepcopy(destination_pose)
+            # destination_pose_[2] = destination_pose_[2]  + self.gripper_offset 
+            # waypoints.append(destination_pose_)
 
         if action == 2:
             # Intermediate vertical stop waypoint
@@ -154,6 +166,12 @@ class PickAndPlace:
             destination_pose_[2] = destination_pose_[2]  + self.gripper_offset 
             waypoints.append(destination_pose_)
 
+        if action == 4:
+            # Pick pose waypoint with gripper height offset
+            destination_pose_ = deepcopy(destination_pose)
+            destination_pose_[2] = destination_pose_[2]  + self.gripper_offset 
+            waypoints.append(destination_pose_)
+
         return waypoints
     
     def execute_cartesian_pick_and_place(self):
@@ -168,13 +186,21 @@ class PickAndPlace:
         self.call_gripper_service(0.1)
         rospy.sleep(2)        
         
+        # Go to position slightly above the object 
         waypoints = self.generate_waypoints(self.pick_pose, 1)
         for waypoint in waypoints:
             self.call_cartesian_service(waypoint)
 
+        # Approach the object 
+        waypoints = self.generate_waypoints(self.pick_pose, 4)
+        for waypoint in waypoints:
+            self.call_cartesian_service(waypoint)
+
+        # Grip the object
         self.call_gripper_service(self.gripper_pose)
         rospy.sleep(3)
-        
+
+        # Go to intermediate waypoint 
         waypoints = self.generate_waypoints(self.pick_pose, 2)
         for waypoint in waypoints:
             self.call_cartesian_service(waypoint)
@@ -182,16 +208,27 @@ class PickAndPlace:
         # rospy.sleep(2)        
 
     def execute_pick_up(self):
+        self.call_set_joint_velocity_service(0.2)
         self.call_gripper_service(0.1)
         rospy.sleep(2)        
 
+        # Go to position slightly above the object 
         waypoints = self.generate_waypoints(self.pick_pose, 1)        
         for waypoint in waypoints:
             self.call_vanilla_service(waypoint)
 
+        # Approach the object 
+        self.call_set_joint_velocity_service(0.05)
+        waypoints = self.generate_waypoints(self.pick_pose, 4)
+        for waypoint in waypoints:
+            self.call_vanilla_service(waypoint)
+
+        # Grip the object
         self.call_gripper_service(self.gripper_pose)
         rospy.sleep(3)
-            
+
+        # Go to intermediate waypoint 
+        self.call_set_joint_velocity_service(0.2)
         waypoints = self.generate_waypoints(self.pick_pose, 2)        
         for waypoint in waypoints:
             self.call_vanilla_service(waypoint)
@@ -199,6 +236,7 @@ class PickAndPlace:
         # rospy.sleep(2)        
 
     def execute_place(self):
+        # self.call_set_joint_velocity_service(0.2)
         waypoints = self.generate_waypoints(self.drop_pose, 3)        
         for waypoint in waypoints:
             self.call_vanilla_service(waypoint)
@@ -217,6 +255,7 @@ class PickAndPlace:
         rospy.sleep(3)        
 
     def reach_scanpose(self):
+        # self.call_set_joint_velocity_service(0.2)
         waypoints = self.generate_waypoints(self.scan_pose, 0)
 
         for waypoint in waypoints:
