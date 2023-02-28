@@ -15,6 +15,9 @@ class PickAndPlace:
         self.gripper_pose = None
         self.angle_offset = 0.0
         self.stop_above_destination = 0.1
+        
+        self.default_velocity = rospy.get_param('robot_default_velocity', 0.2)
+        self.approach_velocity = rospy.get_param('robot_approach_velocity', 0.05)
             
     def setPickPose(self, x, y, z, roll, pitch, yaw):
         self.pick_pose = [x, y, z, roll, pitch, yaw + self.angle_offset]

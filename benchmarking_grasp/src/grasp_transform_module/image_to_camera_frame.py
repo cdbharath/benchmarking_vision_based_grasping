@@ -158,10 +158,13 @@ class ImageToCameraFrame:
 
         precrop_center = center.copy() 
 
-        # Accounting for crop 
-        center[0] = self.crop_size[0] + center[0]
-        center[1] = self.crop_size[1] + center[1]
-        rospy.logerr("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+        if self.crop:
+            # Accounting for crop 
+            center[0] = self.crop_size[0] + center[0]
+            center[1] = self.crop_size[1] + center[1]
+            rospy.logerr("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+        else:
+            rospy.logerr("Grasp in Image frame: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
@@ -187,7 +190,7 @@ class ImageToCameraFrame:
         g.pose.position.x = coords_in_cam[0][0]
         g.pose.position.y = coords_in_cam[1][0]
         g.pose.position.z = coords_in_cam[2][0]
-        
+                
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(0, 0, angle_in_cam))
         g.width = width
         g.quality = quality

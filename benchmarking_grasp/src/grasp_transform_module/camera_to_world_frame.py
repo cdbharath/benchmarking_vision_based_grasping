@@ -62,7 +62,7 @@ class CameraToWorldFrame:
         
         g = ret.best_grasp
         g.pose.position = pose_in_world.position
-
+        
         g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(0, np.pi, 0))
 
         # TODO consider these values later 

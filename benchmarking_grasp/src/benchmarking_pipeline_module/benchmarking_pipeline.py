@@ -148,6 +148,7 @@ class BenchmarkTest:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
+        rospy.loginfo("[Benchmarking Grasp] Node loaded successfully")
     
     def execute_benchmark_test(self, event):
         """
