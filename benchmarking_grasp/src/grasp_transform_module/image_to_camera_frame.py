@@ -140,10 +140,10 @@ class ImageToCameraFrame:
         # Waits until a new image is received
         self.waiting = True
       
-        rospy.loginfo("[Grasp Transform] waiting for the next image")
+        # rospy.loginfo("[Grasp Transform] waiting for the next image")
         while not self.received or not self.rgb_received:
             rospy.sleep(0.01)
-        rospy.loginfo("[Grasp Transform] next image received")
+        # rospy.loginfo("[Grasp Transform] next image received")
     
         # RGB/Depth image is no longer updated
         self.waiting = False
@@ -181,7 +181,9 @@ class ImageToCameraFrame:
 
         # Transform grasp angle
         angle_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[np.cos(angle)], [np.sin(angle)], [1]])
-        angle_in_cam = np.arctan2(angle_vec_in_cam[1], angle_vec_in_cam[0])
+        origin_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[0], [0], [1]])
+        
+        angle_in_cam = np.arctan2(angle_vec_in_cam[1, 0] - origin_vec_in_cam[1, 0], angle_vec_in_cam[0, 0] - origin_vec_in_cam[0, 0])
 
         # Response message
         ret = GraspPredictionResponse()
@@ -233,25 +235,19 @@ class ImageToCameraFrame:
         """
         Draws bounding box for visualization
         """
-
-        b = np.cos(angle) * 0.5
-        a = np.sin(angle) * 0.5
+        # Create a rotated rectangle
+        angle = angle*180/np.pi
+        rect = ((x, y), (width, height), -angle)
+        color = (255, 0, 0)
         
-        # For coloured images
-        display_image = image.copy()
+        # Compute the vertices of the rectangle
+        vertices = cv2.boxPoints(rect)
+        vertices = np.int0(vertices)
+        
+        # Draw the rectangle
+        image = cv2.drawContours(image, [vertices], 0, color, 2)
 
-        pt0 = (int(x - a * height - b * width), int(y + b * height - a * width))
-        pt1 = (int(x + a * height - b * width), int(y - b * height - a * width))
-        pt2 = (int(2 * x - pt0[0]), int(2 * y - pt0[1]))
-        pt3 = (int(2 * x - pt1[0]), int(2 * y - pt1[1]))
-
-        cv2.line(display_image, pt0, pt1, (255, 0, 0), 5)
-        cv2.line(display_image, pt1, pt2, (0, 0, 0), 5)
-        cv2.line(display_image, pt2, pt3, (255, 0, 0), 5)
-        cv2.line(display_image, pt3, pt0, (0, 0, 0), 5)
-        cv2.circle(display_image, ((pt0[0] + pt2[0])//2, (pt0[1] + pt2[1])//2), 3, (0, 0, 0), -1)
-
-        self.img_pub.publish(self.bridge.cv2_to_imgmsg(display_image, encoding="rgb8"))
+        self.img_pub.publish(self.bridge.cv2_to_imgmsg(image, encoding="rgb8"))
 
     def normalize_depth(self, depth_image):
         depth_image = depth_image.copy()

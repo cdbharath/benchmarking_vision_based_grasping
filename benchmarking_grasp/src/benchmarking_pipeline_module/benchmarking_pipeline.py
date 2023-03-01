@@ -57,13 +57,14 @@ class BenchmarkTest:
         gripper_offset = rospy.get_param("gripper_offset")
         intermediate_z_stop = rospy.get_param("intermediate_z_stop")
         scan_pose = rospy.get_param("scan_pose")
-
+        
         self.pick_and_place = PickAndPlace(gripper_offset=gripper_offset, intermediate_z_stop=intermediate_z_stop)
         self.use_cartesian = use_cartesian
         self.over_head = over_head
         self.sim_mode = sim_mode
         self.bad_grasp_z = rospy.get_param("bad_grasp_z")
         self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
+        self.grasp_angle_offset = rospy.get_param("grasp_angle_offset")
 
         # Reach scan pose if eye in hand
         if not self.over_head:
@@ -333,10 +334,10 @@ class BenchmarkTest:
         """
         # rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
         rospy.wait_for_service(self.grasp_in_world_frame_topic)
-        rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
 
         srv_handle = rospy.ServiceProxy(self.grasp_in_world_frame_topic, GraspPrediction)
         response = srv_handle()
+        rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
 
         x = response.best_grasp.pose.position.x
         y = response.best_grasp.pose.position.y
@@ -345,8 +346,8 @@ class BenchmarkTest:
                                               response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])
 
         if z > self.bad_grasp_z:
-            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw= pi - rz)
-            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=rx, pitch=ry, yaw= pi - rz)
+            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=0, pitch=np.pi, yaw= self.grasp_angle_offset - rz)
+            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=0, pitch=np.pi, yaw= self.grasp_angle_offset - rz)
             self.pick_and_place.setGripperPose(width=0.00)
 
             if self.use_cartesian:
