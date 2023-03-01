@@ -1,16 +1,23 @@
 <launch>
     <rosparam command="load" file="$(find benchmarking_grasp)/config/configuration.yaml" />
     
-    <include file="$(find pick_and_place)/launch/publish_transform.launch" />
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-        <arg name="align_depth" value="true"/>
+    <!-- Parameters -->
+    <arg name="sim_mode" value="true"/>
+    <arg name="use_depth_completion" value="false"/>
+    <arg name="record_video" value="false"/>
+    <arg name="align_depth" value="true"/>
+    <arg name="point_cloud_input" value="false"/>
+    
+    <include unless="$(arg sim_mode)" file="$(find pick_and_place)/launch/publish_transform.launch" />
+    <include unless="$(arg sim_mode)" file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="align_depth" value="${arg align_depth}"/>
         <arg name="filters" value="temporal,hole_filling"/>
-        <arg name="enable_pointcloud" value="true"/>
+        <arg name="enable_pointcloud" value="${arg point_cloud_input}"/>
     </include>
 
-    <!-- <node pkg="benchmarking_grasp" type="simple_depth_completion.py" name="simple_depth_completion" output="screen"/> -->
-    <!-- <node pkg="benchmarking_grasp" type="test_image_to_camera_frame.py" name="image_to_camera_node" output="screen"/> -->
+    <node if="$(use_depth_completion)" pkg="benchmarking_grasp" type="simple_depth_completion.py" name="simple_depth_completion" output="screen"/>
+    <node pkg="benchmarking_grasp" type="test_image_to_camera_frame.py" name="image_to_camera_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_cam_to_world_frame.py" name="camera_to_world_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_benchmark_pipeline.py" name="benchmark_test" output="screen"/>
-    <node pkg="benchmarking_grasp" type="video_recorder.py" name="video_recorder" output="screen"/>
+    <node if="$(point_cloud_input)" pkg="benchmarking_grasp" type="video_recorder.py" name="video_recorder" output="screen"/>
 </launch>

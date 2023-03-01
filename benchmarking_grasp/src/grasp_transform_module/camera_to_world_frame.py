@@ -45,31 +45,18 @@ class CameraToWorldFrame:
         # Transform position
         pose_in_world = self.convert_pose(pose_in_cam.pose, self.camera_frame, self.base_frame)
 
-        # Transform grasp angle
-        angle_in_cam = tft.euler_from_quaternion([pose_in_cam.pose.orientation.x, pose_in_cam.pose.orientation.y, 
-                                                  pose_in_cam.pose.orientation.z, pose_in_cam.pose.orientation.w])[2]
-
-        angle_pose = gmsg.Pose()
-        angle_pose.position.x = np.cos(angle_in_cam)
-        angle_pose.position.y = np.sin(angle_in_cam)
-
-        angle_in_world_pose = self.convert_pose(angle_pose, self.camera_frame, self.base_frame)
-        angle_in_world = np.arctan2(angle_in_world_pose.position.y, angle_in_world_pose.position.x) 
-
         # Response message
         ret = GraspPredictionResponse()
         ret.success = True
         
         g = ret.best_grasp
-        g.pose.position = pose_in_world.position
+        g.pose = pose_in_world
         
-        g.pose.orientation = self.list_to_quaternion(tft.quaternion_from_euler(0, np.pi, 0))
-
         # TODO consider these values later 
         g.width = 0
         g.quality = 0
 
-        rospy.logerr("Grasp in world frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle_in_world)
+        rospy.logerr("Grasp in world frame: %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z)
 
         return ret
 
