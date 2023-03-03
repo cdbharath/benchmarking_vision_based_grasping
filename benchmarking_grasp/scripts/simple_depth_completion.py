@@ -11,14 +11,24 @@ from sensor_msgs.msg import Image
 class DepthCompletion:
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
+        align_depth = rospy.get_param("align_depth") 
+        self.normalize = False
 
-        depth_image_topic = rospy.get_param("depth_image")
+        if align_depth:
+            depth_image_topic = rospy.get_param("depth_image")
+        else:
+            depth_image_topic = rospy.get_param("depth_wo_align_image")
+
         depth_complete_image_topic = rospy.get_param("depth_complete_image")
+        depth_complete_image_norm_topic = rospy.get_param("depth_complete_image_norm")
 
         rospy.Subscriber(depth_image_topic, Image, self._depth_img_cb, queue_size=1)
-        self.depth_complete_pub = rospy.Publisher(depth_complete_image_topic, Image, queue_size=10)
+        self.depth_complete_pub = rospy.Publisher(depth_complete_image_topic, Image, queue_size=1)
+        
+        if self.normalize:
+            self.depth_complete_norm_pub = rospy.Publisher(depth_complete_image_norm_topic, Image, queue_size=1)
 
-    def complete_depth(self, image):
+    def complete_depth_kdtree(self, image):
         '''
         replaces nonzero pixels with the nearest nonzero pixel
         '''
@@ -36,9 +46,13 @@ class DepthCompletion:
 
     def _depth_img_cb(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg)
-        img = self.complete_depth(img.copy())
-        norm_image = cv2.normalize(img.copy(), None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        img = self.complete_depth_kdtree(img.copy())
         self.depth_complete_pub.publish(self.bridge.cv2_to_imgmsg(img))
+
+        if self.normalize:
+            normalized_depth_image = (img - np.min(img)) * 255 / (np.max(img) - np.min(img))
+            normalized_depth_image = np.uint8(normalized_depth_image)
+            self.depth_complete_norm_pub.publish(self.bridge.cv2_to_imgmsg(normalized_depth_image))
 
 if __name__ == "__main__":
     rospy.init_node("simple_depth_completion", log_level=rospy.INFO)

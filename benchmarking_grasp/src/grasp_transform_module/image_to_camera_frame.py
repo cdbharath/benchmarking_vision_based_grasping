@@ -34,6 +34,7 @@ class ImageToCameraFrame:
         self.rgb_image_topic = rospy.get_param("rgb_image")
         self.depth_image_sim_topic = rospy.get_param("depth_image_sim")
         self.rgb_image_sim_topic = rospy.get_param("rgb_image_sim")
+        self.remove_noisy_ground_plane = rospy.get_param("remove_noisy_ground_plane")
 
         self.bridge = cv_bridge.CvBridge()
 
@@ -103,7 +104,7 @@ class ImageToCameraFrame:
         '''
         Subscribes depth image from the corresponding topic 
         '''
-        img = self.bridge.imgmsg_to_cv2(msg)
+        img = self.bridge.imgmsg_to_cv2(msg).copy()
 
         if not self.waiting:
           return
@@ -113,6 +114,12 @@ class ImageToCameraFrame:
             self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(self.curr_depth_img))
         else:
             self.curr_depth_img = img 
+
+        if self.remove_noisy_ground_plane:
+            max_val = np.max(self.curr_depth_img)
+            min_val = np.min(self.curr_depth_img)
+
+            self.curr_depth_img[self.curr_depth_img > (min_val + max_val)/2] = max_val
 
         self.received = True
 

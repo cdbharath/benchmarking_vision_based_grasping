@@ -1,16 +1,17 @@
 use_cartesian: false
 over_head: false
-sim_mode: true
-use_depth_completion: false
-enable_crop: false
+sim_mode: false
+use_depth_completion: true
+enable_crop: true
 align_depth: true
 crop_by_pixel: true
 point_cloud_input: false
+remove_noisy_ground_plane: true
 
-gripper_offset: 0.08
+gripper_offset: 0.09
 intermediate_z_stop: 0.5
 scan_pose: [0.45, 0.0, 0.7, 0.0, 3.14, 3.14]        # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
-bad_grasp_z: 0.0                                    # if grasp is below this point, don't execute                    
+bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
 crop_size: [170, 355, 660, 1121]                    # crop_size: [0.195, 0.239, 0.87, 0.86]
 grasp_angle_offset: 1.57
 
@@ -43,6 +44,7 @@ depth_wo_align_image: '/camera/depth/image_rect_raw'
 depth_image: '/camera/aligned_depth_to_color/image_raw'
 rgb_image: '/camera/color/image_raw'
 depth_complete_image: '/camera/aligned_depth_to_color/depth_completed'
+depth_complete_image_norm: '/camera/aligned_depth_to_color/depth_completed_norm'
 
 visualisation: "visualisation"
 cropped_depth: "cropped_depth"
