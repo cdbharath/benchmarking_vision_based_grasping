@@ -121,7 +121,7 @@ class ImageToCameraFrame:
 
             # Set all depth values in this 1cm range to the same value
             # Assumes the view only has object and ground plane  
-            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 20)] = max_val
+            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 30)] = max_val
 
         self.curr_depth_img = curr_depth_img
         self.received = True

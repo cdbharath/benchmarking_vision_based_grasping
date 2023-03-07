@@ -2,16 +2,16 @@
     <rosparam command="load" file="$(find benchmarking_grasp)/config/configuration.yaml" />
     
     <!-- Parameters -->
-    <arg name="sim_mode" value="false"/>
-    <arg name="use_depth_completion" value="true"/>
-    <arg name="record_video" value="false"/>
-    <arg name="align_depth" value="true"/>
-    <arg name="point_cloud_input" value="false"/>
+    <arg name="sim_mode" default="false"/>
+    <arg name="use_depth_completion" default="true"/>
+    <arg name="record_video" default="false"/>
+    <arg name="align_depth" default="true"/>
+    <arg name="point_cloud_input" default="false"/>
     
     <include unless="$(arg sim_mode)" file="$(find pick_and_place)/launch/publish_transform.launch" />
     <include unless="$(arg sim_mode)" file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="align_depth" value="$(arg align_depth)"/>
-        <arg name="filters" value="spatial,hole_filling"/>
+        <arg name="filters" value="decimation,hole_filling"/>
         <arg name="enable_pointcloud" value="$(arg point_cloud_input)"/>
     </include>
 
