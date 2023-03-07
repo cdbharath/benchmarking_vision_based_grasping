@@ -110,17 +110,20 @@ class ImageToCameraFrame:
           return
         
         if self.crop:
-            self.curr_depth_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
-            self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(self.curr_depth_img))
+            curr_depth_img = img[self.crop_size[0]:self.crop_size[2], self.crop_size[1]:self.crop_size[3]]
+            self.depth_cropped_pub.publish(self.bridge.cv2_to_imgmsg(curr_depth_img))
         else:
-            self.curr_depth_img = img 
+            curr_depth_img = img 
 
         if self.remove_noisy_ground_plane:
-            max_val = np.max(self.curr_depth_img)
-            min_val = np.min(self.curr_depth_img)
+            max_val = np.max(curr_depth_img)
+            min_val = np.min(curr_depth_img)
 
-            self.curr_depth_img[self.curr_depth_img > (min_val + max_val)/2] = max_val
+            # Set all depth values in this 1cm range to the same value
+            # Assumes the view only has object and ground plane  
+            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 20)] = max_val
 
+        self.curr_depth_img = curr_depth_img
         self.received = True
 
     def _rgb_img_callback(self, msg):

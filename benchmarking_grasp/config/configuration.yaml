@@ -10,9 +10,9 @@ remove_noisy_ground_plane: true
 
 gripper_offset: 0.09
 intermediate_z_stop: 0.5
-scan_pose: [0.45, 0.0, 0.7, 0.0, 3.14, 3.14]        # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
+scan_pose: [0.45, 0.0, 0.8, 0.0, 3.14, 3.14]        # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
-crop_size: [170, 355, 660, 1121]                    # crop_size: [0.195, 0.239, 0.87, 0.86]
+crop_size: [190, 375, 640, 1091]                    # crop_size: [0.195, 0.239, 0.87, 0.86]
 grasp_angle_offset: 1.57
 
 # robot control params
