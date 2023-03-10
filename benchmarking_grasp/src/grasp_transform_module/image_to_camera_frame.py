@@ -130,7 +130,7 @@ class ImageToCameraFrame:
         '''
         Subscribes rgb image from the corresponding topic
         '''
-        img = self.bridge.imgmsg_to_cv2(msg)
+        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
 
         if not self.waiting:
             return
