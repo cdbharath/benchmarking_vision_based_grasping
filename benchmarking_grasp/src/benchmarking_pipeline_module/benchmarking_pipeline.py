@@ -5,22 +5,19 @@ from math import pi
 import numpy as np
 import enum
 import csv
-import cv2
-from datetime import date, datetime
+from datetime import datetime
 import six
 
 import rospy
 import rospkg
 import tf
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
-from std_msgs.msg import Float64
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
 
 from pick_and_place_module.pick_and_place import PickAndPlace
-from benchmarking_msgs.srv import GraspPrediction, GraspPredictionResponse
-from benchmarking_msgs.srv import ProcessAndExecute
+from benchmarking_msgs.srv import GraspPrediction
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
 
 class BenchmarkTestStates(enum.Enum):
@@ -180,8 +177,6 @@ class BenchmarkTest:
                 #         break
             except SyntaxError:
                 pass
-
-        rospy.sleep(1)
 
         # Execute the benchmark test
         self.testing_in_process = True
