@@ -180,10 +180,11 @@ class ImageToCameraFrame:
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
 
         # check for nearby depths and assign the max of the depths
-        # _, z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
+        max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
+        z = min((min_z + max_z)/2, min_z + 15)*self.depth_scale
 
         # If you dont want to use the above functionality
-        z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
+        # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
 
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
@@ -274,8 +275,8 @@ class ImageToCameraFrame:
         Finds the top most point inside the bounding box
         """
         # Orientation of the bounding box
-        b = np.cos(angle) * 0.5
-        a = np.sin(angle) * 0.5
+        b = np.cos(-angle) * 0.5
+        a = np.sin(-angle) * 0.5
 
         # Corners of the bounding box
         pt0 = (int(x - a * height - b * width), int(y + b * height - a * width))
