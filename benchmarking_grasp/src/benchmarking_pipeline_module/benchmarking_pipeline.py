@@ -341,8 +341,9 @@ class BenchmarkTest:
                                               response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])
 
         if z > self.bad_grasp_z:
-            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=0, pitch=np.pi, yaw= self.grasp_angle_offset - rz)
-            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=0, pitch=np.pi, yaw= self.grasp_angle_offset - rz)
+            yaw = (self.grasp_angle_offset + rz + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
+            self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=np.pi, pitch=0, yaw=yaw)
+            self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=np.pi, pitch=0, yaw=yaw)
             self.pick_and_place.setGripperPose(width=0.00)
 
             if self.use_cartesian:

@@ -181,7 +181,7 @@ class ImageToCameraFrame:
 
         # check for nearby depths and assign the max of the depths
         max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
-        z = min((min_z + max_z)/2, min_z + 30)*self.depth_scale
+        z = min((min_z + max_z)/2, min_z + 15)*self.depth_scale
 
         # If you dont want to use the above functionality
         # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
@@ -242,13 +242,13 @@ class ImageToCameraFrame:
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s", e)
 
-    def draw_angled_rect(self, image, x, y, angle, width = 200, height = 100):
+    def draw_angled_rect(self, image, x, y, angle, width=200, height=100):
         """
         Draws bounding box for visualization
         """
         # Create a rotated rectangle
         angle = angle*180/np.pi
-        rect = ((x, y), (width, height), -angle)
+        rect = ((x, y), (width, height), angle)
         color = (255, 0, 0)
         
         # Compute the vertices of the rectangle
@@ -270,7 +270,7 @@ class ImageToCameraFrame:
 
         return depth_image
 
-    def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height = 100):
+    def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height=100):
         """
         Finds the top most point inside the bounding box
         """
