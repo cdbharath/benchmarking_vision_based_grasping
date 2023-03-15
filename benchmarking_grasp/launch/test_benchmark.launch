@@ -8,6 +8,14 @@
     <arg name="align_depth" default="true"/>
     <arg name="point_cloud_input" default="false"/>
     
+    <rosparam>
+        sim_mode: $(arg sim_mode)
+        use_depth_completion: $(arg use_depth_completion)
+        record_video: $(arg record_video)
+        align_depth: $(arg align_depth)
+        point_cloud_input: $(arg point_cloud_input)
+    </rosparam>
+    
     <include unless="$(arg sim_mode)" file="$(find pick_and_place)/launch/publish_transform.launch" />
     <include unless="$(arg sim_mode)" file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="align_depth" value="$(arg align_depth)"/>
