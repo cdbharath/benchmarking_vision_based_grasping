@@ -27,5 +27,5 @@
     <node pkg="benchmarking_grasp" type="test_image_to_camera_frame.py" name="image_to_camera_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_cam_to_world_frame.py" name="camera_to_world_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_benchmark_pipeline.py" name="benchmark_test" output="screen"/>
-    <node if="$(arg point_cloud_input)" pkg="benchmarking_grasp" type="video_recorder.py" name="video_recorder" output="screen"/>
+    <node if="$(arg record_video)" pkg="benchmarking_grasp" type="video_recorder.py" name="video_recorder" output="screen"/>
 </launch>
