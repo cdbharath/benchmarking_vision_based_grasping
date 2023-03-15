@@ -33,8 +33,9 @@ class DepthCompletion:
         replaces nonzero pixels with the nearest nonzero pixel
         '''
         
-        valid_pixels = np.argwhere(image != 0)
-        invalid_pixels = np.argwhere(image == 0)
+        thresh = 0
+        valid_pixels = np.argwhere(image > thresh)
+        invalid_pixels = np.argwhere(image <= 0)
         
         kdtree = KDTree(valid_pixels)
         _, pre_indices = kdtree.query(invalid_pixels, k=1)
