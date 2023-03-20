@@ -247,6 +247,7 @@ class ImageToCameraFrame:
         Draws bounding box for visualization
         """
         # Create a rotated rectangle
+        angle = (angle - np.pi/2 + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2] / Gripper frame is 90 degree off
         angle = angle*180/np.pi
         rect = ((x, y), (width, height), angle)
         color = (255, 0, 0)

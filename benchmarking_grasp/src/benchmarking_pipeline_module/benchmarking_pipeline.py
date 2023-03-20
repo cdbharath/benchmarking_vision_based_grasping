@@ -61,7 +61,6 @@ class BenchmarkTest:
         self.sim_mode = sim_mode
         self.bad_grasp_z = rospy.get_param("bad_grasp_z")
         self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
-        self.grasp_angle_offset = rospy.get_param("grasp_angle_offset")
 
         # Reach scan pose if eye in hand
         if not self.over_head:
@@ -338,7 +337,7 @@ class BenchmarkTest:
                                               response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])
 
         if z > self.bad_grasp_z:
-            yaw = (self.grasp_angle_offset + rz + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
+            yaw = (rz + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
             self.pick_and_place.setPickPose(x=x, y=y, z=z, roll=np.pi, pitch=0, yaw=yaw)
             self.pick_and_place.setDropPose(x=x, y=y, z=z, roll=np.pi, pitch=0, yaw=yaw)
             self.pick_and_place.setGripperPose(width=0.00)
