@@ -16,6 +16,7 @@ class TestROI:
     def __init__(self, sim_mode=False):
         self.bridge = cv_bridge.CvBridge()
         self.normalize = False
+        self.depth_complete = True
         self.depth = None
         self.rgb = None
 
@@ -32,6 +33,9 @@ class TestROI:
         else:
             depth_image_topic = self.params["depth_image"]
             rgb_image_topic = self.params["rgb_image"]
+
+        if self.depth_complete:
+            depth_image_topic = self.params["depth_complete_image"]            
 
         rospy.Subscriber(depth_image_topic, Image, self._depth_img_cb, queue_size=1)
         rospy.Subscriber(rgb_image_topic, Image, self._rgb_img_cb, queue_size=1)
@@ -98,7 +102,7 @@ class TestROI:
 
 if __name__ == "__main__":
     rospy.init_node("test_roi", log_level=rospy.INFO)
-    test_roi = TestROI(sim_mode=True)
+    test_roi = TestROI(sim_mode=False)
 
     rospy.spin()
     
