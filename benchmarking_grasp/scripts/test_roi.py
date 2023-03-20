@@ -43,10 +43,10 @@ class TestROI:
         cv2.namedWindow('Adjust ROI')
        
         # create trackbars for color change
-        cv2.createTrackbar('X min','Adjust ROI',self.crop_size[1],1024,nothing)
-        cv2.createTrackbar('X max','Adjust ROI',self.crop_size[3],1024,nothing)
-        cv2.createTrackbar('Y min','Adjust ROI',self.crop_size[0],1024,nothing)
-        cv2.createTrackbar('Y max','Adjust ROI',self.crop_size[2],1024,nothing)
+        cv2.createTrackbar('X min','Adjust ROI',self.crop_size[1],2048,nothing)
+        cv2.createTrackbar('X max','Adjust ROI',self.crop_size[3],2048,nothing)
+        cv2.createTrackbar('Y min','Adjust ROI',self.crop_size[0],2048,nothing)
+        cv2.createTrackbar('Y max','Adjust ROI',self.crop_size[2],2048,nothing)
    
         while True:
             # get current positions of four trackbars
