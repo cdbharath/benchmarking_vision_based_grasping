@@ -106,8 +106,9 @@ class BenchmarkTest:
             r = parsed_experiments[experiment_idx][2]
             alpha = parsed_experiments[experiment_idx][3]
             n = parsed_experiments[experiment_idx][4]
+            height = parsed_experiments[experiment_idx][5]
 
-            center_coord = np.array([center, 0.00, 0.0, 0, 0, 0])
+            center_coord = np.array([center, 0, height, 0, 0, 0])
 
             # Generate object pose for spawning
             poses = [center_coord, 
@@ -167,14 +168,10 @@ class BenchmarkTest:
         
         if self.sim_mode:
             self.spawn_model(object, pose)
+            rospy.sleep(1)
         else:
             try:
                 six.moves.input("[Benchmarking Pipeline] Place {} at ({}, {}, {}) meters with respect to the robot base and press 'ENTER'".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
-                # print("Place the {} at ({}, {}, {}) meters with respect to the robot base and press ENTER".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
-                # while True:
-                #     k = cv2.waitKey(33)
-                #     if k == 32:
-                #         break
             except SyntaxError:
                 pass
 
@@ -193,11 +190,10 @@ class BenchmarkTest:
 
         self.testing_in_process = False
 
-        if not self.over_head:
-            if self.use_cartesian:
-                self.pick_and_place.reach_cartesian_scanpose()
-            else:
-                self.pick_and_place.reach_scanpose()
+        if self.use_cartesian:
+            self.pick_and_place.reach_cartesian_scanpose()
+        else:
+            self.pick_and_place.reach_scanpose()
 
         if not skip:
             with open(self.log_file_path, 'a') as file:
@@ -280,7 +276,8 @@ class BenchmarkTest:
             r = config["experiment_" + str(experiment_idx)]["config"]["r"]
             alpha = config["experiment_" + str(experiment_idx)]["config"]["alpha"]
             n = config["experiment_" + str(experiment_idx)]["config"]["n"]
-            experiments.append([model_paths, center, r, alpha, n])
+            height = config["experiment_" + str(experiment_idx)]["config"]["height"]
+            experiments.append([model_paths, center, r, alpha, n, height])
         return experiments
     
     def spawn_model(self, model_path, pose):

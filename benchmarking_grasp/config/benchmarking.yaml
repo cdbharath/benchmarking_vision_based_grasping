@@ -9,10 +9,11 @@ experiment_1:
     - 050_medium_clamp
     - 072-a_toy_airplane
   config:
-    center: 0.4
-    r: 0.05
+    center: 0.45
+    r: 0.01
     alpha: 1.57
     n: 1
+    height: 0.51
 
 experiment_2:
   objects:
@@ -27,3 +28,4 @@ experiment_2:
     r: 0.25
     alpha: 0.78
     n: 1
+    height: 0.5
