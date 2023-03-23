@@ -34,8 +34,8 @@ class TestROI:
             depth_image_topic = self.params["depth_image"]
             rgb_image_topic = self.params["rgb_image"]
 
-        if self.depth_complete:
-            depth_image_topic = self.params["depth_complete_image"]            
+            if self.depth_complete:
+                depth_image_topic = self.params["depth_complete_image"]            
 
         rospy.Subscriber(depth_image_topic, Image, self._depth_img_cb, queue_size=1)
         rospy.Subscriber(rgb_image_topic, Image, self._rgb_img_cb, queue_size=1)
@@ -102,7 +102,7 @@ class TestROI:
 
 if __name__ == "__main__":
     rospy.init_node("test_roi", log_level=rospy.INFO)
-    test_roi = TestROI(sim_mode=False)
+    test_roi = TestROI(sim_mode=True)
 
     rospy.spin()
     

@@ -4,10 +4,8 @@ experiment_1:
   objects:
     - 057_racquetball
     - 065-j_cups
-    - 021_bleach_cleanser
     - 044_flat_screwdriver
     - 050_medium_clamp
-    - 072-a_toy_airplane
   config:
     center: 0.45
     r: 0.01
