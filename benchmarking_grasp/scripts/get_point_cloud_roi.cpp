@@ -5,7 +5,7 @@
 
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
-#include "opencv2/improc.hpp"
+#include <opencv2/core/core.hpp>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -22,72 +22,95 @@ class GetPointCloudROI{
     public:
         GetPointCloudROI(ros::NodeHandle& nh);
         void ptCloudCallback(const sensor_msgs::PointCloud2ConstPtr& in_cloud);
-        // pcl::PointCloud<pcl::PointXYZ>::Ptr applyPassthroughFilter(
-        //     pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, float x_min, float x_max, float y_min, float y_max, float z_min, float z_max);
-        void on_trackbar(int, void*);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr applyPassthroughFilter(
+            pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, float x_min, float x_max, float y_min, float y_max, float z_min, float z_max);
+        static void on_trackbar(int, void*){};
 
     private:
         ros::NodeHandle n;
         ros::Subscriber pt_cloud_sub;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
         pcl::visualization::PCLVisualizer::Ptr viewer;
+        int x_min = 0, x_max = 100, y_min = 0, y_max = 100, z_min = 0, z_max = 100;
 };
-
-GetPointCloudROI::on_trackbar(int, void*){
-    viewer->removeAllPointClouds();
-    viewer->addPointCloud<pcl::PointXYZ> (cloud);
-    viewer->spinOnce ();
-    ros::spinOnce();
-}
 
 GetPointCloudROI::GetPointCloudROI(ros::NodeHandle& nh): n(nh){
     // std::string pc_topic;
     // n.getParam("point_cloud", pc_topic);
-    cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
-    pt_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 1, &GetPointCloudROI::ptCloudCallback, this);
+    cloud = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pt_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/panda_camera/point_cloud", 1, &GetPointCloudROI::ptCloudCallback, this);
     viewer = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer ("Point Cloud"));
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
 
-    int init_percent = 0;
-    namedWindow("Adjust ROI", WINDOW_AUTOSIZE);
-    createTrackbar("Trackbar", "Adjust ROI", &init_percent, 100, on_trackbar);
+    cv::Mat M(1, 400, CV_8UC3, cv::Scalar(255,255,255));
+    cv::namedWindow("Adjust ROI", cv::WINDOW_AUTOSIZE);
+    cv::createTrackbar("x_min", "Adjust ROI", &x_min, 100, on_trackbar, this);
+    cv::createTrackbar("x_max", "Adjust ROI", &x_max, 100, on_trackbar, this);
+    cv::createTrackbar("y_min", "Adjust ROI", &y_min, 100, on_trackbar, this);
+    cv::createTrackbar("y_max", "Adjust ROI", &y_max, 100, on_trackbar, this);
+    cv::createTrackbar("z_min", "Adjust ROI", &z_min, 100, on_trackbar, this);
+    cv::createTrackbar("z_max", "Adjust ROI", &z_max, 100, on_trackbar, this);
 
-    waitKey(0);
+    while (true){
+        viewer->removeAllPointClouds();
+        
+        pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        pcl::copyPointCloud(*cloud, *in_cloud);
+        
+        float in_x_min = x_min*0.02 - 1;
+        float in_x_max = x_max*0.02 - 1;
+        float in_y_min = y_min*0.02 - 1;
+        float in_y_max = y_max*0.02 - 1;
+        float in_z_min = z_min*0.02 - 1; 
+        float in_z_max = z_max*0.02 - 1;
+        
+        pcl::PointCloud<pcl::PointXYZ>::Ptr passthroughCloud = applyPassthroughFilter(in_cloud, in_x_min, in_x_max, in_y_min, in_y_max, in_z_min, in_z_max);
+        
+        pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> color_handler(cloud);
+        viewer->addPointCloud<pcl::PointXYZRGB> (cloud, color_handler);
+        viewer->addPointCloud<pcl::PointXYZ> (passthroughCloud, "ROI");
+        
+        cv::imshow("Adjust ROI", M);
+        int key = cv::waitKey(1) & 255; 
+        if (key == 27) {
+            std::cout << "crop_size: [" << in_z_min << ", " << in_y_min << ", " << in_x_min << ", " << in_z_max << ", " << in_y_max << ", " << in_x_max << "]" << std::endl;
+            cv::destroyAllWindows();
+            viewer->close();    
+            break;
+        }          
+        
+        viewer->spinOnce ();
+        ros::spinOnce();
+    }
 
-    // while (!viewer->wasStopped ()){
-    //     viewer->removeAllPointClouds();
-    //     viewer->addPointCloud<pcl::PointXYZ> (cloud);
-    //     viewer->spinOnce ();
-    //     ros::spinOnce();
-    // }
 }
 
 void GetPointCloudROI::ptCloudCallback(const sensor_msgs::PointCloud2ConstPtr& in_cloud){
     pcl::fromROSMsg(*in_cloud, *cloud);
 }
 
-// pcl::PointCloud<pcl::PointXYZ>::Ptr GetPointCloudROI::applyPassthroughFilter(
-//     pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, float x_min, float x_max, float y_min, float y_max, float z_min, float z_max){
-//     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+pcl::PointCloud<pcl::PointXYZ>::Ptr GetPointCloudROI::applyPassthroughFilter(
+    pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, float x_min, float x_max, float y_min, float y_max, float z_min, float z_max){
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
 
-//     pcl::PassThrough<pcl::PointXYZ> pass;
-//     pass.setInputCloud (cloud);
-//     pass.setFilterFieldName ("x");
-//     pass.setFilterLimits (x_min, x_max);
-//     pass.filter (*cloud_filtered);
+    pcl::PassThrough<pcl::PointXYZ> pass;
+    pass.setInputCloud (in_cloud);
+    pass.setFilterFieldName ("x");
+    pass.setFilterLimits (x_min, x_max);
+    pass.filter (*cloud_filtered);
 
-//     pass.setInputCloud (cloud_filtered);
-//     pass.setFilterFieldName ("y");
-//     pass.setFilterLimits (y_min, y_max);
-//     pass.filter (*cloud_filtered);
+    pass.setInputCloud (cloud_filtered);
+    pass.setFilterFieldName ("y");
+    pass.setFilterLimits (y_min, y_max);
+    pass.filter (*cloud_filtered);
 
-//     pass.setInputCloud (cloud_filtered);
-//     pass.setFilterFieldName ("z");
-//     pass.setFilterLimits (z_min, z_max);
-//     pass.filter (*cloud_filtered);
+    pass.setInputCloud (cloud_filtered);
+    pass.setFilterFieldName ("z");
+    pass.setFilterLimits (z_min, z_max);
+    pass.filter (*cloud_filtered);
 
-//     return cloud_filtered;
-// }
+    return cloud_filtered;
+}
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "get_pc_roi");
