@@ -7,7 +7,19 @@ project(benchmarking_grasp)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  genmsg
+  geometry_msgs 
+  sensor_msgs
+  visualization_msgs
+)
+
+find_package(PCL 1.2 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -57,7 +69,8 @@ catkin_python_setup()
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
+# add_action_files(find_package(Boost REQUIRED COMPONENTS system)
+
 #   FILES
 #   Action1.action
 #   Action2.action
@@ -113,7 +126,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-# ${catkin_INCLUDE_DIRS}
+${catkin_INCLUDE_DIRS}
+${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -145,6 +159,9 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_executable(get_point_cloud_roi scripts/get_point_cloud_roi.cpp)
+target_link_libraries(get_point_cloud_roi ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 #############
 ## Install ##

@@ -12,7 +12,8 @@ from sensor_msgs.msg import Image
 
 def nothing(x):
     pass
-class TestROI:
+
+class GetDepthROI:
     def __init__(self, sim_mode=False):
         self.bridge = cv_bridge.CvBridge()
         self.normalize = False
@@ -102,8 +103,8 @@ class TestROI:
         yaml.safe_dump(self.params, open(self.yaml_package_path, "w"), default_flow_style=False)
 
 if __name__ == "__main__":
-    rospy.init_node("test_roi", log_level=rospy.INFO)
-    test_roi = TestROI(sim_mode=True)
+    rospy.init_node("get_depth_roi", log_level=rospy.INFO)
+    test_roi = GetDepthROI(sim_mode=True)
 
     rospy.spin()
     
