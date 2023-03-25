@@ -31,14 +31,21 @@ class GetPointCloudROI{
         ros::Subscriber pt_cloud_sub;
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
         pcl::visualization::PCLVisualizer::Ptr viewer;
-        int x_min = 0, x_max = 100, y_min = 0, y_max = 100, z_min = 0, z_max = 100;
+        int x_min = 45, x_max = 55, y_min = 45, y_max = 55, z_min = 0, z_max = 100;
 };
 
 GetPointCloudROI::GetPointCloudROI(ros::NodeHandle& nh): n(nh){
-    // std::string pc_topic;
-    // n.getParam("point_cloud", pc_topic);
+    std::string pc_topic;
+    bool sim_mode;
+    n.getParam("sim_mode", sim_mode);
+    
+    if(sim_mode)
+        n.getParam("point_cloud_sim", pc_topic);
+    else
+        n.getParam("point_cloud", pc_topic);
+    
     cloud = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pt_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/panda_camera/point_cloud", 1, &GetPointCloudROI::ptCloudCallback, this);
+    pt_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>(pc_topic, 1, &GetPointCloudROI::ptCloudCallback, this);
     viewer = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer ("Point Cloud"));
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
 

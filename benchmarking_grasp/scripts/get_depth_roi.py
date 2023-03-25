@@ -14,7 +14,7 @@ def nothing(x):
     pass
 
 class GetDepthROI:
-    def __init__(self, sim_mode=False):
+    def __init__(self, sim_mode=False, depth_complete=True):
         self.bridge = cv_bridge.CvBridge()
         self.normalize = False
         self.depth_complete = True
@@ -104,7 +104,7 @@ class GetDepthROI:
 
 if __name__ == "__main__":
     rospy.init_node("get_depth_roi", log_level=rospy.INFO)
-    test_roi = GetDepthROI(sim_mode=True)
+    test_roi = GetDepthROI(sim_mode=True, depth_complete=True)
 
     rospy.spin()
     

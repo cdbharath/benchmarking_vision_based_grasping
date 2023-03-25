@@ -1,0 +1,9 @@
+<launch>
+    <rosparam command="load" file="$(find benchmarking_grasp)/config/configuration.yaml" />
+    
+    <!-- Parameters -->
+    <arg name="sim_mode" default="false"/>
+    <arg name="use_depth_completion" default="true"/>
+        
+    <node pkg="benchmarking_grasp" type="get_point_cloud_roi" name="get_pc_roi" output="screen"/>
+</launch>
