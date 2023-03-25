@@ -81,6 +81,7 @@ class TestROI:
         y_max = cv2.getTrackbarPos('Y max','Adjust ROI')
         
         # self.set_config(x_min, x_max, y_min, y_max)
+        print(f"crop_size: [{y_min}, {x_min}, {y_max}, {x_max}]")
         cv2.destroyAllWindows()  
    
     def _depth_img_cb(self, msg):
