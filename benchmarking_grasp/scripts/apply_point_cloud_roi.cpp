@@ -69,15 +69,8 @@ GetPointCloudROI::GetPointCloudROI(ros::NodeHandle& nh): n(nh){
 void GetPointCloudROI::ptCloudCallback(const sensor_msgs::PointCloud2ConstPtr& in_cloud){
     pcl::fromROSMsg(*in_cloud, *cloud);
     
-    // pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    // pcl::copyPointCloud(*cloud, *xyz_cloud);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr passthroughCloud = applyPassthroughFilter(cloud, x_min, x_max, y_min, y_max, z_min, z_max);
     
-    // pcl::PointCloud<pcl::PointXYZRGB>::Ptr xyzrgb_cloud;
-    // xyzrgb_cloud = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-    // pcl::copyPointCloud(*passthroughCloud, *xyzrgb_cloud);    
-
     sensor_msgs::PointCloud2 out_cloud;
     pcl::toROSMsg(*passthroughCloud, out_cloud);
     out_cloud.header.frame_id = camera_frame;
