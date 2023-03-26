@@ -164,6 +164,9 @@ ${OpenCV_INCLUDE_DIRS}
 add_executable(get_point_cloud_roi scripts/get_point_cloud_roi.cpp)
 target_link_libraries(get_point_cloud_roi ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS})
 
+add_executable(apply_point_cloud_roi scripts/apply_point_cloud_roi.cpp)
+target_link_libraries(apply_point_cloud_roi ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS})
+
 #############
 ## Install ##
 #############

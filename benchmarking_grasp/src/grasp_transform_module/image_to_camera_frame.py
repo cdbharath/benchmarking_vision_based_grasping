@@ -50,7 +50,7 @@ class ImageToCameraFrame:
         self.rgb_received = False
 
         # Indies 0, 2: v and 1, 3: u
-        self.crop_size = rospy.get_param("crop_size") 
+        self.crop_size = rospy.get_param("depth_crop_size") 
 
         # Get camera info and subscribe to rgb and depth images
         if self.sim_mode:

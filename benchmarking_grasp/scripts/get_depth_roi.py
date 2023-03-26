@@ -26,7 +26,7 @@ class GetDepthROI:
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/configuration.yaml")
         self.params = yaml.safe_load(open(self.yaml_package_path, "r"))
 
-        self.crop_size = self.params["crop_size"]
+        self.crop_size = self.params["depth_crop_size"]
 
         if sim_mode:
             depth_image_topic = self.params["depth_image_sim"]
@@ -82,7 +82,7 @@ class GetDepthROI:
         y_max = cv2.getTrackbarPos('Y max','Adjust ROI')
         
         # self.set_config(x_min, x_max, y_min, y_max)
-        print(f"crop_size: [{y_min}, {x_min}, {y_max}, {x_max}]")
+        print(f"depth_crop_size: [{y_min}, {x_min}, {y_max}, {x_max}]")
         cv2.destroyAllWindows()  
    
     def _depth_img_cb(self, msg):
@@ -99,7 +99,7 @@ class GetDepthROI:
         return normalized_depth_image
 
     def set_config(self, x_min, x_max, y_min, y_max):
-        self.params['crop_size'] = [y_min, x_min, y_max, x_max]
+        self.params['depth_crop_size'] = [y_min, x_min, y_max, x_max]
         yaml.safe_dump(self.params, open(self.yaml_package_path, "w"), default_flow_style=False)
 
 if __name__ == "__main__":

@@ -23,7 +23,8 @@
         <arg name="enable_pointcloud" value="$(arg point_cloud_input)"/>
     </include>
 
-    <node if="$(arg use_depth_completion)" pkg="benchmarking_grasp" type="simple_depth_completion.py" name="simple_depth_completion" output="screen"/>
+    <node if="$(arg point_cloud_input)" pkg="benchmarking_grasp" type="apply_point_cloud_roi" name="apply_pc_roi" output="screen"/>
+    <node if="$(arg use_depth_completion)" pkg="benchmarking_grasp" type="simple_depth_completion.py" name="simple_depth_completion" output="screen"/> -->
     <node pkg="benchmarking_grasp" type="test_image_to_camera_frame.py" name="image_to_camera_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_cam_to_world_frame.py" name="camera_to_world_node" output="screen"/>
     <node pkg="benchmarking_grasp" type="test_benchmark_pipeline.py" name="benchmark_test" output="screen"/>
