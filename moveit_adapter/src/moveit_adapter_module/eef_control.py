@@ -53,6 +53,9 @@ class MoveGroupControl:
         self.eef_link = eef_link
         self.group_names = group_names
 
+    def stop_robot(self):
+        self.move_group.stop()
+
     def set_joint_velocity(self, velocity):
         self.move_group.set_max_velocity_scaling_factor(velocity)
 

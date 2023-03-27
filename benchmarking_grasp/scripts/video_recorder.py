@@ -52,6 +52,8 @@ class VideoRecoder:
         self.cap = cv2.VideoCapture(camera_name)  
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 75)
+        self.cap.set(cv2.CAP_PROP_EXPOSURE, 315)
 
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')

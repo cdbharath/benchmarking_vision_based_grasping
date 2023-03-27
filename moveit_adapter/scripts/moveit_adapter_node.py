@@ -3,7 +3,7 @@
 import rospy
 from moveit_adapter_module.grasping import Gripper
 from moveit_adapter_module.eef_control import MoveGroupControl
-from moveit_adapter.srv import EndEffectorWaypoint, GripperCommand, CurrentPose, SetJointVelocity
+from moveit_adapter.srv import EndEffectorWaypoint, GripperCommand, CurrentPose, SetJointVelocity, StopMovement
 
 class MoveitAdapter:
     def __init__(self):
@@ -15,6 +15,7 @@ class MoveitAdapter:
         rospy.Service('moveit_adapter/vanilla', EndEffectorWaypoint, self.vanilla_path_service)
         rospy.Service('moveit_adapter/get_current_pose', CurrentPose, self.get_current_pose_service)
         rospy.Service('moveit_adapter/set_joint_velocity', SetJointVelocity, self.set_joint_velocity)
+        rospy.Service('moveit_adapter/stop', StopMovement, self.stop_movement)
         
     def cartesian_path_service(self, req):
         self.moveit_control.follow_cartesian_path([[req.x, req.y, req.z, req.roll, req.pitch, req.yaw]])
@@ -33,6 +34,10 @@ class MoveitAdapter:
 
     def set_joint_velocity(self, req):
         self.moveit_control.set_joint_velocity(req.joint_velocity)
+        return True
+
+    def stop_movement(self, req):
+        self.moveit_control.stop_robot()
         return True
 
 if __name__ == "__main__":
