@@ -50,10 +50,12 @@ class VideoRecoder:
 
         # This will return video from the first webcam on your computer.
         self.cap = cv2.VideoCapture(camera_name)  
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.out = cv2.VideoWriter(output_file_path, fourcc, fps, (640, 480))
+        self.out = cv2.VideoWriter(output_file_path, fourcc, fps, (1280, 720))
   
         rospy.Timer(rospy.Duration(1/fps), self.timer_cb)
         rospy.on_shutdown(self.on_shutdown)

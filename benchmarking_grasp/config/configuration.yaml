@@ -12,7 +12,7 @@ remove_noisy_ground_plane: true
 # gripper/robot params
 gripper_offset: 0.105
 intermediate_z_stop: 0.5
-scan_pose: [0.45, 0.0, 0.8, 3.14, 0.03, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
+scan_pose: [0.45, 0.0, 0.7, 3.14, 0.03, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
 grasp_angle_offset: 1.57
 
@@ -24,8 +24,8 @@ pc_roi: [0.0, -0.22, -0.36, 0.7, 0.22, 0.36]        # pc_roi: [z_min, y_min, x_m
 robot_default_velocity: 0.2                         # As a fraction of the maximum joint velocity (TODO)
 robot_approach_velocity: 0.05 
 
-record_video: false
-camera_name: "/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_0F85DE4F-video-index0"
+record_video: true
+camera_name: "usb-046d_HD_Pro_Webcam_C920_0F85DE4F-video-index0"
 
 # folder names
 urdf_package_name: 'pick_and_place'                 # <urdf_package_name>/urdf/objects    
