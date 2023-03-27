@@ -112,8 +112,8 @@ class BenchmarkTest:
             # Generate object pose for spawning
             poses = [center_coord, 
                      center_coord + np.array([r, 0, 0, 0, 0, 0]),
-                     center_coord + np.array([0, r, 0, 0, 0, 0]),
-                     center_coord + np.array([0, -r, 0, 0, 0, 0]),
+                    #  center_coord + np.array([0, r, 0, 0, 0, 0]),
+                    #  center_coord + np.array([0, -r, 0, 0, 0, 0]),
                      center_coord + np.array([0, r, 0, 0, 0, alpha]),
                      center_coord + np.array([0, -r, 0, 0, 0, -alpha])]
             
