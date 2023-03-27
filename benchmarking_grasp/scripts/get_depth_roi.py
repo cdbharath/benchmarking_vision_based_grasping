@@ -17,9 +17,10 @@ class GetDepthROI:
     def __init__(self, sim_mode=False, depth_complete=True):
         self.bridge = cv_bridge.CvBridge()
         self.normalize = False
-        self.depth_complete = True
+        self.depth_complete = depth_complete
         self.depth = None
         self.rgb = None
+        self.received_first_depth = False
 
         self.rospack = rospkg.RosPack()
         self.yaml_package_name = "benchmarking_grasp"
@@ -49,6 +50,9 @@ class GetDepthROI:
         cv2.createTrackbar('Y min','Adjust ROI',self.crop_size[0],2048,nothing)
         cv2.createTrackbar('Y max','Adjust ROI',self.crop_size[2],2048,nothing)
    
+        while not self.received_first_depth:
+            rospy.sleep(0.1)
+
         while True:
             # get current positions of four trackbars
             x_min = cv2.getTrackbarPos('X min','Adjust ROI')
@@ -86,6 +90,7 @@ class GetDepthROI:
         cv2.destroyAllWindows()  
    
     def _depth_img_cb(self, msg):
+        self.received_first_depth = True
         img = self.bridge.imgmsg_to_cv2(msg)
         self.depth = img.copy()
 
@@ -104,7 +109,7 @@ class GetDepthROI:
 
 if __name__ == "__main__":
     rospy.init_node("get_depth_roi", log_level=rospy.INFO)
-    test_roi = GetDepthROI(sim_mode=True, depth_complete=True)
+    test_roi = GetDepthROI(sim_mode=False, depth_complete=True)
 
     rospy.spin()
     
