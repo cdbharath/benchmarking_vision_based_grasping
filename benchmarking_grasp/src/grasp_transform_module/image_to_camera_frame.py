@@ -182,8 +182,8 @@ class ImageToCameraFrame:
 
         # check for nearby depths and assign the max of the depths
         max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
-        z = min((min_z + max_z)/2, min_z + 15)*self.depth_scale
-
+        z = min((min_z + max_z)/2, min_z + 0.02)*self.depth_scale
+        
         # If you dont want to use the above functionality
         # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
         
