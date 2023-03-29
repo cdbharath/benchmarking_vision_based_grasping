@@ -35,6 +35,7 @@ class ImageToCameraFrame:
         self.depth_image_sim_topic = rospy.get_param("depth_image_sim")
         self.rgb_image_sim_topic = rospy.get_param("rgb_image_sim")
         self.remove_noisy_ground_plane = rospy.get_param("remove_noisy_ground_plane")
+        self.angle_2d_in_cam_frame = rospy.get_param("angle_2d_in_cam_frame")
 
         self.bridge = cv_bridge.CvBridge()
 
@@ -181,20 +182,23 @@ class ImageToCameraFrame:
 
         # check for nearby depths and assign the max of the depths
         max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
-        z = min((min_z + max_z)/2, min_z + 20)*self.depth_scale
+        z = min((min_z + max_z)/2, min_z + 15)*self.depth_scale
 
         # If you dont want to use the above functionality
         # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
-
+        
         # TODO u = y, v = x, where x,y are matrix coords and u,v are image coords
         coords_in_cam = np.linalg.inv(self.cam_K)@np.array([[center[1]], [center[0]], [1]])
         coords_in_cam = coords_in_cam*z/coords_in_cam[2][0]
 
-        # Transform grasp angle
-        angle_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[np.cos(angle)], [np.sin(angle)], [1]])
-        origin_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[0], [0], [1]])
-        
-        angle_in_cam = np.arctan2(angle_vec_in_cam[1, 0] - origin_vec_in_cam[1, 0], angle_vec_in_cam[0, 0] - origin_vec_in_cam[0, 0])
+        if not self.angle_2d_in_cam_frame:
+            # Transform grasp angle
+            angle_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[np.cos(angle)], [np.sin(angle)], [1]])
+            origin_vec_in_cam = np.linalg.inv(self.cam_K)@np.array([[0], [0], [1]])
+            
+            angle_in_cam = np.arctan2(angle_vec_in_cam[1, 0] - origin_vec_in_cam[1, 0], angle_vec_in_cam[0, 0] - origin_vec_in_cam[0, 0])
+        else:
+            angle_in_cam = angle
 
         # Response message
         ret = GraspPredictionResponse()

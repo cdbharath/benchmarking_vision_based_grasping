@@ -8,6 +8,7 @@ align_depth: true
 crop_by_pixel: true
 point_cloud_input: false
 remove_noisy_ground_plane: true
+angle_2d_in_cam_frame: true
 
 # gripper/robot params
 gripper_offset: 0.105
