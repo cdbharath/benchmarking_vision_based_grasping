@@ -8,6 +8,16 @@ Refer the [simulator repository](https://github.com/cdbharath/panda_simulation "
 
 Refer the [grasp detection algorithms](https://github.com/cdbharath/grasp_synthesis "grasp detection algorithms") to find the algorithms that we tested with this pipeline
 
+## Installation Instructions
+```
+mkdir -p benchmarking_ws/src
+cd benchmarking_ws/src
+git clone https://github.com/cdbharath/benchmarking_vision_based_grasping.git
+cd ..
+catkin build
+source devel/setup.bash
+```
+
 ## How to run (Perferably in order):
 ```
 # Run any one of the commands as per the requirement
