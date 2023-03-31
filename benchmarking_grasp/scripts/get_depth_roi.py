@@ -109,7 +109,11 @@ class GetDepthROI:
 
 if __name__ == "__main__":
     rospy.init_node("get_depth_roi", log_level=rospy.INFO)
-    test_roi = GetDepthROI(sim_mode=False, depth_complete=True)
+    
+    sim_mode = rospy.get_param("sim_mode")
+    depth_complete = rospy.get_param("use_depth_completion")
+
+    test_roi = GetDepthROI(sim_mode=True, depth_complete=False)
 
     rospy.spin()
     

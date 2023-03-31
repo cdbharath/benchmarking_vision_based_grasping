@@ -3,7 +3,7 @@ only_first: True
 experiment_1:
   objects:
     - 056_tennis_ball
-    - 065-j_cups
+    - 025_mug
     - 044_flat_screwdriver
     - 006_mustard_bottle
     - 050_medium_clamp
