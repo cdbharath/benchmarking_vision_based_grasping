@@ -1,10 +1,10 @@
 # enable/disable features
-use_cartesian: true
+use_cartesian: false
 over_head: false
 enable_crop: true
 crop_by_pixel: true
 remove_noisy_ground_plane: true
-angle_2d_in_cam_frame: true
+angle_2d_in_cam_frame: false
 
 # gripper/robot params
 gripper_offset: 0.105
@@ -14,12 +14,12 @@ bad_grasp_z: 0.1                                    # if grasp is below this poi
 grasp_angle_offset: 1.57
 
 # camera params
-depth_crop_size: [0, 0, 1024, 1024]                 # crop_size: [y_min, x_min, y_max, x_max]
+depth_crop_size: [88, 291, 654, 1128]               # crop_size: [y_min, x_min, y_max, x_max]
 pc_roi: [0.0, -0.22, -0.36, 0.7, 0.22, 0.36]        # pc_roi: [z_min, y_min, x_min, z_max, y_max, x_max]
 
 # robot control params
-robot_default_velocity: 1.0                         # As a fraction of the maximum joint velocity (TODO)
-robot_approach_velocity: 0.5 
+robot_default_velocity: 0.1                         # As a fraction of the maximum joint velocity 
+robot_approach_velocity: 0.05 
 
 record_video: true
 camera_name: "usb-046d_HD_Pro_Webcam_C920_0F85DE4F-video-index0"
