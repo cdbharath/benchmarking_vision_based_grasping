@@ -4,7 +4,7 @@ over_head: false
 enable_crop: true
 crop_by_pixel: true
 remove_noisy_ground_plane: true
-angle_2d_in_cam_frame: true
+angle_2d_in_cam_frame: false
 
 # gripper/robot params
 gripper_offset: 0.105

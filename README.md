@@ -39,4 +39,4 @@ rosrun <grasp_det_algo> service_server.py
 2. Script to find point cloud ROI (```roslaunch benchmarking_grasp find_point_cloud_roi.launch <args>:=<values>```)
 3. ```configuration.yaml``` exposes pipeline parameters that can be tuned as per our requirements. ```example_configuration``` has sample configuration files that were used for the experimemnts.
 4. ```benchmarking.yaml``` exposes parameters specific to the benchmarking protocols and objects to be simulated
-5. The configuration file and launch file arguments can be used to turn on/off the features such as depth completion, filtering ROI, recording video e.t.c.
+5. The configuration file and launch file arguments can be used to turn on/off the preprocessing techiques such as depth completion, filtering ROI, recording video e.t.c.
