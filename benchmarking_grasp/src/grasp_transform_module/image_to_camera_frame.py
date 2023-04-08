@@ -36,6 +36,9 @@ class ImageToCameraFrame:
         self.rgb_image_sim_topic = rospy.get_param("rgb_image_sim")
         self.remove_noisy_ground_plane = rospy.get_param("remove_noisy_ground_plane")
         self.angle_2d_in_cam_frame = rospy.get_param("angle_2d_in_cam_frame")
+        
+        self.gripper_height = rospy.get_param("gripper_height")
+        self.gripper_width = rospy.get_param("gripper_width")
 
         self.bridge = cv_bridge.CvBridge()
 
@@ -181,9 +184,11 @@ class ImageToCameraFrame:
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
 
         # check for nearby depths and assign the max of the depths
-        max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
-        max_z, min_z = max_z*self.depth_scale, min_z*self.depth_scale
-        z = min((min_z + max_z)/2, min_z + 0.02)
+        # max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
+        # max_z, min_z = max_z*self.depth_scale, min_z*self.depth_scale
+        # z = min((min_z + max_z)/2, min_z + 0.02)
+        
+        z = self.find_depth_from_gripper_profile(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
 
         # If you dont want to use the above functionality
         # z = depth[int(precrop_center[0])][int(precrop_center[1])]*self.depth_scale
@@ -279,6 +284,7 @@ class ImageToCameraFrame:
     def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height=100):
         """
         Finds the top most point inside the bounding box
+        x, y are in image pixel coordinates
         """
         # Orientation of the bounding box
         b = np.cos(-angle) * 0.5
@@ -300,7 +306,55 @@ class ImageToCameraFrame:
         values = depth_image[np.where((mask == 1))]
 
         return max(values), min(values)
+    
+    def get_pixels_around_point(self, image_shape, center, radius):
+        """
+        Get the pixels around a given point based on a pixel radius.
+    
+        :param image_shape: The shape of the image (height, width).
+        :param center: The center point (y, x).
+        :param radius: The pixel radius.
+        :return: A list of tuples containing the (y, x) coordinates of the pixels within the radius of the center point.
+        """
+        height, width = image_shape
+        x, y = center
+        x_coords, y_coords = np.meshgrid(np.arange(width), np.arange(height))
+        distances = np.sqrt((x_coords - x) ** 2 + (y_coords - y) ** 2)
+        mask = (distances <= radius)
+        print(np.max(x_coords[mask]), np.max(y_coords[mask]), np.max(x_coords), np.max(y_coords))
+        return np.column_stack((y_coords[mask], x_coords[mask]))
+        
+    def find_depth_from_gripper_profile(self, depth_image, x, y, angle):
+        """
+        :param x,y: The center of the gripper in pixel coordinates
+        Finds the z position based on the gripper profile
+        TODO: The maximum possible gripper width is considered for the algorithm.
+        """
+        angle = angle - np.pi/2
+        z = depth_image[int(y), int(x)]
 
+        width_in_img_frame = self.cam_K@np.array([[self.gripper_width], [0], [z]])
+        orig_img_frame = self.cam_K@np.array([[0], [0], [z]])
+
+        width = abs((width_in_img_frame/width_in_img_frame[2, 0] - orig_img_frame/orig_img_frame[2, 0])[0, 0])
+        thickness = int(width/8)
+        thickness = 1
+        
+        point_1_x = x - width/2*np.cos(angle)
+        point_1_y = y - width/2*np.sin(angle)
+        point_2_x = x + width/2*np.cos(angle)
+        point_2_y = y + width/2*np.sin(angle)
+                
+        point_1 = self.get_pixels_around_point(depth_image.shape, (point_1_x, point_1_y), thickness)
+        point_2 = self.get_pixels_around_point(depth_image.shape, (point_2_x, point_2_y), thickness)
+        center = self.get_pixels_around_point(depth_image.shape, (x, y), thickness)
+                
+        point_1_depth = np.mean(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
+        point_2_depth = np.mean(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
+        center_depth = np.mean(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
+        
+        return min(center_depth + 0.03, point_1_depth - 0.01, point_2_depth - 0.01)
+        
     def list_to_quaternion(self, l):
         q = gmsg.Quaternion()
         q.x = l[0]
