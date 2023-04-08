@@ -15,10 +15,12 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
+from std_srvs.srv import Empty
 
 from pick_and_place_module.pick_and_place import PickAndPlace
 from benchmarking_msgs.srv import GraspPrediction
 from gazebo_grasp_plugin_ros.msg import GazeboGraspEvent
+from franka_msgs.msg import ErrorRecoveryActionGoal
 
 class BenchmarkTestStates(enum.Enum):
     """
@@ -146,7 +148,10 @@ class BenchmarkTest:
         if self.sim_mode:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
+        rospy.Service("/soft_stop", Empty, self.soft_stop)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
+        self.error_recovery_pub = rospy.Publisher("/franka_control/error_recovery/goal", ErrorRecoveryActionGoal, queue_size=1)
+
         rospy.loginfo("[Benchmarking Grasp] Node loaded successfully")
     
     def execute_benchmark_test(self, event):
@@ -224,6 +229,17 @@ class BenchmarkTest:
                 rospy.sleep(0.5)
             except Exception as e:
                 rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
+
+    def soft_stop(self, data):
+        """
+        Soft stop the robot
+        """
+        self.error_recovery_pub.publish(ErrorRecoveryActionGoal())
+        
+        if self.use_cartesian:
+            self.pick_and_place.reach_cartesian_scanpose()
+        else:
+            self.pick_and_place.reach_scanpose()
 
     def on_grasp_event(self, data):
         """
