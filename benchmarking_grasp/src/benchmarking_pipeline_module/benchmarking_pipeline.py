@@ -115,7 +115,8 @@ class BenchmarkTest:
                     #  center_coord + np.array([0, r, 0, 0, 0, 0]),
                     #  center_coord + np.array([0, -r, 0, 0, 0, 0]),
                      center_coord + np.array([0, r, 0, 0, 0, alpha]),
-                     center_coord + np.array([0, -r, 0, 0, 0, -alpha])]
+                     center_coord + np.array([0, -r, 0, 0, 0, -alpha])
+                    ]
             
             # Mirroring
             # poses.extend([center_coord, 
@@ -232,8 +233,8 @@ class BenchmarkTest:
         object = data.object
         attached = data.attached
 
-        if attached:
-            self.pick_and_place.call_gripper_service(self.finger1_state)
+        # if attached:
+        #     self.pick_and_place.call_gripper_service(self.finger1_state)
                         
         if attached and self.testing_in_process:
             self.attached = True
