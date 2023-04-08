@@ -113,7 +113,7 @@ if __name__ == "__main__":
     sim_mode = rospy.get_param("sim_mode")
     depth_complete = rospy.get_param("use_depth_completion")
 
-    test_roi = GetDepthROI(sim_mode=True, depth_complete=False)
+    test_roi = GetDepthROI(sim_mode=sim_mode, depth_complete=depth_complete)
 
     rospy.spin()
     

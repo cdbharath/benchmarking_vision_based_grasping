@@ -37,6 +37,9 @@ class DepthCompletion:
         valid_pixels = np.argwhere(image > thresh)
         invalid_pixels = np.argwhere(image <= 0)
         
+        if len(valid_pixels) == 0:
+            return image
+
         kdtree = KDTree(valid_pixels)
         _, pre_indices = kdtree.query(invalid_pixels, k=1)
         
