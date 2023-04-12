@@ -321,7 +321,6 @@ class ImageToCameraFrame:
         x_coords, y_coords = np.meshgrid(np.arange(width), np.arange(height))
         distances = np.sqrt((x_coords - x) ** 2 + (y_coords - y) ** 2)
         mask = (distances <= radius)
-        print(np.max(x_coords[mask]), np.max(y_coords[mask]), np.max(x_coords), np.max(y_coords))
         return np.column_stack((y_coords[mask], x_coords[mask]))
         
     def find_depth_from_gripper_profile(self, depth_image, x, y, angle):
@@ -331,7 +330,7 @@ class ImageToCameraFrame:
         TODO: The maximum possible gripper width is considered for the algorithm.
         """
         angle = angle - np.pi/2
-        z = depth_image[int(y), int(x)]
+        z = depth_image[int(y), int(x)]*self.depth_scale
 
         width_in_img_frame = self.cam_K@np.array([[self.gripper_width], [0], [z]])
         orig_img_frame = self.cam_K@np.array([[0], [0], [z]])

@@ -9,12 +9,14 @@ angle_2d_in_cam_frame: false
 # gripper/robot params
 gripper_offset: 0.105
 intermediate_z_stop: 0.5
-scan_pose: [0.45, 0.0, 0.7, 3.14, 0.0, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
+scan_pose: [0.45, 0.0, 0.7, 3.14, 0.03, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
 grasp_angle_offset: 1.57
+gripper_width: 0.08
+gripper_height: 0.04
 
 # camera params
-depth_crop_size: [88, 291, 654, 1128]               # crop_size: [y_min, x_min, y_max, x_max]
+depth_crop_size: [59, 101, 416, 630]                # crop_size: [y_min, x_min, y_max, x_max]
 pc_roi: [0.0, -0.22, -0.36, 0.7, 0.22, 0.36]        # pc_roi: [z_min, y_min, x_min, z_max, y_max, x_max]
 
 # robot control params
