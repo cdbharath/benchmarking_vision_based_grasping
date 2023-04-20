@@ -2,7 +2,7 @@
 
 Research under Prof Berk Calli (Manipulation and Environmental Robotics Lab, Worcester Polytechnic Institute)
 
-This repository provides a pipeline for benchmarking vision based grasp detection algorithms. The pipeline performs pick and place of objects based on 3DOF/6DOF grasps detected by the grasp detection algorithms and calculates scores based on our metric. The repository was tested with Franka Panda robot with eye in hand realsense camera. The pointcloud/depth image of the workspase is captured from the birdseye view. It is also assumed that the gripper approaches the object only from the top. These constraints will be lifted eventually. 
+This repository provides a pipeline for benchmarking vision based grasp detection algorithms. The pipeline performs manipulation(pick and place) of objects based on 3DOF/6DOF grasps detected by the grasp detection algorithms and calculates scores based on our metric. The repository was tested with Franka Panda robot with eye in hand realsense camera. The pointcloud/depth image of the workspase is captured from the birdseye view. It is also assumed that the gripper approaches the object only from the top. These constraints will be lifted eventually. 
 
 Refer the [simulator repository](https://github.com/cdbharath/panda_simulation "simulator repository") to run the benchmarking procedures in the simulation environment. 
 
