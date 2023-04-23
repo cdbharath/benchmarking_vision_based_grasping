@@ -144,6 +144,9 @@ class BenchmarkTest:
         self.finger1_state = 0.05
         self.finger2_state = 0.05
 
+        # Initialize Benchmarking Node after all the other nodes
+        rospy.sleep(5)
+
         # Initialize grasp plugin and joint states topic
         if self.sim_mode:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
@@ -347,8 +350,11 @@ class BenchmarkTest:
         response = srv_handle()
         rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
 
-        x = response.best_grasp.pose.position.x
-        y = response.best_grasp.pose.position.y
+        x_offset = rospy.get_param('x_offset_world')
+        y_offset = rospy.get_param('y_offset_world')
+
+        x = response.best_grasp.pose.position.x + x_offset
+        y = response.best_grasp.pose.position.y + y_offset
         z = response.best_grasp.pose.position.z 
         (rx, ry, rz) = euler_from_quaternion([response.best_grasp.pose.orientation.x, response.best_grasp.pose.orientation.y, 
                                               response.best_grasp.pose.orientation.z, response.best_grasp.pose.orientation.w])

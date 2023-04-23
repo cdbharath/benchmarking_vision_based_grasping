@@ -98,6 +98,7 @@ class ImageToCameraFrame:
 
         # Topic for grasp visualization (Useful for debugging)
         self.img_pub = rospy.Publisher(self.visualisation_topic, Image, queue_size=1)
+        self.depth_debug = rospy.Publisher("depth_debug", Image, queue_size=1)
 
         # Publishes cropped results (Useful for debugging)
         self.rgb_cropped_pub = rospy.Publisher(self.cropped_rgb_topic, Image, queue_size=10)
@@ -125,7 +126,8 @@ class ImageToCameraFrame:
 
             # Set all depth values in this 1cm range to the same value
             # Assumes the view only has object and ground plane
-            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 20)] = max_val
+            curr_depth_img[curr_depth_img > min((min_val + max_val)/2, min_val + 40)] = max_val
+            self.depth_debug.publish(self.bridge.cv2_to_imgmsg(curr_depth_img))
 
         self.curr_depth_img = curr_depth_img
         self.received = True

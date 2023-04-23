@@ -23,6 +23,7 @@ class MoveGroupControl:
 
         group_name = "panda_arm"
         move_group = moveit_commander.MoveGroupCommander(group_name)
+        move_group.set_planner_id('BiTRRT')
 
         planning_frame = move_group.get_planning_frame()
         # rospy.loginfo(" Planning frame: %s", planning_frame)
