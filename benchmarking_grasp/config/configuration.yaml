@@ -60,3 +60,9 @@ depth_complete_image_norm: '/camera/aligned_depth_to_color/depth_completed_norm'
 visualisation: "visualisation"
 cropped_depth: "cropped_depth"
 cropped_rgb: "cropped_rgb"
+
+# dynamic configuration
+start_recording: false
+grasp_topic: "synthesized grasps"
+recording_folder: "default"
+current_recording: "default" 

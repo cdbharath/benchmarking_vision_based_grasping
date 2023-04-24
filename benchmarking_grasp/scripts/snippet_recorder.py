@@ -35,6 +35,8 @@ def list_ports():
                 available_ports.append(dev_port)
         dev_port +=1
 
+    if len(working_ports) == 0:
+        raise Exception 
     return working_ports[0]
 
 class VideoRecoder:
@@ -89,7 +91,10 @@ class VideoRecoder:
 if __name__ == "__main__":
     rospy.init_node("video_recorder")
     rospy.sleep(5)
+
     port = list_ports()
     rospy.loginfo("[Video Recorder] Using port %s for recording videos", port)
+    
     video_recorder = VideoRecoder(port)
+    
     rospy.spin()

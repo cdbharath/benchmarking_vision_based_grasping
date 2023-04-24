@@ -77,17 +77,18 @@ class BenchmarkTest:
         self.urdf_package_name = rospy.get_param("urdf_package_name")
         self.yaml_package_name = "benchmarking_grasp"
 
-        self.start_time = str(datetime.now())
+        self.start_time_str = str(datetime.now())
 
         self.rospack = rospkg.RosPack()
         self.urdf_package_path = os.path.join(self.rospack.get_path(self.urdf_package_name), "urdf/objects")
         self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/benchmarking.yaml")
         self.log_folder = os.path.join(self.rospack.get_path(self.yaml_package_name), "logs") 
-        self.log_file_path = os.path.join(self.log_folder, "log_" +  self.start_time + ".csv") 
-
+        self.log_file_path = os.path.join(self.log_folder, "log_" +  self.start_time_str + ".csv") 
         # Create log folder if not exists
         if not os.path.exists(self.log_folder):
             os.makedirs(self.log_folder)
+
+        rospy.set_param("recording_folder", self.start_time_str)
 
         # Write the header to the log file
         with open(self.log_file_path, 'w') as file:
@@ -168,11 +169,12 @@ class BenchmarkTest:
         6. Updates the score log file (Only useful for simulator)
         7. Deletes the object from environment (Only useful for simulator)
         """
-
         skip = False
         experiment = self.experiments[self.experiment_idx]
         object = experiment[0][self.object_idx]
         pose = experiment[1][self.pose_idx]
+        rospy.set_param("start_recording", True)
+        rospy.set_param("current_recording", str(object) + "_" + str(pose))
         
         if self.sim_mode:
             self.spawn_model(object, pose)
@@ -232,6 +234,7 @@ class BenchmarkTest:
                 rospy.sleep(0.5)
             except Exception as e:
                 rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
+        rospy.set_param("start_recording", False)
 
     def soft_stop(self, data):
         """
