@@ -152,7 +152,7 @@ class BenchmarkTest:
         if self.sim_mode:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
-        rospy.Service("/soft_stop", Empty, self.soft_stop)
+        rospy.Service("/soft_reset", Empty, self.soft_reset)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
         self.error_recovery_pub = rospy.Publisher("/franka_control/error_recovery/goal", ErrorRecoveryActionGoal, queue_size=1)
 
@@ -236,7 +236,7 @@ class BenchmarkTest:
                 rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
         rospy.set_param("start_recording", False)
 
-    def soft_stop(self, data):
+    def soft_reset(self, data):
         """
         Soft stop the robot
         """
