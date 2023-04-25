@@ -320,7 +320,7 @@ class BenchmarkTest:
             alpha = config["experiment_" + str(experiment_idx)]["config"]["alpha"]
             n = config["experiment_" + str(experiment_idx)]["config"]["n"]
             height = config["experiment_" + str(experiment_idx)]["config"]["height"]
-            experiments.append([model_paths, center, r, alpha, self.rospack.get_path(self.yaml_package_name), height])
+            experiments.append([model_paths, center, r, alpha, n, height])
         return experiments
     
     def spawn_model(self, model_path, pose):
