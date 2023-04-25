@@ -287,7 +287,7 @@ class BenchmarkTest:
         Callback to save grasp detection results
         """
         bridge = CvBridge()
-        img = bridge.imgmsg_to_cv2(data, desired_encoding='rgb8')
+        img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
     
         recording_folder = rospy.get_param("recording_folder")
         current_recording = rospy.get_param("current_recording") 
