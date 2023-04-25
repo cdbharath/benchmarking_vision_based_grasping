@@ -65,7 +65,8 @@ class BenchmarkTest:
         self.bad_grasp_z = rospy.get_param("bad_grasp_z")
         self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
         self.visualisation_topic = rospy.get_param("visualisation")
-        
+        self.enable_benchmark_test = rospy.get_param("enable_benchmark_test")
+
         # Reach scan pose if eye in hand
         if not self.over_head:
             self.pick_and_place.setScanPose(x=scan_pose[0], y=scan_pose[1], z=scan_pose[2], 
@@ -193,7 +194,8 @@ class BenchmarkTest:
         
         try:
             success = self.process_rgbd_and_execute_pickup()
-            # self.test_benchmark()
+            if self.enable_benchmark_test:
+                self.test_benchmark()
             score = self.benchmark_state
             if success:
                 self.place()
