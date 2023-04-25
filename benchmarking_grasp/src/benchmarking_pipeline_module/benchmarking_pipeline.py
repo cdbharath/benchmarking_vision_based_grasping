@@ -114,11 +114,11 @@ class BenchmarkTest:
 
             # Generate object pose for spawning
             poses = [center_coord, 
-                    #  center_coord + np.array([r, 0, 0, 0, 0, 0]),
-                    #  center_coord + np.array([0, r, 0, 0, 0, 0]),
-                    #  center_coord + np.array([0, -r, 0, 0, 0, 0]),
-                    #  center_coord + np.array([0, r, 0, 0, 0, alpha]),
-                    #  center_coord + np.array([0, -r, 0, 0, 0, -alpha])
+                     center_coord + np.array([r, 0, 0, 0, 0, 0]),
+                     center_coord + np.array([0, r, 0, 0, 0, 0]),
+                     center_coord + np.array([0, -r, 0, 0, 0, 0]),
+                     center_coord + np.array([0, r, 0, 0, 0, alpha]),
+                     center_coord + np.array([0, -r, 0, 0, 0, -alpha])
                     ]
             
             # Mirroring
@@ -408,29 +408,29 @@ class BenchmarkTest:
                                                                        pose.orientation.z, pose.orientation.w))
         
         # Yawing    
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw + pi/4])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw - pi/4])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw + pi/4])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw - pi/4])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         # Pitching
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch + pi/4, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch - pi/4, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch + pi/8, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch - pi/8, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         # Rolling
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z, roll + pi/4, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z, roll - pi/4, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll + pi/8, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z, roll - pi/8, pitch, yaw])
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.ROTATE
 
         # Shaking
-        self.pick_and_place.call_cartesian_service([x, y, z + 0.1, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z - 0.1, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z + 0.02, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z - 0.02, roll, pitch, yaw])
         # self.pick_and_place.call_cartesian_service([x, y, z + 0.1, roll, pitch, yaw])
         # self.pick_and_place.call_cartesian_service([x, y, z - 0.1, roll, pitch, yaw])
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])

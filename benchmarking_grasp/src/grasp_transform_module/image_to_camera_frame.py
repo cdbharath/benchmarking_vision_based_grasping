@@ -129,7 +129,7 @@ class ImageToCameraFrame:
 
             # Set all depth values in this 1cm range to the same value
             # Assumes the view only has object and ground plane
-            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 10*self.depth_scale)] = max_val
+            curr_depth_img[curr_depth_img > min((min_val + max_val)/2, min_val + 0.04/self.depth_scale)] = max_val
             self.depth_debug.publish(self.bridge.cv2_to_imgmsg(curr_depth_img))
 
         self.curr_depth_img = curr_depth_img
