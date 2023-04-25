@@ -70,7 +70,6 @@ class VideoRecoder:
                     os.makedirs(output_file_folder)
 
                 output_file_path = os.path.join(output_file_folder, current_recording + ".mp4")
-                print(output_file_path)
                 self.cap, self.out = self.start_capture(self.camera_name, output_file_path)
                 self.started = True
                 self.stopped = False

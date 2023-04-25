@@ -1,5 +1,4 @@
 import os
-from turtle import width
 import yaml 
 from math import pi
 import numpy as np
@@ -7,6 +6,8 @@ import enum
 import csv
 import datetime
 import six
+import cv2
+from cv_bridge import CvBridge 
 
 import rospy
 import rospkg
@@ -14,7 +15,7 @@ import tf
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, Image
 from std_srvs.srv import Empty
 
 from pick_and_place_module.pick_and_place import PickAndPlace
@@ -63,7 +64,8 @@ class BenchmarkTest:
         self.sim_mode = sim_mode
         self.bad_grasp_z = rospy.get_param("bad_grasp_z")
         self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
-
+        self.visualisation_topic = rospy.get_param("visualisation")
+        
         # Reach scan pose if eye in hand
         if not self.over_head:
             self.pick_and_place.setScanPose(x=scan_pose[0], y=scan_pose[1], z=scan_pose[2], 
@@ -152,6 +154,7 @@ class BenchmarkTest:
         if self.sim_mode:
             rospy.Subscriber("/gazebo_grasp_plugin_event_republisher/grasp_events", GazeboGraspEvent, self.on_grasp_event)
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
+        rospy.Subscriber(self.visualisation_topic, Image, self.visualization_cb)
         rospy.Service("/soft_reset", Empty, self.soft_reset)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
         self.error_recovery_pub = rospy.Publisher("/franka_control/error_recovery/goal", ErrorRecoveryActionGoal, queue_size=1)
@@ -276,7 +279,23 @@ class BenchmarkTest:
         position = data.position
         self.finger1_state = position[0]
         self.finger2_state = position[1]
+
+    def visualization_cb(self, data):
+        """
+        Callback to save grasp detection results
+        """
+        bridge = CvBridge()
+        img = bridge.imgmsg_to_cv2(data, desired_encoding='rgb8')
     
+        recording_folder = rospy.get_param("recording_folder")
+        current_recording = rospy.get_param("current_recording") 
+        output_file_folder = os.path.join(self.rospack.get_path(self.yaml_package_name), "recordings", recording_folder)
+        if not os.path.exists(output_file_folder):
+            os.makedirs(output_file_folder)
+
+        output_file_path = os.path.join(output_file_folder, current_recording + ".jpg")
+        cv2.imwrite(output_file_path, img)
+
     def parse_benchmarking_yaml(self, yaml_package_path):
         """
         Parse information from the yaml file
@@ -299,7 +318,7 @@ class BenchmarkTest:
             alpha = config["experiment_" + str(experiment_idx)]["config"]["alpha"]
             n = config["experiment_" + str(experiment_idx)]["config"]["n"]
             height = config["experiment_" + str(experiment_idx)]["config"]["height"]
-            experiments.append([model_paths, center, r, alpha, n, height])
+            experiments.append([model_paths, center, r, alpha, self.rospack.get_path(self.yaml_package_name), height])
         return experiments
     
     def spawn_model(self, model_path, pose):
