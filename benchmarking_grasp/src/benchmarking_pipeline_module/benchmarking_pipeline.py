@@ -173,8 +173,8 @@ class BenchmarkTest:
         experiment = self.experiments[self.experiment_idx]
         object = experiment[0][self.object_idx]
         pose = experiment[1][self.pose_idx]
-        rospy.set_param("current_recording", str(object) + "_" + str(pose))
-        
+        rospy.set_param("current_recording", str(object.split("/")[-1].split(".")[0]) + "_" + str(self.pose_idx))
+
         if self.sim_mode:
             self.spawn_model(object, pose)
             rospy.sleep(1)

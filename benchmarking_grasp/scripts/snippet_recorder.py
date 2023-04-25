@@ -42,29 +42,52 @@ def list_ports():
 class VideoRecoder:
     def __init__(self, camera_name=None):
         rp = rospkg.RosPack()
+        package = "benchmarking_grasp"
+        self.package_path = rp.get_path(package) 
 
+        self.camera_name = camera_name
         if camera_name is None:
-            camera_name = rospy.get_param("camera_name")
-        output_file_name = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y") + ".mp4"
-        output_file_dir = rp.get_path("benchmarking_grasp")
-        output_file_path = os.path.join(output_file_dir, "recordings", output_file_name)
-        fps = 30
-  
-        self.cap, self.out = self.start_capture(camera_name, output_file_path)
+            self.camera_name = rospy.get_param("camera_name")
 
-        rospy.Timer(rospy.Duration(1/fps), self.timer_cb)
+        self.cap = None
+        self.out = None
+        self.started = False
+        self.stopped = True
+
+        rospy.Timer(rospy.Duration(1/30), self.timer_cb)
         rospy.on_shutdown(self.on_shutdown)
         rospy.loginfo("[Video Recorder] Node initialized")
 
     def timer_cb(self, event):
-        # reads frames from a camera 
-        # ret checks return at each frame
-        ret, frame = self.cap.read() 
-        if not ret:
-            rospy.logerr("[VideoRecorder] No frame received")
+        start_recording = rospy.get_param("start_recording") 
+        recording_folder = rospy.get_param("recording_folder")
+        current_recording = rospy.get_param("current_recording") 
+
+        if start_recording:
+            if not self.started:
+                output_file_folder = os.path.join(self.package_path, "recordings", recording_folder)
+                if not os.path.exists(output_file_folder):
+                    os.makedirs(output_file_folder)
+
+                output_file_path = os.path.join(output_file_folder, current_recording + ".mp4")
+                print(output_file_path)
+                self.cap, self.out = self.start_capture(self.camera_name, output_file_path)
+                self.started = True
+                self.stopped = False
+
+            # reads frames from a camera 
+            # ret checks return at each frame
+            ret, frame = self.cap.read() 
+            if not ret:
+                rospy.logerr("[VideoRecorder] No frame received")
+            else:
+                # output the frame
+                self.out.write(frame) 
         else:
-            # output the frame
-            self.out.write(frame) 
+            if not self.stopped:
+                self.on_shutdown()
+                self.stopped = True
+                self.started = False
 
     def start_capture(self, camera_name, file_name):
         fps = 30
