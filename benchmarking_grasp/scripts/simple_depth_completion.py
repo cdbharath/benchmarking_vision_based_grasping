@@ -33,7 +33,7 @@ class DepthCompletion:
         replaces nonzero pixels with the nearest nonzero pixel
         '''
         
-        thresh = 0
+        thresh = 0.1
         valid_pixels = np.argwhere(image > thresh)
         invalid_pixels = np.argwhere(image <= 0)
         

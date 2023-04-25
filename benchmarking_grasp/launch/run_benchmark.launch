@@ -18,7 +18,7 @@
     <include unless="$(arg sim_mode)" file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="output" value="log"/>
         <arg name="align_depth" value="$(arg align_depth)"/>
-        <arg name="filters" value="decimation,hole_filling"/>
+        <arg name="filters" value="hole_filling"/>
         <arg name="enable_pointcloud" value="$(arg point_cloud_input)"/>
     </include>
 

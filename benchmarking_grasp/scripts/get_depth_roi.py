@@ -28,7 +28,11 @@ class GetDepthROI:
             depth_image_topic = rospy.get_param("depth_image_sim")
             rgb_image_topic = rospy.get_param("rgb_image_sim")
         else:
-            depth_image_topic = rospy.get_param("depth_image")
+            align_depth = rospy.get_param("align_depth", False)
+            if align_depth:
+                depth_image_topic = rospy.get_param("depth_image")
+            else:
+                depth_image_topic = rospy.get_param("depth_wo_align_image")
             rgb_image_topic = rospy.get_param("rgb_image")
 
             if self.depth_complete:
@@ -63,8 +67,9 @@ class GetDepthROI:
             # Assumes the view only has object and ground plane
             depth_norm[depth_norm > max((min_val + max_val)/2, max_val - 20)] = max_val
             depth_norm = self.normalize_depth(depth_norm)
-    
-            roi_img = cv2.rectangle(self.rgb, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)  
+            depth_vis = self.normalize_depth(self.depth)
+
+            roi_img = cv2.rectangle(depth_vis, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)  
             roi_img = cv2.cvtColor(roi_img, cv2.COLOR_RGB2BGR)
             roi_img = cv2.resize(roi_img, (640, 480))
     
@@ -92,10 +97,12 @@ class GetDepthROI:
     def _rgb_img_cb(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
         self.rgb = img.copy()
-        
+
     def normalize_depth(self, depth_image):
         normalized_depth_image = ((depth_image - np.min(depth_image)) / (np.max(depth_image) - np.min(depth_image))) * 255
         normalized_depth_image = np.uint8(normalized_depth_image)
+        normalized_depth_image = cv2.cvtColor(normalized_depth_image, cv2.COLOR_GRAY2RGB)
+
         return normalized_depth_image
 
     def set_config(self, x_min, x_max, y_min, y_max):

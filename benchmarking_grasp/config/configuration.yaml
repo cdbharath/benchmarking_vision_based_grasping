@@ -13,12 +13,12 @@ scan_pose: [0.45, 0.0, 0.8, 3.14, 0.03, 0]           # scan_pose: [0.0, 0.45, 0.
 bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
 grasp_angle_offset: 1.57
 x_offset_world: 0.0
-y_offset_world: 0.01
+y_offset_world: 0.0
 gripper_width: 0.08
 gripper_height: 0.04
 
 # camera params
-depth_crop_size: [8, 317, 710, 1179]                # crop_size: [y_min, x_min, y_max, x_max]
+depth_crop_size: [17, 317, 701, 1179]                # crop_size: [y_min, x_min, y_max, x_max]
 pc_roi: [-1, -0.24, -0.3, 1, 0.28, 0.36]        # pc_roi: [z_min, y_min, x_min, z_max, y_max, x_max]
 
 # robot control params
@@ -47,6 +47,7 @@ rgb_image_sim: '/panda_camera/rgb/image_raw'
 point_cloud_sim: "/panda_camera/depth/points"
 
 cam_info_depth_align: '/camera/aligned_depth_to_color/camera_info'      # cam_info: '/camera/depth/camera_info'
+cam_info_depth: '/camera/depth/camera_info'
 point_cloud: "/camera/depth/color/points"
 depth_wo_align_image: '/camera/depth/image_rect_raw'
 depth_image: '/camera/aligned_depth_to_color/image_raw'

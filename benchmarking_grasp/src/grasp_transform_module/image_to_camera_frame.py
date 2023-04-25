@@ -63,7 +63,10 @@ class ImageToCameraFrame:
             rospy.Subscriber(self.rgb_image_sim_topic, Image, self._rgb_img_callback, queue_size=1)
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
-            cam_info_topic = rospy.get_param("cam_info_depth_align")
+            if self.align_depth:
+                cam_info_topic = rospy.get_param("cam_info_depth_align")
+            else:
+                cam_info_topic = rospy.get_param("cam_info_depth")
 
             if self.use_depth_completion:
                 rospy.Subscriber(self.depth_complete_image_topic, Image, self._depth_img_callback, queue_size=1)
@@ -126,7 +129,7 @@ class ImageToCameraFrame:
 
             # Set all depth values in this 1cm range to the same value
             # Assumes the view only has object and ground plane
-            curr_depth_img[curr_depth_img > min((min_val + max_val)/2, min_val + 40*self.depth_scale)] = max_val
+            curr_depth_img[curr_depth_img > max((min_val + max_val)/2, max_val - 10*self.depth_scale)] = max_val
             self.depth_debug.publish(self.bridge.cv2_to_imgmsg(curr_depth_img))
 
         self.curr_depth_img = curr_depth_img
@@ -220,11 +223,12 @@ class ImageToCameraFrame:
         g.width = width
         g.quality = quality
 
+        width = self.get_gripper_width(depth[precrop_center[1], precrop_center[0]]*self.depth_scale)
         if not self.align_depth:
             depth_vis = self.normalize_depth(depth)
-            self.draw_angled_rect(depth_vis, precrop_center[1], precrop_center[0], angle) 
+            self.draw_angled_rect(depth_vis, precrop_center[1], precrop_center[0], angle, width=width, height=width/2) 
         else:
-            self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle) 
+            self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle, width=width, height=width/2) 
 
         rospy.logerr("Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
 
@@ -274,14 +278,11 @@ class ImageToCameraFrame:
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(image, encoding="rgb8"))
 
     def normalize_depth(self, depth_image):
-        depth_image = depth_image.copy()
+        normalized_depth_image = ((depth_image - np.min(depth_image)) / (np.max(depth_image) - np.min(depth_image))) * 255
+        normalized_depth_image = np.uint8(normalized_depth_image)
+        normalized_depth_image = cv2.cvtColor(normalized_depth_image, cv2.COLOR_GRAY2RGB)
 
-        depth_image = depth_image*255/np.max(depth_image)
-        depth_image = depth_image.astype(np.uint8)
-        depth_image = cv2.equalizeHist(depth_image)
-        depth_image = cv2.cvtColor(depth_image, cv2.COLOR_GRAY2RGB)
-
-        return depth_image
+        return normalized_depth_image
 
     def find_depth_from_rect(self, depth_image, x, y, angle, width=180, height=100):
         """
@@ -327,19 +328,17 @@ class ImageToCameraFrame:
         
     def find_depth_from_gripper_profile(self, depth_image, x, y, angle):
         """
-        :param x,y: The center of the gripper in pixel coordinates
         Finds the z position based on the gripper profile
         TODO: The maximum possible gripper width is considered for the algorithm.
+
+        :param x,y: The center of the gripper in pixel coordinates
+        :return z: Optimal z of the detected grasp   
         """
         angle = angle - np.pi/2
         z = depth_image[int(y), int(x)]*self.depth_scale
 
-        width_in_img_frame = self.cam_K@np.array([[self.gripper_width], [0], [z]])
-        orig_img_frame = self.cam_K@np.array([[0], [0], [z]])
-
-        width = abs((width_in_img_frame/width_in_img_frame[2, 0] - orig_img_frame/orig_img_frame[2, 0])[0, 0])
+        width = self.get_gripper_width(z)
         thickness = int(width/8)
-        thickness = 1
         
         point_1_x = x - width/2*np.cos(angle)
         point_1_y = y - width/2*np.sin(angle)
@@ -350,12 +349,23 @@ class ImageToCameraFrame:
         point_2 = self.get_pixels_around_point(depth_image.shape, (point_2_x, point_2_y), thickness)
         center = self.get_pixels_around_point(depth_image.shape, (x, y), thickness)
                 
-        point_1_depth = np.mean(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
-        point_2_depth = np.mean(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
-        center_depth = np.mean(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
+        point_1_depth = np.min(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
+        point_2_depth = np.min(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
+        center_depth = np.min(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
         
-        return min(center_depth + 0.03, point_1_depth - 0.01, point_2_depth - 0.01)
+        return min(center_depth + 0.03, point_1_depth - 0.005, point_2_depth - 0.005)
         
+    def get_gripper_width(self, z):
+        """
+        :param z: z of the detected grasp
+        Takes the width of the gripper in camera frame and finds the width of the gripper in the image frame 
+        """
+        width_in_img_frame = self.cam_K@np.array([[self.gripper_width], [0], [z]])
+        orig_img_frame = self.cam_K@np.array([[0], [0], [z]])
+
+        width = abs((width_in_img_frame/width_in_img_frame[2, 0] - orig_img_frame/orig_img_frame[2, 0])[0, 0])
+        return width
+
     def list_to_quaternion(self, l):
         q = gmsg.Quaternion()
         q.x = l[0]
