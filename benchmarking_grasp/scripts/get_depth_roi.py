@@ -22,22 +22,17 @@ class GetDepthROI:
         self.rgb = None
         self.received_first_depth = False
 
-        self.rospack = rospkg.RosPack()
-        self.yaml_package_name = "benchmarking_grasp"
-        self.yaml_package_path = os.path.join(self.rospack.get_path(self.yaml_package_name), "config/configuration.yaml")
-        self.params = yaml.safe_load(open(self.yaml_package_path, "r"))
-
-        self.crop_size = self.params["depth_crop_size"]
+        self.crop_size = rospy.get_param("depth_crop_size")
 
         if sim_mode:
-            depth_image_topic = self.params["depth_image_sim"]
-            rgb_image_topic = self.params["rgb_image_sim"]
+            depth_image_topic = rospy.get_param("depth_image_sim")
+            rgb_image_topic = rospy.get_param("rgb_image_sim")
         else:
-            depth_image_topic = self.params["depth_image"]
-            rgb_image_topic = self.params["rgb_image"]
+            depth_image_topic = rospy.get_param("depth_image")
+            rgb_image_topic = rospy.get_param("rgb_image")
 
             if self.depth_complete:
-                depth_image_topic = self.params["depth_complete_image"]            
+                depth_image_topic = rospy.get_param("depth_complete_image")
 
         rospy.Subscriber(depth_image_topic, Image, self._depth_img_cb, queue_size=1)
         rospy.Subscriber(rgb_image_topic, Image, self._rgb_img_cb, queue_size=1)
