@@ -63,7 +63,7 @@ class ImageToCameraFrame:
             rospy.Subscriber(self.rgb_image_sim_topic, Image, self._rgb_img_callback, queue_size=1)
         else:
             self.depth_scale = 0.001  # Depth scale of realsense
-            cam_info_topic = rospy.get_param("cam_info")
+            cam_info_topic = rospy.get_param("cam_info_depth_align")
 
             if self.use_depth_completion:
                 rospy.Subscriber(self.depth_complete_image_topic, Image, self._depth_img_callback, queue_size=1)

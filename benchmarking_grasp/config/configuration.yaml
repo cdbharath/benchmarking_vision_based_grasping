@@ -46,12 +46,11 @@ depth_image_sim: '/panda_camera/depth/image_raw'
 rgb_image_sim: '/panda_camera/rgb/image_raw'
 point_cloud_sim: "/panda_camera/depth/points"
 
-cam_info: '/camera/aligned_depth_to_color/camera_info'      # cam_info: '/camera/depth/camera_info'
+cam_info_depth_align: '/camera/aligned_depth_to_color/camera_info'      # cam_info: '/camera/depth/camera_info'
 point_cloud: "/camera/depth/color/points"
 depth_wo_align_image: '/camera/depth/image_rect_raw'
 depth_image: '/camera/aligned_depth_to_color/image_raw'
 rgb_image: '/camera/color/image_raw'
-point_cloud: "/camera/depth/color/points"
 
 roi_point_cloud: "/camera/depth/color/roi_points"
 depth_complete_image: '/camera/aligned_depth_to_color/depth_completed'
