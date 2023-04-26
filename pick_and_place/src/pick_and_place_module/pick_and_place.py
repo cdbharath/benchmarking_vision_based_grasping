@@ -2,7 +2,7 @@ from copy import deepcopy
 from math import pi
 
 import rospy
-from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse, SetJointVelocity, SetJointVelocityRequest 
+from benchmarking_msgs.srv import EndEffectorWaypoint, EndEffectorWaypointRequest, GripperCommand, GripperCommandRequest, CurrentPose, CurrentPoseResponse, SetJointVelocity, SetJointVelocityRequest, MoveJointRelative, MoveJointRelativeRequest 
 
 class PickAndPlace:
     def __init__(self, gripper_offset=0.05, intermediate_z_stop=0.5):
@@ -97,6 +97,19 @@ class PickAndPlace:
             
             set_velocity_request = SetJointVelocityRequest()
             set_velocity_request.joint_velocity = velocity
+
+            resp = set_joint_velocity(set_velocity_request)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service call failed: %s", e)
+
+    def call_move_joint_service(self, joint, ang_disp):
+        rospy.wait_for_service('/moveit_adapter/move_joint')
+        try:
+            set_joint_velocity = rospy.ServiceProxy('/moveit_adapter/move_joint', MoveJointRelative)            
+            
+            set_velocity_request = MoveJointRelativeRequest()
+            set_velocity_request.joint = joint
+            set_velocity_request.ang_disp = ang_disp
 
             resp = set_joint_velocity(set_velocity_request)
         except rospy.ServiceException as e:
