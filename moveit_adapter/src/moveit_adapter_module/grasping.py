@@ -3,7 +3,7 @@ from std_msgs.msg import Float64
 from franka_gripper.msg import GraspActionGoal
 
 class Gripper:
-    def __init__(self, sim_mode=False):
+    def __init__(self, sim_mode):
         self.sim_mode = sim_mode
         
         if self.sim_mode:
