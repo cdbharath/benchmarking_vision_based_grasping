@@ -7,7 +7,9 @@ from moveit_adapter.srv import EndEffectorWaypoint, GripperCommand, CurrentPose,
 
 class MoveitAdapter:
     def __init__(self):
-        self.gripper = Gripper()
+        sim_mode = rospy.get_param('sim_mode', False)
+    
+        self.gripper = Gripper(sim_mode=sim_mode)
         self.moveit_control = MoveGroupControl(gripper_as_eef=True)
         
         rospy.Service('moveit_adapter/grasp', GripperCommand, self.grasp_service)
