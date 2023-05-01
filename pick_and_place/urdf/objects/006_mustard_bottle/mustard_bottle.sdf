@@ -24,12 +24,17 @@
         </geometry>
         <surface>
         <friction>
-          <ode>
-            <mu>0.8</mu>
-            <mu2>0.6</mu2>
-          </ode>
-        </friction>
-      </surface>
+           <ode>
+             <mu>0.8</mu>
+             <mu2>0.6</mu2>
+           </ode>
+         </friction>
+           <contact>
+           <ode>
+             <min_depth>0.003</min_depth>
+           </ode>
+         </contact>
+        </surface>
       </collision>
       <visual name="visual">
         <geometry>
