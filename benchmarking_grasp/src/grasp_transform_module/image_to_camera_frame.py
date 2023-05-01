@@ -353,7 +353,7 @@ class ImageToCameraFrame:
         point_2_depth = np.min(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
         center_depth = np.min(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
         
-        return min(center_depth + 0.03, point_1_depth - 0.005, point_2_depth - 0.005)
+        return min(center_depth + 0.03, point_1_depth - 0.015, point_2_depth - 0.015)
         
     def get_gripper_width(self, z):
         """

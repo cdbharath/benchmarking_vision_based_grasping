@@ -116,7 +116,8 @@ class BenchmarkTest:
             center_coord = np.array([center, 0, height, 0, 0, 0])
 
             # Generate object pose for spawning
-            poses = [center_coord, 
+            poses = [
+                     center_coord, 
                      center_coord + np.array([r, 0, 0, 0, 0, 0]),
                      center_coord + np.array([0, r, 0, 0, 0, 0]),
                      center_coord + np.array([0, -r, 0, 0, 0, 0]),
@@ -227,7 +228,7 @@ class BenchmarkTest:
                     if self.object_idx >= len(experiment[0]):
                         self.object_idx = 0
                         self.experiment_idx = self.experiment_idx + 1
-                        rospy.loginfo("[Benchmarking Pipeline] Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
+                        # rospy.loginfo("[Benchmarking Pipeline] Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
                         if self.experiment_idx >= len(self.experiments): 
                             rospy.loginfo("[Benchmarking Pipeline] Benchmarking test completed successfully")
                             rospy.signal_shutdown("[Benchmarking Pipeline] Benchmarking test completed successfully")
@@ -296,6 +297,7 @@ class BenchmarkTest:
             os.makedirs(output_file_folder)
 
         output_file_path = os.path.join(output_file_folder, current_recording + ".jpg")
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         cv2.imwrite(output_file_path, img)
 
     def parse_benchmarking_yaml(self, yaml_package_path):
