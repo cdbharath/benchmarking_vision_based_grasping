@@ -211,6 +211,14 @@ class BenchmarkTest:
         else:
             self.pick_and_place.reach_scanpose()
 
+        if self.sim_mode:
+            try:
+                rospy.sleep(0.5)
+                self.delete_model(object)
+                rospy.sleep(0.5)
+            except Exception as e:
+                rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
+
         if not skip:
             with open(self.log_file_path, 'a') as file:
                 update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
@@ -233,13 +241,6 @@ class BenchmarkTest:
                             rospy.loginfo("[Benchmarking Pipeline] Benchmarking test completed successfully")
                             rospy.signal_shutdown("[Benchmarking Pipeline] Benchmarking test completed successfully")
         
-        if self.sim_mode:
-            try:
-                rospy.sleep(0.5)
-                self.delete_model(object)
-                rospy.sleep(0.5)
-            except Exception as e:
-                rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
         rospy.set_param("start_recording", False)
 
     def soft_reset(self, data):
