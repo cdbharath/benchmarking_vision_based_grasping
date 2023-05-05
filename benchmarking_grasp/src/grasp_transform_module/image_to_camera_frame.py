@@ -338,7 +338,7 @@ class ImageToCameraFrame:
         z = depth_image[int(y), int(x)]*self.depth_scale
 
         width = self.get_gripper_width(z)
-        thickness = int(width/8)
+        thickness = 1 
         
         point_1_x = x - width/2*np.cos(angle)
         point_1_y = y - width/2*np.sin(angle)
@@ -347,13 +347,13 @@ class ImageToCameraFrame:
                 
         point_1 = self.get_pixels_around_point(depth_image.shape, (point_1_x, point_1_y), thickness)
         point_2 = self.get_pixels_around_point(depth_image.shape, (point_2_x, point_2_y), thickness)
-        center = self.get_pixels_around_point(depth_image.shape, (x, y), thickness)
+        center = self.get_pixels_around_point(depth_image.shape, (x, y), int(width/8))
                 
         point_1_depth = np.min(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
         point_2_depth = np.min(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
         center_depth = np.min(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
         
-        return min(center_depth + 0.03, point_1_depth - 0.015, point_2_depth - 0.015)
+        return min(center_depth + 0.03, point_1_depth - 0.02, point_2_depth - 0.02)
         
     def get_gripper_width(self, z):
         """
