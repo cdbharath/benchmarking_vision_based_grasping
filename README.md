@@ -21,18 +21,18 @@ source devel/setup.bash
 
 ## How to run (Perferably in order):
 ```
-# Run any one of the commands as per the requirement to start benchmarking
-roslaunch benchmarking_grasp run_benchmark.launch  # To run on real robot, depth input                                             
-roslaunch benchmarking_grasp run_benchmark.launch sim_mode:=true  # To run in simulator, depth input
-roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run on real robot, point cloud input
-roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run in simulator, point cloud input
-
 ### Bringup controllers/planner for Franka Panda Robot (Check simulator repository to use simulator instead)
 roslaunch panda_moveit_config panda_control_moveit_rviz.launch robot_ip:=<ip> load_gripper:=true
 rosrun moveit_adapter moveit_adapter.py
 
 ### Run your grasp detection algorithm (Check grasp detection algorithms repository)
-rosrun <grasp_det_algo> service_server.py  
+rosrun <grasp_det_pkg> <grasp_det_node>  
+
+# Run any one of the commands as per the requirement to start benchmarking
+roslaunch benchmarking_grasp run_benchmark.launch  # To run on real robot, depth input                                             
+roslaunch benchmarking_grasp run_benchmark.launch sim_mode:=true  # To run in simulator, depth input
+roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run on real robot, point cloud input
+roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run in simulator, point cloud input
 ```
 
 ## Features 
