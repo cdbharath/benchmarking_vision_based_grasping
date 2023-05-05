@@ -181,9 +181,9 @@ class ImageToCameraFrame:
             # Accounting for crop 
             center[0] = self.crop_size[0] + center[0]
             center[1] = self.crop_size[1] + center[1]
-            rospy.logerr("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+            rospy.loginfo("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
         else:
-            rospy.logerr("Grasp in Image frame: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+            rospy.loginfo("Grasp in Image frame: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
@@ -230,7 +230,7 @@ class ImageToCameraFrame:
         else:
             self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle, width=width, height=width/2) 
 
-        rospy.logerr("Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
+        rospy.loginfo("Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
 
         return ret
 

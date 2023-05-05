@@ -33,6 +33,10 @@ class BenchmarkTestStates(enum.Enum):
     ROTATE = 2
     SHAKE = 3
 
+class bcolors:
+    OKGREEN = '\033[92m'
+    ENDC = '\033[0m'
+    
 class BenchmarkTest:
     """
     Spawns object based on the objects listed in the yaml file
@@ -182,10 +186,11 @@ class BenchmarkTest:
 
         if self.sim_mode:
             self.spawn_model(object, pose)
-            rospy.sleep(1)
+            six.moves.input(bcolors.OKGREEN + "[Benchmarking Pipeline] Spawning {} at pose {}".format(str(object.split("/")[-1].split(".")[0]), self.pose_idx) + bcolors.ENDC)
+            rospy.sleep(2)
         else:
             try:
-                six.moves.input("[Benchmarking Pipeline] Place {} at ({}, {}, {}) meters with respect to the robot base and press 'ENTER'".format(str(object.split("/")[-1].split(".")[0]), pose[0], pose[1], pose[2]))
+                six.moves.input(bcolors.OKGREEN + "[Benchmarking Pipeline] Place {} at pose {} and press 'enter'".format(str(object.split("/")[-1].split(".")[0]), self.pose_idx) + bcolors.ENDC)
             except SyntaxError:
                 pass
 
@@ -213,9 +218,9 @@ class BenchmarkTest:
 
         if self.sim_mode:
             try:
-                rospy.sleep(0.5)
+                rospy.sleep(1)
                 self.delete_model(object)
-                rospy.sleep(0.5)
+                rospy.sleep(2)
             except Exception as e:
                 rospy.logerr("[Benchmarking Pipeline] Object deleted while still attached to hand %s", e)
 
