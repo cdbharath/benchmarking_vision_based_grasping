@@ -32,7 +32,7 @@ rosrun <grasp_det_pkg> <grasp_det_node>
 roslaunch benchmarking_grasp run_benchmark.launch  # To run on real robot, depth input                                             
 roslaunch benchmarking_grasp run_benchmark.launch sim_mode:=true  # To run in simulator, depth input
 roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run on real robot, point cloud input
-roslaunch benchmarking_grasp run_benchmark.launch point_cloud_input:=true align_depth:=false  # To run in simulator, point cloud input
+roslaunch benchmarking_grasp run_benchmark.launch sim_mode:=true point_cloud_input:=true # To run in simulator, point cloud input
 ```
 
 ## Features 
