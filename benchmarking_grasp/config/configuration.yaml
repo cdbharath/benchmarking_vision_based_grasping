@@ -10,7 +10,7 @@ enable_benchmark_test: false
 # gripper/robot params
 gripper_offset: 0.105
 intermediate_z_stop: 0.5
-scan_pose: [0.45, 0.0, 0.8, 3.14, 0.03, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
+scan_pose: [0.45, 0.0, 0.8, 3.14, 0.0, 0]           # scan_pose: [0.0, 0.45, 0.7, 0.0, 3.14, 3.14]
 bad_grasp_z: 0.1                                    # if grasp is below this point, don't execute                    
 grasp_angle_offset: 1.57
 x_offset_world: 0.0
