@@ -186,7 +186,7 @@ class BenchmarkTest:
 
         if self.sim_mode:
             self.spawn_model(object, pose)
-            six.moves.input(bcolors.OKGREEN + "[Benchmarking Pipeline] Spawning {} at pose {}".format(str(object.split("/")[-1].split(".")[0]), self.pose_idx) + bcolors.ENDC)
+            rospy.loginfo(bcolors.OKGREEN + "[Benchmarking Pipeline] Spawning {} at pose {}".format(str(object.split("/")[-1].split(".")[0]), self.pose_idx) + bcolors.ENDC)
             rospy.sleep(2)
         else:
             try:
