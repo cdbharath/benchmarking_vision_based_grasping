@@ -129,7 +129,7 @@ class ImageToCameraFrame:
 
             # Set all depth values in this 1cm range to the same value
             # Assumes the view only has object and ground plane
-            curr_depth_img[curr_depth_img > min((min_val + max_val)/2, min_val + 0.04/self.depth_scale)] = max_val
+            curr_depth_img[curr_depth_img > min((min_val + max_val)/2, min_val + self.gripper_height/self.depth_scale)] = max_val
             self.depth_debug.publish(self.bridge.cv2_to_imgmsg(curr_depth_img))
 
         self.curr_depth_img = curr_depth_img
@@ -181,9 +181,9 @@ class ImageToCameraFrame:
             # Accounting for crop 
             center[0] = self.crop_size[0] + center[0]
             center[1] = self.crop_size[1] + center[1]
-            rospy.loginfo("Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+            rospy.loginfo("[Img To Cam] Grasp in Image frame after accounting crop: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
         else:
-            rospy.loginfo("Grasp in Image frame: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
+            rospy.loginfo("[Img To Cam] Grasp in Image frame: %s, %s, %s (%s)", center[0], center[1], angle, [self.camera_info_msg.height, self.camera_info_msg.width])
 
         # Warping the angle
         angle = (angle + np.pi/2) % np.pi - np.pi/2  # Wrap [-np.pi/2, np.pi/2]
@@ -191,8 +191,8 @@ class ImageToCameraFrame:
         # check for nearby depths and assign the max of the depths
         # max_z, min_z = self.find_depth_from_rect(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
         # max_z, min_z = max_z*self.depth_scale, min_z*self.depth_scale
-        # z = min((min_z + max_z)/2, min_z + 0.02)
-        
+        # z = min((min_z + max_z)/2, min_z + 0.03)
+
         z = self.find_depth_from_gripper_profile(depth, int(precrop_center[1]), int(precrop_center[0]), angle)
 
         # If you dont want to use the above functionality
@@ -230,7 +230,7 @@ class ImageToCameraFrame:
         else:
             self.draw_angled_rect(rgb, precrop_center[1], precrop_center[0], angle, width=width, height=width/2) 
 
-        rospy.loginfo("Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
+        rospy.loginfo("[Img To Cam] Grasp in camera frame: %s, %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z, angle)
 
         return ret
 
@@ -348,12 +348,16 @@ class ImageToCameraFrame:
         point_1 = self.get_pixels_around_point(depth_image.shape, (point_1_x, point_1_y), thickness)
         point_2 = self.get_pixels_around_point(depth_image.shape, (point_2_x, point_2_y), thickness)
         center = self.get_pixels_around_point(depth_image.shape, (x, y), int(width/8))
-                
-        point_1_depth = np.min(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
-        point_2_depth = np.min(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
-        center_depth = np.min(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
-        
-        return min(center_depth + 0.03, point_1_depth - 0.02, point_2_depth - 0.02)
+
+        try:
+            point_1_depth = np.min(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
+            point_2_depth = np.min(depth_image[point_2[:, 0], point_2[:, 1]], axis=0)*self.depth_scale
+            center_depth = np.min(depth_image[center[:, 0], center[:, 1]], axis=0)*self.depth_scale
+        except Exception:
+            rospy.logerr("Grasp out of image limits")
+            return 500*self.depth_scale 
+
+        return min(center_depth + self.gripper_height - 0.01, point_1_depth - 0.02, point_2_depth - 0.02)
         
     def get_gripper_width(self, z):
         """

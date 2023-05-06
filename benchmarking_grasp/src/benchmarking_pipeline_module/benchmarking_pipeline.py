@@ -70,6 +70,8 @@ class BenchmarkTest:
         self.grasp_in_world_frame_topic = rospy.get_param("grasp_in_world_frame")
         self.visualisation_topic = rospy.get_param("visualisation")
         self.enable_benchmark_test = rospy.get_param("enable_benchmark_test")
+        self.benchmarking_velocity = rospy.get_param("benchmarking_velocity")
+        self.robot_default_velocity = rospy.get_param("robot_default_velocity")
 
         # Reach scan pose if eye in hand
         if not self.over_head:
@@ -99,7 +101,7 @@ class BenchmarkTest:
 
         # Write the header to the log file
         with open(self.log_file_path, 'w') as file:
-            header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score']
+            header = ['Experiment', 'Trial', 'Object', 'Pose', 'Score', 'Inference Time']
             writer = csv.writer(file)
             writer.writerow(header)
 
@@ -152,6 +154,7 @@ class BenchmarkTest:
         self.negative_grasps = []
         self.finger1_state = 0.05
         self.finger2_state = 0.05
+        self.avg_inference_time = 0
 
         # Initialize Benchmarking Node after all the other nodes
         rospy.sleep(5)
@@ -162,11 +165,13 @@ class BenchmarkTest:
         rospy.Subscriber("/joint_states", JointState, self.joint_cb)
         rospy.Subscriber(self.visualisation_topic, Image, self.visualization_cb)
         rospy.Service("/soft_reset", Empty, self.soft_reset)
+        rospy.Service("/go_to_home", Empty, self.go_to_home)
         rospy.Timer(rospy.Duration(nsecs=1000000), self.execute_benchmark_test)
         self.error_recovery_pub = rospy.Publisher("/franka_control/error_recovery/goal", ErrorRecoveryActionGoal, queue_size=1)
 
         rospy.loginfo("[Benchmarking Grasp] Node loaded successfully")
-    
+        rospy.on_shutdown(self.on_shutdown)
+
     def execute_benchmark_test(self, event):
         """
         Executes the entire benchmarking procedure
@@ -226,7 +231,7 @@ class BenchmarkTest:
 
         if not skip:
             with open(self.log_file_path, 'a') as file:
-                update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value]
+                update = [str(self.experiment_idx), str(self.n_), str(object.split("/")[-1].split(".")[0]), str(self.pose_idx), score.value, str(self.inference_time)]
                 writer = csv.writer(file)
                 writer.writerow(update)
 
@@ -242,7 +247,7 @@ class BenchmarkTest:
                         self.object_idx = 0
                         self.experiment_idx = self.experiment_idx + 1
                         # rospy.loginfo("[Benchmarking Pipeline] Success rate for experiment %s: %s", self.experiment_idx, len(self.positive_grasps)/(len(self.positive_grasps) + len(self.negative_grasps)))
-                        if self.experiment_idx >= len(self.experiments): 
+                        if self.experiment_idx >= len(self.experiments):
                             rospy.loginfo("[Benchmarking Pipeline] Benchmarking test completed successfully")
                             rospy.signal_shutdown("[Benchmarking Pipeline] Benchmarking test completed successfully")
         
@@ -258,6 +263,18 @@ class BenchmarkTest:
             self.pick_and_place.reach_cartesian_scanpose()
         else:
             self.pick_and_place.reach_scanpose()
+
+    def go_to_home(self, data):
+        """
+        Soft stop the robot
+        """        
+        if self.use_cartesian:
+            self.pick_and_place.reach_cartesian_scanpose()
+        else:
+            self.pick_and_place.reach_scanpose()
+
+    def on_shutdown(self):
+        rospy.loginfo(bcolors.OKGREEN + "[Benchmarking Pipeline] Average inference time: {} secs".format(self.avg_inference_time) + bcolors.ENDC)
 
     def on_grasp_event(self, data):
         """
@@ -346,9 +363,6 @@ class BenchmarkTest:
         spawn_pose.orientation.z = quaternion[2]
         spawn_pose.orientation.w = quaternion[3]
 
-        # rospy.wait_for_service('gazebo/spawn_urdf_model')
-        # spawn_model_handle = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
-
         rospy.wait_for_service('gazebo/spawn_sdf_model')
         spawn_model_handle = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
 
@@ -375,16 +389,25 @@ class BenchmarkTest:
         2. Picks up the object from the received coordinate
         3. Benchmarking state is updated to PICK_UP
         """
-        # rospy.loginfo("[Benchmarking Pipeline] waiting for service: predict")
         rospy.wait_for_service(self.grasp_in_world_frame_topic)
-
         srv_handle = rospy.ServiceProxy(self.grasp_in_world_frame_topic, GraspPrediction)
+
+        # Call the grasp predictor
+        start_time = rospy.Time.now()
         response = srv_handle()
-        rospy.loginfo("[Benchmarking Pipeline] Grasp Detection Success")
+        end_time = rospy.Time.now()
+
+        # Calculate average inference time
+        self.inference_time = (end_time - start_time).nsecs/10e-9
+        total_objects = len(self.experiments[self.experiment_idx][0])
+        total_poses = len(self.experiments[self.experiment_idx][1])
+        total_samples = self.n_*total_objects*total_poses + self.object_idx*total_poses + self.pose_idx + 1
+        self.avg_inference_time =  (self.avg_inference_time * (total_samples - 1) + self.inference_time)/total_samples 
 
         x_offset = rospy.get_param('x_offset_world')
         y_offset = rospy.get_param('y_offset_world')
 
+        # Extracting grasp coordinates
         x = response.best_grasp.pose.position.x + x_offset
         y = response.best_grasp.pose.position.y + y_offset
         z = response.best_grasp.pose.position.z 
@@ -429,6 +452,7 @@ class BenchmarkTest:
             1. Roll pitch yaw rotation
             2. Shake test
         """
+        self.pick_and_place.call_set_joint_velocity_service(self.benchmarking_velocity)
 
         # Rotate the object
         pose = self.pick_and_place.call_get_current_pose_service()
@@ -442,24 +466,26 @@ class BenchmarkTest:
         self.pick_and_place.call_move_joint_service(6, pi/4)
 
         # Pitching
-        self.pick_and_place.call_move_joint_service(5, pi/8)
-        self.pick_and_place.call_move_joint_service(5, -pi/4)
-        self.pick_and_place.call_move_joint_service(5, pi/8)
+        # self.pick_and_place.call_move_joint_service(5, pi/8)
+        # self.pick_and_place.call_move_joint_service(5, -pi/4)
+        # self.pick_and_place.call_move_joint_service(5, pi/8)
 
         # Rolling
-        self.pick_and_place.call_move_joint_service(4, pi/8)
-        self.pick_and_place.call_move_joint_service(4, -pi/4)
-        self.pick_and_place.call_move_joint_service(4, pi/8)
+        # self.pick_and_place.call_move_joint_service(4, pi/8)
+        # self.pick_and_place.call_move_joint_service(4, -pi/4)
+        # self.pick_and_place.call_move_joint_service(4, pi/8)
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.ROTATE
 
         # Shaking
-        self.pick_and_place.call_cartesian_service([x, y, z + 0.05, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z - 0.05, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z + 0.25, roll, pitch, yaw])
+        self.pick_and_place.call_cartesian_service([x, y, z - 0.25, roll, pitch, yaw])
         # self.pick_and_place.call_cartesian_service([x, y, z + 0.1, roll, pitch, yaw])
         # self.pick_and_place.call_cartesian_service([x, y, z - 0.1, roll, pitch, yaw])
         self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.SHAKE
+
+        self.pick_and_place.call_set_joint_velocity_service(self.robot_default_velocity)

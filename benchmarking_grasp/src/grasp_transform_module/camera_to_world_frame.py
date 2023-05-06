@@ -56,7 +56,7 @@ class CameraToWorldFrame:
         g.width = 0
         g.quality = 0
 
-        rospy.loginfo("Grasp in world frame: %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z)
+        rospy.loginfo("[Cam To World] Grasp in world frame: %s, %s, %s", g.pose.position.x, g.pose.position.y, g.pose.position.z)
 
         return ret
 
