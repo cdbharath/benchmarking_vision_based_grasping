@@ -465,25 +465,15 @@ class BenchmarkTest:
         self.pick_and_place.call_move_joint_service(6, -pi/2)
         self.pick_and_place.call_move_joint_service(6, pi/4)
 
-        # Pitching
-        # self.pick_and_place.call_move_joint_service(5, pi/8)
-        # self.pick_and_place.call_move_joint_service(5, -pi/4)
-        # self.pick_and_place.call_move_joint_service(5, pi/8)
-
-        # Rolling
-        # self.pick_and_place.call_move_joint_service(4, pi/8)
-        # self.pick_and_place.call_move_joint_service(4, -pi/4)
-        # self.pick_and_place.call_move_joint_service(4, pi/8)
-
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.ROTATE
 
-        # Shaking
-        self.pick_and_place.call_cartesian_service([x, y, z + 0.25, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z - 0.25, roll, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z + 0.1, roll, pitch, yaw])
-        # self.pick_and_place.call_cartesian_service([x, y, z - 0.1, roll, pitch, yaw])
-        self.pick_and_place.call_cartesian_service([x, y, z, roll, pitch, yaw])
+        # Rolling
+        self.pick_and_place.call_move_joint_service(4, pi/8)
+        self.pick_and_place.call_move_joint_service(4, -pi/4)
+        self.pick_and_place.call_move_joint_service(4, pi/4)
+        self.pick_and_place.call_move_joint_service(4, -pi/4)
+        self.pick_and_place.call_move_joint_service(4, pi/8)
 
         if self.attached:
             self.benchmark_state = BenchmarkTestStates.SHAKE
