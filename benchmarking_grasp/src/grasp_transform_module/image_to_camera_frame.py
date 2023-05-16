@@ -124,7 +124,7 @@ class ImageToCameraFrame:
             curr_depth_img = img 
 
         if self.remove_noisy_ground_plane:
-            max_val = np.max(curr_depth_img)
+            max_val = np.mean(curr_depth_img[curr_depth_img > np.percentile(curr_depth_img, 90)]) 
             min_val = np.min(curr_depth_img)
 
             # Set all depth values in this 1cm range to the same value
@@ -347,7 +347,7 @@ class ImageToCameraFrame:
                 
         point_1 = self.get_pixels_around_point(depth_image.shape, (point_1_x, point_1_y), thickness)
         point_2 = self.get_pixels_around_point(depth_image.shape, (point_2_x, point_2_y), thickness)
-        center = self.get_pixels_around_point(depth_image.shape, (x, y), int(width/8))
+        center = self.get_pixels_around_point(depth_image.shape, (x, y), int(width/10))
 
         try:
             point_1_depth = np.min(depth_image[point_1[:, 0], point_1[:, 1]], axis=0)*self.depth_scale
@@ -357,7 +357,7 @@ class ImageToCameraFrame:
             rospy.logerr("Grasp out of image limits")
             return 500*self.depth_scale 
 
-        return min(center_depth + self.gripper_height - 0.01, point_1_depth - 0.02, point_2_depth - 0.02)
+        return min(center_depth + self.gripper_height - 0.015, point_1_depth - 0.015, point_2_depth - 0.015)
         
     def get_gripper_width(self, z):
         """

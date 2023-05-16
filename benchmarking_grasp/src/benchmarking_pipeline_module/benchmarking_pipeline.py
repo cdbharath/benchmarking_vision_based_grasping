@@ -263,6 +263,7 @@ class BenchmarkTest:
             self.pick_and_place.reach_cartesian_scanpose()
         else:
             self.pick_and_place.reach_scanpose()
+        self.pick_and_place.call_gripper_service(1)
 
     def go_to_home(self, data):
         """
