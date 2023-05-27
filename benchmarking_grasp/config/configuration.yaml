@@ -25,6 +25,7 @@ pc_roi: [-1, -0.24, -0.3, 1, 0.28, 0.36]        # pc_roi: [z_min, y_min, x_min, 
 # robot control params
 robot_default_velocity: 0.1                         # As a fraction of the maximum joint velocity 
 robot_approach_velocity: 0.05 
+benchmarking_velocity: 0.5
 
 record_video: true
 camera_name: "usb-046d_HD_Pro_Webcam_C920_0F85DE4F-video-index0"
