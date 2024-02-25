@@ -1,6 +1,10 @@
-# Benchmarking Vision based Grasp Detection algorithms
-
+# Towards More Robust and Reliable Vision-Based Grasping: A Benchmarking Study
 Research under Prof Berk Calli (Manipulation and Environmental Robotics Lab, Worcester Polytechnic Institute)
+
+<video controls width="500">
+  <source src="https://www.youtube.com/channel/UC9hGf-iULalcGm-iKmC_6Rw" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 This repository provides a pipeline for benchmarking vision based grasp detection algorithms. The pipeline performs manipulation(pick and place) of objects based on 3DOF/6DOF grasps detected by the grasp detection algorithms. The repository is tested with Franka Panda robot with Intel Realsense camera mounted on the end effector. 
 
