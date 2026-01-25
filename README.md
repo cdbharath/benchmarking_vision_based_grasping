@@ -1,7 +1,7 @@
 # Towards More Robust and Reliable Vision-Based Grasping: A Benchmarking Study
 Research under Prof Berk Calli (Manipulation and Environmental Robotics Lab, Worcester Polytechnic Institute) [[YouTube]](https://youtu.be/hmgh5JGP-Ak "[YouTube]")
 
-Docker version of this codebase is available [[here]][https://github.com/vinayakkapoor/vision_based_grasping_benchmarking "here"]
+Docker version of this codebase is available [here](https://github.com/vinayakkapoor/vision_based_grasping_benchmarking)
 
 <!---
 #### Video Demo of the benchmarking experiemnts
